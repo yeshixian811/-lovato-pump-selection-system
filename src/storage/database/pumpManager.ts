@@ -130,10 +130,10 @@ export class PumpManager {
     maxPressure?: number;
   }): Promise<Pump[]> {
     const filters: any = {
-      minFlowRate: options.flowRate * 0.8,
-      maxFlowRate: options.flowRate * 1.2,
-      minHead: options.head * 0.8,
-      maxHead: options.head * 1.2,
+      minFlowRate: options.flowRate * 0.95,
+      maxFlowRate: options.flowRate * 1.05,
+      minHead: options.head * 0.95,
+      maxHead: options.head * 1.05,
     };
 
     if (options.pumpType) {
