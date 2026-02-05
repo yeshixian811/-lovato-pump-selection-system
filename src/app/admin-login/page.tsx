@@ -17,6 +17,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [loginSuccess, setLoginSuccess] = useState(false)
+  const [token, setToken] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,8 +38,13 @@ export default function AdminLoginPage() {
         
         // 检查是否是管理员
         if (data.user?.role === 'admin') {
+          // 将token保存到sessionStorage作为备选方案
+          if (data.token) {
+            sessionStorage.setItem('admin_token', data.token)
+          }
           // 设置登录成功状态
           setLoginSuccess(true)
+          setToken(data.token || '')
         } else {
           setError('您没有管理员权限')
         }

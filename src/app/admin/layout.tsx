@@ -111,7 +111,21 @@ export default function AdminLayout({
   const checkAuth = async (retryCount = 0) => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/user/me')
+      // 尝试从sessionStorage获取token
+      const sessionToken = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') : null
+      
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+      
+      // 如果sessionStorage中有token，添加到Authorization header
+      if (sessionToken) {
+        headers['Authorization'] = `Bearer ${sessionToken}`
+      }
+
+      const response = await fetch('/api/user/me', {
+        headers
+      })
       
       if (response.ok) {
         const data = await response.json()
@@ -161,9 +175,12 @@ export default function AdminLayout({
       await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
       setIsAuthenticated(false)
+      // 清除sessionStorage中的token
+      sessionStorage.removeItem('admin_token')
       window.location.href = '/admin-login'
     } catch (error) {
       console.error('登出失败:', error)
+      sessionStorage.removeItem('admin_token')
       window.location.href = '/admin-login'
     }
   }

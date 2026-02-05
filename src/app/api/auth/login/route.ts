@@ -44,6 +44,9 @@ export async function POST(request: NextRequest) {
       role: user.role,
     });
 
+    console.log('登录成功 - 创建Token');
+    console.log('登录成功 - 用户角色:', user.role);
+
     // 返回用户信息（不包含密码）
     const { passwordHash: _, ...userWithoutPassword } = user;
 
@@ -51,18 +54,17 @@ export async function POST(request: NextRequest) {
       success: true,
       user: userWithoutPassword,
       message: '登录成功',
+      token: token, // 在响应中返回token作为备选方案
+    }, {
+      status: 200,
     });
 
-    // 设置cookie
-    response.cookies.set('auth_token', token, {
-      httpOnly: false, // 允许JavaScript访问（调试用）
-      secure: false, // 开发环境允许HTTP
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7天
-      path: '/',
-      domain: undefined, // 不设置domain，使用当前域
-    });
+    // 设置cookie使用Set-Cookie header
+    response.headers.append('Set-Cookie', 
+      `auth_token=${token}; Path=/; HttpOnly=false; Secure=false; SameSite=lax; Max-Age=${60 * 60 * 24 * 7}`
+    );
 
+    console.log('登录成功 - Cookie已设置');
     return response;
   } catch (error) {
     console.error('登录错误:', error);
