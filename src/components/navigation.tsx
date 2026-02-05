@@ -57,15 +57,12 @@ export default function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center">
             <img
               src="/luwatto-logo.png"
               alt="洛瓦托LOGO"
               className="h-8 w-auto"
             />
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white hidden sm:block">
-              洛瓦托水泵选型系统
-            </h1>
           </Link>
 
           {/* Desktop Navigation */}
