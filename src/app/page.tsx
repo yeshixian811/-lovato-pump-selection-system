@@ -1,4 +1,6 @@
 
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -14,7 +16,11 @@ export default function Home() {
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
             快速、精准、高效 - 根据您的需求智能匹配最合适的水泵产品
           </p>
-
+          <Link href="/selection">
+            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700">
+              开始选型
+            </Button>
+          </Link>
         </div>
 
         {/* Stats */}
