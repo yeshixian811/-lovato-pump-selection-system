@@ -189,15 +189,12 @@ export default function AdvancedSelectionPage() {
       {/* Header */}
       <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center">
             <img
               src="/luwatto-logo.png"
               alt="洛瓦托LOGO"
               className="h-8 sm:h-10 w-auto"
             />
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-              洛瓦托水泵选型系统
-            </h1>
           </Link>
           <nav className="flex gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
             <Link href="/products">
