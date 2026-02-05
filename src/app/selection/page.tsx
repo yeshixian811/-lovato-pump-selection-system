@@ -383,7 +383,7 @@ export default function AdvancedSelectionPage() {
                 {highlightedPump && (
                   <Card className="sticky top-4 z-10 border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
                     <CardHeader className="pb-1 px-4 py-2">
-                      <CardTitle className="text-sm">
+                      <CardTitle className="text-2xl">
                         当前选型
                       </CardTitle>
                     </CardHeader>
