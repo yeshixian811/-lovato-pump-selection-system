@@ -108,7 +108,7 @@ export default function AdminLayout({
     checkAuth()
   }, [])
 
-  const checkAuth = async () => {
+  const checkAuth = async (retryCount = 0) => {
     setIsLoading(true)
     try {
       const response = await fetch('/api/user/me')
@@ -126,6 +126,13 @@ export default function AdminLayout({
           }, 100)
         }
       } else {
+        // 如果是第一次失败且是401错误，可能是Cookie还没设置好，重试一次
+        if (response.status === 401 && retryCount === 0) {
+          console.log('第一次认证失败，1秒后重试...')
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          return checkAuth(retryCount + 1)
+        }
+        
         setIsAuthenticated(false)
         setTimeout(() => {
           window.location.href = '/admin-login'
@@ -133,6 +140,13 @@ export default function AdminLayout({
       }
     } catch (error) {
       console.error('认证检查失败:', error)
+      // 如果是第一次失败，重试一次
+      if (retryCount === 0) {
+        console.log('第一次认证失败，1秒后重试...')
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        return checkAuth(retryCount + 1)
+      }
+      
       setIsAuthenticated(false)
       setTimeout(() => {
         window.location.href = '/admin-login'

@@ -55,11 +55,12 @@ export async function POST(request: NextRequest) {
 
     // 设置cookie
     response.cookies.set('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      httpOnly: false, // 允许JavaScript访问（调试用）
+      secure: false, // 开发环境允许HTTP
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7天
       path: '/',
+      domain: undefined, // 不设置domain，使用当前域
     });
 
     return response;

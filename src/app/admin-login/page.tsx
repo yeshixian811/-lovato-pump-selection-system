@@ -16,6 +16,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [loginSuccess, setLoginSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,8 +37,8 @@ export default function AdminLoginPage() {
         
         // 检查是否是管理员
         if (data.user?.role === 'admin') {
-          // 使用 window.location.href 确保页面完全刷新，Cookie 能正确传递
-          window.location.href = '/admin'
+          // 设置登录成功状态
+          setLoginSuccess(true)
         } else {
           setError('您没有管理员权限')
         }
@@ -119,6 +120,22 @@ export default function AdminLoginPage() {
                 {isLoading ? '登录中...' : '登录'}
               </Button>
             </form>
+
+            {loginSuccess && (
+              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-green-900 dark:text-green-400 font-medium text-center mb-3">
+                  ✓ 登录成功！
+                </p>
+                <Button
+                  onClick={() => {
+                    window.location.href = '/admin'
+                  }}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  进入后台管理
+                </Button>
+              </div>
+            )}
 
             <div className="mt-6 space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
