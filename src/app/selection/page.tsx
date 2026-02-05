@@ -32,6 +32,8 @@ interface Pump {
   description: string | null;
   price: string | null;
   imageUrl: string | null;
+  flowMargin?: string; // 流量余量（%）
+  headMargin?: string; // 扬程余量（%）
 }
 
 export default function AdvancedSelectionPage() {
@@ -446,44 +448,34 @@ export default function AdvancedSelectionPage() {
                         {/* 参数余量信息 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
                           <div className="text-sm font-medium text-muted-foreground mb-2">
-                            参数余量（遵循选大不选小原则，余量≤5%）
+                            参数余量（基于水泵工作范围）
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">流量余量</div>
                               <div className={`text-xl font-bold ${
-                                parseFloat(calculateError(highlightedPump).flow) < 0
-                                  ? 'text-red-600'
-                                  : parseFloat(calculateError(highlightedPump).flow) <= 5
+                                parseFloat(highlightedPump.flowMargin || "0") <= 5
                                   ? 'text-green-600'
                                   : 'text-yellow-600'
                               }`}>
-                                {calculateError(highlightedPump).flow}%
+                                {highlightedPump.flowMargin || "-"}%
                               </div>
                             </div>
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">扬程余量</div>
                               <div className={`text-xl font-bold ${
-                                parseFloat(calculateError(highlightedPump).head) < 0
-                                  ? 'text-red-600'
-                                  : parseFloat(calculateError(highlightedPump).head) <= 5
+                                parseFloat(highlightedPump.headMargin || "0") <= 5
                                   ? 'text-green-600'
                                   : 'text-yellow-600'
                               }`}>
-                                {calculateError(highlightedPump).head}%
+                                {highlightedPump.headMargin || "-"}%
                               </div>
                             </div>
                           </div>
-                          {parseFloat(calculateError(highlightedPump).flow) < 0 || parseFloat(calculateError(highlightedPump).head) < 0 ? (
-                            <div className="mt-2 pt-2 border-t">
-                              <div className="text-xs text-red-600 font-medium">
-                                ⚠️ 余量为负，水泵参数小于需求，不符合"选大不选小"原则！
-                              </div>
-                            </div>
-                          ) : parseFloat(calculateError(highlightedPump).max) > 5 ? (
+                          {parseFloat(highlightedPump.flowMargin || "0") > 5 && parseFloat(highlightedPump.headMargin || "0") > 5 ? (
                             <div className="mt-2 pt-2 border-t">
                               <div className="text-xs text-yellow-600 font-medium">
-                                ⚠️ 余量超过5%，建议选择更接近需求的型号
+                                ℹ️ 余量较大，水泵有充足的工作范围冗余
                               </div>
                             </div>
                           ) : null}
@@ -667,39 +659,30 @@ export default function AdvancedSelectionPage() {
                             {/* 参数余量信息 */}
                             <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
                               <div className="text-xs text-muted-foreground mb-1">
-                                参数余量（遵循选大不选小原则，余量≤5%）
+                                参数余量（基于水泵工作范围）
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
                                   <span className="text-muted-foreground">流量余量：</span>
                                   <span className={`font-semibold ${
-                                    parseFloat(calculateError(pump).flow) < 0
-                                      ? 'text-red-600'
-                                      : parseFloat(calculateError(pump).flow) <= 5
+                                    parseFloat(pump.flowMargin || "0") <= 5
                                       ? 'text-green-600'
                                       : 'text-yellow-600'
                                   }`}>
-                                    {calculateError(pump).flow}%
+                                    {pump.flowMargin || "-"}%
                                   </span>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">扬程余量：</span>
                                   <span className={`font-semibold ${
-                                    parseFloat(calculateError(pump).head) < 0
-                                      ? 'text-red-600'
-                                      : parseFloat(calculateError(pump).head) <= 5
+                                    parseFloat(pump.headMargin || "0") <= 5
                                       ? 'text-green-600'
                                       : 'text-yellow-600'
                                   }`}>
-                                    {calculateError(pump).head}%
+                                    {pump.headMargin || "-"}%
                                   </span>
                                 </div>
                               </div>
-                              {(parseFloat(calculateError(pump).flow) < 0 || parseFloat(calculateError(pump).head) < 0) && (
-                                <div className="mt-1 text-xs text-red-600 font-medium">
-                                  ⚠️ 参数小于需求，不符合选型原则
-                                </div>
-                              )}
                             </div>
 
                             <div className="flex flex-wrap gap-1">

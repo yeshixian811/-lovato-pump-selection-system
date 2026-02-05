@@ -251,6 +251,30 @@ export const pumps = pgTable(
   })
 );
 
+// 水泵性能曲线数据点表
+export const pumpPerformancePoints = pgTable(
+  "pump_performance_points",
+  {
+    id: varchar("id", { length: 36 })
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    pumpId: varchar("pump_id", { length: 36 })
+      .notNull()
+      .references(() => pumps.id, { onDelete: "cascade" }),
+    flowRate: decimal("flow_rate", { precision: 10, scale: 2 }).notNull(), // 流量点 (m³/h)
+    head: decimal("head", { precision: 10, scale: 2 }).notNull(), // 该流量下的扬程 (m)
+    power: decimal("power", { precision: 10, scale: 2 }), // 该流量下的功率 (kW)
+    efficiency: decimal("efficiency", { precision: 5, scale: 2 }), // 该流量下的效率 (%)
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    pumpIdIdx: index("pump_performance_points_pump_id_idx").on(table.pumpId),
+    flowRateIdx: index("pump_performance_points_flow_rate_idx").on(table.flowRate),
+  })
+);
+
 // 使用 createSchemaFactory 配置 date coercion（处理前端 string → Date 转换）
 const { createInsertSchema: createCoercedInsertSchema } = createSchemaFactory({
   coerce: { date: true },
