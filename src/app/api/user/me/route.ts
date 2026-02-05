@@ -1,14 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth';
+import { userManager } from '@/storage/database/userManager';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser();
+    const token = request.cookies.get('auth_token')?.value;
 
-    if (!user) {
+    if (!token) {
       return NextResponse.json(
         { error: '未登录' },
         { status: 401 }
+      );
+    }
+
+    // 验证token
+    const decoded = await verifyToken(token);
+    
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json(
+        { error: 'Token无效' },
+        { status: 401 }
+      );
+    }
+
+    // 获取用户信息
+    const user = await userManager.getUserById(decoded.userId);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: '用户不存在' },
+        { status: 404 }
       );
     }
 
@@ -16,7 +37,6 @@ export async function GET(request: NextRequest) {
     const { passwordHash: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({
-      success: true,
       user: userWithoutPassword,
     });
   } catch (error) {

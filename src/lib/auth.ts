@@ -1,7 +1,5 @@
 import { cookies } from 'next/headers';
-import { users } from '@/db/schema/users';
-import { db } from '@/db';
-import { eq } from 'drizzle-orm';
+import { userManager } from '@/storage/database/userManager';
 import { jwtVerify, SignJWT } from 'jose';
 
 const SECRET_KEY = new TextEncoder().encode(
@@ -53,17 +51,13 @@ export async function getCurrentUser() {
   }
 
   // 检查用户是否仍然有效
-  const user = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, payload.userId))
-    .limit(1);
+  const user = await userManager.getUserById(payload.userId);
 
-  if (user.length === 0) {
+  if (!user) {
     return null;
   }
 
-  return user[0];
+  return user;
 }
 
 // 检查用户权限

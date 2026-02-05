@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { users, emailVerifications } from '@/db/schema';
-import { db } from '@/db';
-import { eq } from 'drizzle-orm';
+import { userManager } from '@/storage/database/userManager';
 import bcrypt from 'bcryptjs';
 import { createToken } from '@/lib/auth';
 import crypto from 'crypto';
@@ -37,13 +35,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查邮箱是否已存在
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email.toLowerCase()))
-      .limit(1);
-
-    if (existingUser.length > 0) {
+    const existingUser = await userManager.getUserByEmail(email);
+    if (existingUser) {
       return NextResponse.json(
         { error: '该邮箱已被注册' },
         { status: 409 }
@@ -54,17 +47,11 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // 创建用户
-    const [newUser] = await db
-      .insert(users)
-      .values({
-        email: email.toLowerCase(),
-        passwordHash,
-        name: name || email.split('@')[0],
-        role: 'user',
-        subscriptionTier: 'free',
-        subscriptionStatus: 'active',
-      })
-      .returning();
+    const newUser = await userManager.createUser({
+      email,
+      passwordHash,
+      name: name || email.split('@')[0],
+    });
 
     // 创建JWT token
     const token = await createToken({
@@ -79,11 +66,11 @@ export async function POST(request: NextRequest) {
     const emailVerificationExpiresAt = new Date();
     emailVerificationExpiresAt.setHours(emailVerificationExpiresAt.getHours() + 24); // 24小时后过期
 
-    await db.insert(emailVerifications).values({
-      userId: newUser.id,
-      token: emailVerificationToken,
-      expiresAt: emailVerificationExpiresAt,
-    });
+    await userManager.createEmailVerification(
+      newUser.id,
+      emailVerificationToken,
+      emailVerificationExpiresAt
+    );
 
     // 返回用户信息（不包含密码）
     const { passwordHash: _, ...userWithoutPassword } = newUser;

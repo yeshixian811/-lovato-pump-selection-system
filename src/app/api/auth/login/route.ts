@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { users } from '@/db/schema';
-import { db } from '@/db';
-import { eq } from 'drizzle-orm';
+import { userManager } from '@/storage/database/userManager';
 import bcrypt from 'bcryptjs';
 import { createToken } from '@/lib/auth';
 
@@ -19,12 +17,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 查找用户
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email.toLowerCase()))
-      .limit(1);
-
+    const user = await userManager.getUserByEmail(email);
+    
     if (!user) {
       return NextResponse.json(
         { error: '邮箱或密码错误' },
@@ -34,32 +28,12 @@ export async function POST(request: NextRequest) {
 
     // 验证密码
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: '邮箱或密码错误' },
         { status: 401 }
       );
-    }
-
-    // 检查订阅是否过期
-    if (user.subscriptionEndDate) {
-      const now = new Date();
-      const endDate = new Date(user.subscriptionEndDate);
-
-      if (now > endDate) {
-        // 更新为过期状态
-        await db
-          .update(users)
-          .set({
-            subscriptionStatus: 'expired',
-            subscriptionTier: 'free',
-            updatedAt: now,
-          })
-          .where(eq(users.id, user.id));
-
-        user.subscriptionStatus = 'expired';
-        user.subscriptionTier = 'free';
-      }
     }
 
     // 创建JWT token
