@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
 import { 
   Search, 
   Plus, 
@@ -34,6 +35,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 const textContents = [
   {
@@ -131,7 +140,8 @@ const getDeviceIcon = (device: string) => {
 
 export default function ContentTextPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingText, setEditingText] = useState<any>(null)
   const [editValue, setEditValue] = useState('')
 
   const filteredTexts = textContents.filter(text =>
@@ -141,19 +151,37 @@ export default function ContentTextPage() {
   )
 
   const handleEdit = (text: any) => {
-    setEditingId(text.id)
+    setEditingText(text)
     setEditValue(text.value)
+    setIsEditDialogOpen(true)
   }
 
   const handleSave = () => {
-    // 保存逻辑
-    setEditingId(null)
-    setEditValue('')
+    // 更新文本内容
+    const index = textContents.findIndex(t => t.id === editingText.id)
+    if (index !== -1) {
+      textContents[index] = {
+        ...textContents[index],
+        value: editValue,
+        lastModified: new Date().toISOString().split('T')[0]
+      }
+    }
+    setIsEditDialogOpen(false)
+    setEditingText(null)
   }
 
   const handleCancel = () => {
-    setEditingId(null)
-    setEditValue('')
+    setIsEditDialogOpen(false)
+    setEditingText(null)
+  }
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('确定要删除此文本内容吗？')) {
+      const index = textContents.findIndex(t => t.id === id)
+      if (index !== -1) {
+        textContents.splice(index, 1)
+      }
+    }
   }
 
   return (
@@ -285,36 +313,9 @@ export default function ContentTextPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {editingId === text.id ? (
-                      <div className="space-y-2">
-                        {text.type === 'textarea' ? (
-                          <Textarea
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            className="min-w-[300px] min-h-[80px]"
-                          />
-                        ) : (
-                          <Input
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            className="min-w-[300px]"
-                          />
-                        )}
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={handleSave}>
-                            <Save className="h-4 w-4 mr-1" />
-                            保存
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={handleCancel}>
-                            取消
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-700 dark:text-gray-300 max-w-[300px] truncate">
-                        {text.value}
-                      </div>
-                    )}
+                    <div className="text-sm text-gray-700 dark:text-gray-300 max-w-[300px] truncate">
+                      {text.value}
+                    </div>
                   </TableCell>
                   <TableCell className="text-gray-600 dark:text-gray-400">
                     {text.lastModified}
@@ -335,7 +336,7 @@ export default function ContentTextPage() {
                           <Code className="h-4 w-4 mr-2" />
                           查看代码
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(text.id)}>
                           <Trash2 className="h-4 w-4 mr-2" />
                           删除
                         </DropdownMenuItem>
@@ -348,6 +349,55 @@ export default function ContentTextPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* 编辑对话框 */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>编辑文本内容</DialogTitle>
+            <DialogDescription>
+              {editingText?.label} ({editingText?.key})
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="value">文本内容</Label>
+              {editingText?.type === 'textarea' ? (
+                <Textarea
+                  id="value"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  placeholder="输入文本内容"
+                  rows={6}
+                />
+              ) : (
+                <Input
+                  id="value"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  placeholder="输入文本内容"
+                />
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label>当前设备类型</Label>
+              <Badge variant="outline">
+                {getDeviceIcon(editingText?.device)}
+                <span className="ml-2">{editingText?.device}</span>
+              </Badge>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancel}>
+              取消
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="h-4 w-4 mr-2" />
+              保存
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

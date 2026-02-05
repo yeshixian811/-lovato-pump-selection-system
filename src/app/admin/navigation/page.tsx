@@ -39,6 +39,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 
 const navigationMenus = [
   {
@@ -156,23 +164,58 @@ const getIcon = (iconName: string) => {
 
 export default function NavigationManagementPage() {
   const [selectedMenu, setSelectedMenu] = useState<any>(navigationMenus[0])
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<any>(null)
-  const [editValue, setEditValue] = useState('')
+  const [editLabel, setEditLabel] = useState('')
+  const [editUrl, setEditUrl] = useState('')
+  const [editIcon, setEditIcon] = useState('')
+  const [editIsOpenInNewTab, setEditIsOpenInNewTab] = useState(false)
+  const [editIsActive, setEditIsActive] = useState(true)
 
   const handleEdit = (item: any) => {
     setEditingItem(item)
-    setEditValue(item.label)
+    setEditLabel(item.label)
+    setEditUrl(item.url)
+    setEditIcon(item.icon)
+    setEditIsOpenInNewTab(item.isOpenInNewTab)
+    setEditIsActive(item.isActive)
+    setIsEditDialogOpen(true)
   }
 
   const handleSave = () => {
-    // 保存逻辑
+    // 更新菜单项
+    const menuIndex = navigationMenus.findIndex(m => m.id === selectedMenu.id)
+    if (menuIndex !== -1) {
+      const itemIndex = navigationMenus[menuIndex].items.findIndex((i: any) => i.id === editingItem.id)
+      if (itemIndex !== -1) {
+        navigationMenus[menuIndex].items[itemIndex] = {
+          ...navigationMenus[menuIndex].items[itemIndex],
+          label: editLabel,
+          url: editUrl,
+          icon: editIcon,
+          isOpenInNewTab: editIsOpenInNewTab,
+          isActive: editIsActive,
+        }
+        setSelectedMenu(navigationMenus[menuIndex])
+      }
+    }
+    setIsEditDialogOpen(false)
     setEditingItem(null)
-    setEditValue('')
   }
 
   const handleCancel = () => {
+    setIsEditDialogOpen(false)
     setEditingItem(null)
-    setEditValue('')
+  }
+
+  const handleDelete = (itemId: number) => {
+    if (window.confirm('确定要删除此菜单项吗？')) {
+      const menuIndex = navigationMenus.findIndex(m => m.id === selectedMenu.id)
+      if (menuIndex !== -1) {
+        navigationMenus[menuIndex].items = navigationMenus[menuIndex].items.filter((i: any) => i.id !== itemId)
+        setSelectedMenu(navigationMenus[menuIndex])
+      }
+    }
   }
 
   const handleMoveUp = (index: number) => {
@@ -314,28 +357,9 @@ export default function NavigationManagementPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {editingItem?.id === item.id ? (
-                      <div className="space-y-2">
-                        <Input
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="min-w-[150px]"
-                        />
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={handleSave}>
-                            <Save className="h-3 w-3 mr-1" />
-                            保存
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={handleCancel}>
-                            取消
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {item.label}
-                      </div>
-                    )}
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      {item.label}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -380,7 +404,7 @@ export default function NavigationManagementPage() {
                           <Edit className="h-4 w-4 mr-2" />
                           编辑
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(item.id)}>
                           <Trash2 className="h-4 w-4 mr-2" />
                           删除
                         </DropdownMenuItem>
@@ -457,6 +481,89 @@ export default function NavigationManagementPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* 编辑对话框 */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>编辑菜单项</DialogTitle>
+            <DialogDescription>
+              修改菜单项的显示名称和链接
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="label">显示名称</Label>
+              <Input
+                id="label"
+                value={editLabel}
+                onChange={(e) => setEditLabel(e.target.value)}
+                placeholder="输入显示名称"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="url">链接地址</Label>
+              <Input
+                id="url"
+                value={editUrl}
+                onChange={(e) => setEditUrl(e.target.value)}
+                placeholder="输入链接地址"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="icon">图标</Label>
+              <Select value={editIcon} onValueChange={setEditIcon}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择图标" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="home">首页</SelectItem>
+                  <SelectItem value="layout">布局</SelectItem>
+                  <SelectItem value="shopping-cart">购物车</SelectItem>
+                  <SelectItem value="settings">设置</SelectItem>
+                  <SelectItem value="user">用户</SelectItem>
+                  <SelectItem value="file-text">文件</SelectItem>
+                  <SelectItem value="link">链接</SelectItem>
+                  <SelectItem value="logout">退出</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>新窗口打开</Label>
+                <p className="text-sm text-gray-500">
+                  在新标签页中打开链接
+                </p>
+              </div>
+              <Switch
+                checked={editIsOpenInNewTab}
+                onCheckedChange={setEditIsOpenInNewTab}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>启用状态</Label>
+                <p className="text-sm text-gray-500">
+                  是否在导航中显示此菜单项
+                </p>
+              </div>
+              <Switch
+                checked={editIsActive}
+                onCheckedChange={setEditIsActive}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancel}>
+              取消
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="h-4 w-4 mr-2" />
+              保存
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

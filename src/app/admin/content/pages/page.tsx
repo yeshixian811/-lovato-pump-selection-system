@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { 
   Search, 
   Plus, 
@@ -17,7 +19,9 @@ import {
   Home,
   ShoppingCart,
   FileText,
-  Info
+  Info,
+  Save,
+  X
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -25,6 +29,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const pages = [
   {
@@ -113,6 +132,44 @@ const getStatusBadge = (status: string) => {
 
 export default function ContentPagesPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editingPage, setEditingPage] = useState<any>(null)
+  const [editedName, setEditedName] = useState('')
+  const [editedSlug, setEditedSlug] = useState('')
+  const [editedStatus, setEditedStatus] = useState('')
+
+  const handleEdit = (page: any) => {
+    setEditingPage(page)
+    setEditedName(page.name)
+    setEditedSlug(page.slug)
+    setEditedStatus(page.status)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleSaveEdit = () => {
+    // 更新页面数据
+    const pageIndex = pages.findIndex(p => p.id === editingPage.id)
+    if (pageIndex !== -1) {
+      pages[pageIndex] = {
+        ...pages[pageIndex],
+        name: editedName,
+        slug: editedSlug,
+        status: editedStatus,
+        lastModified: new Date().toISOString().split('T')[0]
+      }
+    }
+    setIsEditDialogOpen(false)
+    setEditingPage(null)
+  }
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('确定要删除此页面吗？')) {
+      const index = pages.findIndex(p => p.id === id)
+      if (index !== -1) {
+        pages.splice(index, 1)
+      }
+    }
+  }
 
   const filteredPages = pages.filter(page =>
     page.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -249,11 +306,14 @@ export default function ContentPagesPage() {
                           <Eye className="h-4 w-4 mr-2" />
                           预览
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(page)}>
                           <Edit className="h-4 w-4 mr-2" />
                           编辑
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem 
+                          className="text-red-600"
+                          onClick={() => handleDelete(page.id)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           删除
                         </DropdownMenuItem>
@@ -266,6 +326,64 @@ export default function ContentPagesPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* 编辑对话框 */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>编辑页面</DialogTitle>
+            <DialogDescription>
+              修改页面的基本信息和状态
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">页面名称</Label>
+              <Input
+                id="name"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                placeholder="输入页面名称"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="slug">URL路径</Label>
+              <Input
+                id="slug"
+                value={editedSlug}
+                onChange={(e) => setEditedSlug(e.target.value)}
+                placeholder="输入URL路径"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="status">状态</Label>
+              <Select value={editedStatus} onValueChange={setEditedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择状态" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="published">已发布</SelectItem>
+                  <SelectItem value="draft">草稿</SelectItem>
+                  <SelectItem value="archived">已归档</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
+              <X className="h-4 w-4 mr-2" />
+              取消
+            </Button>
+            <Button onClick={handleSaveEdit}>
+              <Save className="h-4 w-4 mr-2" />
+              保存
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
