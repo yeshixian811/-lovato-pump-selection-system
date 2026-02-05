@@ -409,7 +409,6 @@ export default function AdvancedSelectionPage() {
                             </p>
                           </div>
                         </div>
-                        </div>
 
                         {/* 流量和扬程定位 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
