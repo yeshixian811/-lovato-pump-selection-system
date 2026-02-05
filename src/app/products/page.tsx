@@ -249,24 +249,28 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
             <img
               src="/luwatto-logo.png"
               alt="洛瓦托LOGO"
-              className="h-10 w-auto"
+              className="h-8 sm:h-10 w-auto"
             />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               洛瓦托水泵选型系统
             </h1>
           </Link>
-          <nav className="flex gap-4">
+          <nav className="flex gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
             <Link href="/products">
-              <Button variant="default">产品库</Button>
+              <Button variant="default" size="sm" className="w-full sm:w-auto">
+                产品库
+              </Button>
             </Link>
             <Link href="/selection">
-              <Button variant="ghost">高级选型</Button>
+              <Button variant="ghost" size="sm" className="w-full sm:w-auto">
+                高级选型
+              </Button>
             </Link>
           </nav>
         </div>
@@ -301,12 +305,12 @@ export default function ProductsPage() {
                     添加产品
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{editingPump ? "编辑产品" : "添加产品"}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="name">产品名称 *</Label>
                         <Combobox
@@ -538,17 +542,17 @@ export default function ProductsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>产品名称</TableHead>
-                        <TableHead>型号</TableHead>
-                        <TableHead>品牌</TableHead>
-                        <TableHead>泵类型</TableHead>
-                        <TableHead>材质</TableHead>
-                        <TableHead>流量 (m³/h)</TableHead>
-                        <TableHead>扬程 (m)</TableHead>
-                        <TableHead>功率 (kW)</TableHead>
-                        <TableHead>应用类型</TableHead>
-                        <TableHead>价格</TableHead>
-                        <TableHead className="text-right">操作</TableHead>
+                        <TableHead className="whitespace-nowrap">产品名称</TableHead>
+                        <TableHead className="whitespace-nowrap">型号</TableHead>
+                        <TableHead className="whitespace-nowrap">品牌</TableHead>
+                        <TableHead className="whitespace-nowrap">泵类型</TableHead>
+                        <TableHead className="whitespace-nowrap">材质</TableHead>
+                        <TableHead className="whitespace-nowrap">流量 (m³/h)</TableHead>
+                        <TableHead className="whitespace-nowrap">扬程 (m)</TableHead>
+                        <TableHead className="whitespace-nowrap">功率 (kW)</TableHead>
+                        <TableHead className="whitespace-nowrap">应用类型</TableHead>
+                        <TableHead className="whitespace-nowrap">价格</TableHead>
+                        <TableHead className="text-right whitespace-nowrap">操作</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -561,16 +565,16 @@ export default function ProductsPage() {
                       ) : (
                         pumps.map((pump) => (
                           <TableRow key={pump.id}>
-                            <TableCell className="font-medium">{pump.name}</TableCell>
-                            <TableCell>{pump.model}</TableCell>
-                            <TableCell>{pump.brand}</TableCell>
-                            <TableCell>{pump.pumpType || "-"}</TableCell>
-                            <TableCell>{pump.material || "-"}</TableCell>
-                            <TableCell>{pump.flowRate}</TableCell>
-                            <TableCell>{pump.head}</TableCell>
-                            <TableCell>{pump.power}</TableCell>
-                            <TableCell>{pump.applicationType || "-"}</TableCell>
-                            <TableCell>{pump.price || "-"}</TableCell>
+                            <TableCell className="font-medium whitespace-nowrap">{pump.name}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.model}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.brand}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.pumpType || "-"}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.material || "-"}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.flowRate}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.head}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.power}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.applicationType || "-"}</TableCell>
+                            <TableCell className="whitespace-nowrap">{pump.price || "-"}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <Button
