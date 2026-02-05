@@ -40,6 +40,8 @@ export default function AdvancedSelectionPage() {
   const [pumpType, setPumpType] = useState<string>("");
   const [material, setMaterial] = useState<string>("");
   const [applicationType, setApplicationType] = useState<string>("");
+  const [maxTemperature, setMaxTemperature] = useState<string>("");
+  const [maxPressure, setMaxPressure] = useState<string>("");
   const [results, setResults] = useState<Pump[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -112,6 +114,8 @@ export default function AdvancedSelectionPage() {
           pumpType: pumpType && pumpType !== "all" ? pumpType : undefined,
           material: material && material !== "all" ? material : undefined,
           applicationType: applicationType && applicationType !== "all" ? applicationType : undefined,
+          maxTemperature: maxTemperature ? parseFloat(maxTemperature) : undefined,
+          maxPressure: maxPressure ? parseFloat(maxPressure) : undefined,
         }),
       });
 
@@ -182,6 +186,8 @@ export default function AdvancedSelectionPage() {
     setPumpType("all");
     setMaterial("all");
     setApplicationType("all");
+    setMaxTemperature("");
+    setMaxPressure("");
   };
 
   return (
@@ -263,7 +269,7 @@ export default function AdvancedSelectionPage() {
                       <Filter className="h-4 w-4" />
                       筛选条件
                     </Label>
-                    {(pumpType !== "all" || material !== "all" || applicationType !== "all") && (
+                    {(pumpType !== "all" || material !== "all" || applicationType !== "all" || maxTemperature || maxPressure) && (
                       <Button variant="ghost" size="sm" onClick={clearFilters} className="h-6 text-xs">
                         <X className="h-3 w-3 mr-1" />
                         清空
@@ -320,6 +326,40 @@ export default function AdvancedSelectionPage() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div>
+                    <Label>最高介质温度（可选）</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="80"
+                        value={maxTemperature}
+                        onChange={(e) => setMaxTemperature(e.target.value)}
+                        className="pr-12"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        °C
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>最高压力（可选）</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="16"
+                        value={maxPressure}
+                        onChange={(e) => setMaxPressure(e.target.value)}
+                        className="pr-12"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                        bar
+                      </span>
+                    </div>
                   </div>
                 </div>
 

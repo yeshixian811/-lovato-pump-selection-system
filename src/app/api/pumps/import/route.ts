@@ -33,21 +33,33 @@ export async function POST(request: NextRequest) {
       try {
         const row = data[i] as any;
 
-        // 映射字段
+        // 映射字段（支持中文和英文列名）
         const pumpData = {
-          name: row["产品名称"] || row["name"],
-          model: row["产品型号"] || row["model"],
-          brand: row["品牌"] || row["brand"],
-          flowRate: row["流量"] || row["flowRate"],
-          head: row["扬程"] || row["head"],
-          power: row["功率"] || row["power"],
-          efficiency: row["效率"] || row["efficiency"],
-          speed: row["转速"] || row["speed"],
-          inletDiameter: row["进口直径"] || row["inletDiameter"],
-          outletDiameter: row["出口直径"] || row["outletDiameter"],
-          applicationType: row["应用类型"] || row["applicationType"],
-          description: row["描述"] || row["description"],
-          price: row["价格"] || row["price"],
+          name: row["产品名称"] || row["name"] || row["Name"],
+          model: row["产品型号"] || row["型号"] || row["model"] || row["Model"],
+          brand: row["品牌"] || row["brand"] || row["Brand"],
+          pumpType: row["泵类型"] || row["pumpType"] || row["Pump Type"] || row["类型"],
+          material: row["材质"] || row["material"] || row["Material"],
+          installationType: row["安装方式"] || row["installationType"] || row["Installation Type"],
+          motorType: row["电机类型"] || row["motorType"] || row["Motor Type"],
+          flowRate: row["流量"] || row["flowRate"] || row["Flow Rate"] || row["额定流量"],
+          head: row["扬程"] || row["head"] || row["Head"] || row["额定扬程"],
+          maxFlow: row["最大流量"] || row["maxFlow"] || row["Max Flow"],
+          maxHead: row["最大扬程"] || row["maxHead"] || row["Max Head"],
+          power: row["功率"] || row["power"] || row["Power"] || row["额定功率"],
+          efficiency: row["效率"] || row["efficiency"] || row["Efficiency"],
+          speed: row["转速"] || row["speed"] || row["Speed"] || row["额定转速"],
+          inletDiameter: row["进口直径"] || row["inletDiameter"] || row["Inlet Diameter"],
+          outletDiameter: row["出口直径"] || row["outletDiameter"] || row["Outlet Diameter"],
+          maxTemperature: row["最高温度"] || row["maxTemperature"] || row["Max Temperature"],
+          maxPressure: row["最高压力"] || row["maxPressure"] || row["Max Pressure"],
+          maxSolidSize: row["最大固体颗粒"] || row["maxSolidSize"] || row["Max Solid Size"],
+          applicationType: row["应用类型"] || row["applicationType"] || row["Application Type"] || row["应用场景"],
+          description: row["描述"] || row["description"] || row["Description"] || row["产品描述"],
+          features: row["特性"] || row["features"] || row["Features"],
+          price: row["价格"] || row["price"] || row["Price"],
+          weight: row["重量"] || row["weight"] || row["Weight"],
+          imageUrl: row["图片"] || row["imageUrl"] || row["Image URL"] || row["图片URL"],
         };
 
         await pumpManager.createPump(pumpData);

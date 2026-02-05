@@ -560,6 +560,11 @@ export default function ProductsPage() {
                   </Button>
                 </label>
               </div>
+
+              <Button variant="outline" onClick={() => window.open('/pump-import-template.txt', '_blank')}>
+                <Download className="h-4 w-4 mr-2" />
+                模板
+              </Button>
             </div>
 
             {/* Table */}
