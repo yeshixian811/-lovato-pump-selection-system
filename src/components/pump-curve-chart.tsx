@@ -5,40 +5,75 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 interface PumpCurveChartProps {
   pumpFlow: string; // 水泵额定流量 m³/h
   pumpHead: string; // 水泵额定扬程 m
+  pumpMaxFlow?: string | null; // 水泵最大流量 m³/h（可选）
+  pumpMaxHead?: string | null; // 水泵最大扬程 m（可选）
   userFlow: string; // 用户需求流量 m³/h
   userHead: string; // 用户需求扬程 m
 }
 
-export default function PumpCurveChart({ pumpFlow, pumpHead, userFlow, userHead }: PumpCurveChartProps) {
+export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMaxHead, userFlow, userHead }: PumpCurveChartProps) {
   // 解析数值
   const pumpFlowNum = parseFloat(pumpFlow);
   const pumpHeadNum = parseFloat(pumpHead);
   const userFlowNum = parseFloat(userFlow);
   const userHeadNum = parseFloat(userHead);
 
+  // 解析可选的最大流量和最大扬程
+  const pumpMaxFlowNum = pumpMaxFlow ? parseFloat(pumpMaxFlow) : null;
+  const pumpMaxHeadNum = pumpMaxHead ? parseFloat(pumpMaxHead) : null;
+
   // 生成模拟的 Q-H 曲线数据
   // 基于额定点生成性能曲线
   // 关闭扬程（Q=0）约为额定点扬程的 1.3 倍
-  // 最大流量约为额定点流量的 1.5 倍
+  // 如果有最大流量和最大扬程参数，则使用它们；否则使用默认估计值
   const generateCurveData = () => {
     const data = [];
-    // 从0到1.5倍额定流量
-    const maxFlow = pumpFlowNum * 1.5;
+
+    // 确定最大流量（优先使用提供的参数，否则估计为 1.5 倍额定流量）
+    const maxFlow = pumpMaxFlowNum || pumpFlowNum * 1.5;
+
+    // 确定关闭扬程（Q=0）
+    // 如果有最大扬程参数，使用它；否则估计为 1.3 倍额定扬程
+    const shutOffHead = pumpMaxHeadNum || pumpHeadNum * 1.3;
+
     const step = maxFlow / 30;
 
     // 使用二次函数生成曲线：H = a*x^2 + b*x + c
     // 其中 x = Q / Q_rated（相对流量）
     // 条件：
-    // 1. Q=0 时，H = 1.3 * H_rated（关闭扬程）
+    // 1. Q=0 时，H = shutOffHead（关闭扬程）
     // 2. Q=Q_rated 时，H = H_rated（额定点）
-    // 3. Q=1.5*Q_rated 时，H = 0（最大流量点）
+    // 3. Q=maxFlow 时，H = 0（最大流量点）
     const H_rated = pumpHeadNum;
-    const a = -1.1333 * H_rated;
-    const b = 0.8333 * H_rated;
-    const c = 1.3 * H_rated;
+    const Q_rated = pumpFlowNum;
+    const Q_max = maxFlow;
+    const H_0 = shutOffHead;
+
+    // 计算二次函数系数
+    // H = a*x^2 + b*x + c
+    // 其中 x = Q / Q_rated
+    // 在 x=0 时：c = H_0
+    // 在 x=1 时：a + b + c = H_rated
+    // 在 x=Q_max/Q_rated 时：a*(Q_max/Q_rated)^2 + b*(Q_max/Q_rated) + c = 0
+
+    const c = H_0;
+    const x_max = Q_max / Q_rated;
+
+    // 解方程组：
+    // a + b + c = H_rated
+    // a*x_max^2 + b*x_max + c = 0
+
+    // 从第一个方程：b = H_rated - a - c
+    // 代入第二个方程：a*x_max^2 + (H_rated - a - c)*x_max + c = 0
+    // a*x_max^2 - a*x_max + H_rated*x_max - c*x_max + c = 0
+    // a*(x_max^2 - x_max) = c*x_max - H_rated*x_max - c
+    // a = (c*x_max - H_rated*x_max - c) / (x_max^2 - x_max)
+
+    const a = (c * x_max - H_rated * x_max - c) / (x_max * x_max - x_max);
+    const b = H_rated - a - c;
 
     for (let flow = 0; flow <= maxFlow; flow += step) {
-      const x = flow / pumpFlowNum; // 相对流量
+      const x = flow / Q_rated; // 相对流量
       let head = a * x * x + b * x + c;
 
       // 确保扬程不为负

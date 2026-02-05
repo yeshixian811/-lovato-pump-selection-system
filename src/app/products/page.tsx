@@ -21,6 +21,8 @@ interface Pump {
   material: string | null;
   flowRate: string;
   head: string;
+  maxFlow: string | null;
+  maxHead: string | null;
   power: string;
   efficiency: string | null;
   speed: number | null;
@@ -46,6 +48,8 @@ export default function ProductsPage() {
     material: "",
     flowRate: "",
     head: "",
+    maxFlow: "",
+    maxHead: "",
     power: "",
     efficiency: "",
     speed: "",
@@ -169,6 +173,8 @@ export default function ProductsPage() {
       material: pump.material || "none",
       flowRate: pump.flowRate,
       head: pump.head,
+      maxFlow: pump.maxFlow || "",
+      maxHead: pump.maxHead || "",
       power: pump.power,
       efficiency: pump.efficiency || "",
       speed: pump.speed?.toString() || "",
@@ -192,6 +198,8 @@ export default function ProductsPage() {
       material: "none",
       flowRate: "",
       head: "",
+      maxFlow: "",
+      maxHead: "",
       power: "",
       efficiency: "",
       speed: "",
@@ -430,6 +438,28 @@ export default function ProductsPage() {
                           value={formData.head}
                           onChange={(e) => setFormData({ ...formData, head: e.target.value })}
                           required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="maxFlow">最大流量 (m³/h)</Label>
+                        <Input
+                          id="maxFlow"
+                          type="number"
+                          step="0.01"
+                          value={formData.maxFlow}
+                          onChange={(e) => setFormData({ ...formData, maxFlow: e.target.value })}
+                          placeholder="可选"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="maxHead">最大扬程 (m)</Label>
+                        <Input
+                          id="maxHead"
+                          type="number"
+                          step="0.01"
+                          value={formData.maxHead}
+                          onChange={(e) => setFormData({ ...formData, maxHead: e.target.value })}
+                          placeholder="可选"
                         />
                       </div>
                       <div>

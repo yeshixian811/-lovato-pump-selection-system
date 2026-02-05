@@ -21,6 +21,8 @@ interface Pump {
   material: string | null;
   flowRate: string;
   head: string;
+  maxFlow: string | null;
+  maxHead: string | null;
   power: string;
   efficiency: string | null;
   speed: number | null;
@@ -434,6 +436,8 @@ export default function AdvancedSelectionPage() {
                           <PumpCurveChart
                             pumpFlow={highlightedPump.flowRate}
                             pumpHead={highlightedPump.head}
+                            pumpMaxFlow={highlightedPump.maxFlow}
+                            pumpMaxHead={highlightedPump.maxHead}
                             userFlow={flowRate}
                             userHead={head}
                           />
