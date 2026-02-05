@@ -1,0 +1,20 @@
+name: Keep Website Alive
+
+on:
+  schedule:
+    # 每30分钟访问一次（UTC时间）
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping the website
+        run: |
+          # 访问你的网站，保持活跃
+          curl -I https://lovato-pump-selection-system-b6nh-30q2we343-yeshixians-projects.vercel.app
+          
+          # 可选：访问多个页面
+          # curl -I https://lovato-pump-selection-system-b6nh-30q2we343-yeshixians-projects.vercel.app/selection
