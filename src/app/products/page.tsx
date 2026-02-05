@@ -97,6 +97,8 @@ export default function ProductsPage() {
     try {
       const payload = {
         ...formData,
+        pumpType: formData.pumpType === "none" ? null : formData.pumpType,
+        material: formData.material === "none" ? null : formData.material,
         flowRate: parseFloat(formData.flowRate),
         head: parseFloat(formData.head),
         power: parseFloat(formData.power),
@@ -149,8 +151,8 @@ export default function ProductsPage() {
       name: pump.name,
       model: pump.model,
       brand: pump.brand,
-      pumpType: pump.pumpType || "",
-      material: pump.material || "",
+      pumpType: pump.pumpType || "none",
+      material: pump.material || "none",
       flowRate: pump.flowRate,
       head: pump.head,
       power: pump.power,
@@ -172,8 +174,8 @@ export default function ProductsPage() {
       name: "",
       model: "",
       brand: "",
-      pumpType: "",
-      material: "",
+      pumpType: "none",
+      material: "none",
       flowRate: "",
       head: "",
       power: "",
@@ -321,7 +323,7 @@ export default function ProductsPage() {
                             <SelectValue placeholder="选择类型" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">无</SelectItem>
+                            <SelectItem value="none">无</SelectItem>
                             <SelectItem value="离心泵">离心泵</SelectItem>
                             <SelectItem value="潜水泵">潜水泵</SelectItem>
                             <SelectItem value="螺杆泵">螺杆泵</SelectItem>
@@ -339,7 +341,7 @@ export default function ProductsPage() {
                             <SelectValue placeholder="选择材质" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">无</SelectItem>
+                            <SelectItem value="none">无</SelectItem>
                             <SelectItem value="铸铁">铸铁</SelectItem>
                             <SelectItem value="不锈钢">不锈钢</SelectItem>
                             <SelectItem value="塑料">塑料</SelectItem>

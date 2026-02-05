@@ -88,9 +88,9 @@ export default function AdvancedSelectionPage() {
         body: JSON.stringify({
           flowRate: parseFloat(flowRate),
           head: parseFloat(head),
-          pumpType: pumpType || undefined,
-          material: material || undefined,
-          applicationType: applicationType || undefined,
+          pumpType: pumpType && pumpType !== "all" ? pumpType : undefined,
+          material: material && material !== "all" ? material : undefined,
+          applicationType: applicationType && applicationType !== "all" ? applicationType : undefined,
         }),
       });
 
@@ -128,9 +128,9 @@ export default function AdvancedSelectionPage() {
   };
 
   const clearFilters = () => {
-    setPumpType("");
-    setMaterial("");
-    setApplicationType("");
+    setPumpType("all");
+    setMaterial("all");
+    setApplicationType("all");
   };
 
   const getScoreColor = (score: number) => {
@@ -234,7 +234,7 @@ export default function AdvancedSelectionPage() {
                       <Filter className="h-4 w-4" />
                       筛选条件
                     </Label>
-                    {(pumpType || material || applicationType) && (
+                    {(pumpType !== "all" || material !== "all" || applicationType !== "all") && (
                       <Button variant="ghost" size="sm" onClick={clearFilters} className="h-6 text-xs">
                         <X className="h-3 w-3 mr-1" />
                         清空
@@ -249,7 +249,7 @@ export default function AdvancedSelectionPage() {
                         <SelectValue placeholder="全部类型" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">全部类型</SelectItem>
+                        <SelectItem value="all">全部类型</SelectItem>
                         {pumpTypes.map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
@@ -266,7 +266,7 @@ export default function AdvancedSelectionPage() {
                         <SelectValue placeholder="全部材质" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">全部材质</SelectItem>
+                        <SelectItem value="all">全部材质</SelectItem>
                         {materials.map((mat) => (
                           <SelectItem key={mat} value={mat}>
                             {mat}
@@ -283,7 +283,7 @@ export default function AdvancedSelectionPage() {
                         <SelectValue placeholder="全部场景" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">全部场景</SelectItem>
+                        <SelectItem value="all">全部场景</SelectItem>
                         {applicationTypes.map((type) => (
                           <SelectItem key={type} value={type}>
                             {type}
