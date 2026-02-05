@@ -240,7 +240,7 @@ export default function ProductsPage() {
           <Link href="/" className="flex items-center gap-2">
             <Droplets className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              水泵选型系统
+              洛瓦托水泵选型系统
             </h1>
           </Link>
           <nav className="flex gap-4">

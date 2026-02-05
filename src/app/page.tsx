@@ -12,7 +12,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Droplets className="h-8 w-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              水泵选型系统
+              洛瓦托水泵选型系统
             </h1>
           </div>
           <nav className="flex gap-4">
@@ -32,7 +32,7 @@ export default function Home() {
           {/* Left Content */}
           <div>
             <h2 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              智能水泵选型系统
+              洛瓦托智能水泵选型系统
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
               快速、精准、高效 - 根据您的需求智能匹配最合适的水泵产品
