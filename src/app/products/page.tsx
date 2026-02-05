@@ -256,7 +256,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <PasswordProtect correctPassword="admin">
+    <PasswordProtect correctPassword="yezi100243">
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
         {/* Header */}
         <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
