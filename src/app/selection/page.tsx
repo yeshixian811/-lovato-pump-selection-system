@@ -383,31 +383,27 @@ export default function AdvancedSelectionPage() {
                 {highlightedPump && (
                   <Card className="sticky top-4 z-10 border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
                     <CardHeader className="pb-0 px-4 py-0 -mt-3">
-                      <CardTitle className="text-2xl">
-                        当前选型
-                      </CardTitle>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-2xl">
+                          当前选型
+                        </CardTitle>
+                        <img
+                          src="/assets/LOGO透明图.png"
+                          alt="洛瓦托"
+                          className="h-6 w-auto"
+                        />
+                      </div>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">
                       <div className="space-y-3">
                         {/* 水泵信息 */}
                         <div className="-mt-3">
-                          {/* LOGO置顶 */}
-                          <div className="flex justify-end mb-2">
-                            <img
-                              src="/assets/LOGO透明图.png"
-                              alt="洛瓦托"
-                              className="h-6 w-auto"
-                            />
-                          </div>
-                          {/* 水泵型号和品牌 */}
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-none">
-                              {highlightedPump.model}
-                            </h3>
-                            <p className="text-sm text-muted-foreground leading-tight">
-                              {highlightedPump.brand} · {highlightedPump.name}
-                            </p>
-                          </div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-none">
+                            {highlightedPump.model}
+                          </h3>
+                          <p className="text-sm text-muted-foreground leading-tight">
+                            {highlightedPump.brand} · {highlightedPump.name}
+                          </p>
                         </div>
 
                         {/* 流量和扬程定位 */}
