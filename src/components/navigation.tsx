@@ -8,8 +8,6 @@ import {
   Menu, 
   X, 
   Home, 
-  Search, 
-  Database, 
   User, 
   Crown,
   LogOut
@@ -48,8 +46,6 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/', label: '首页', icon: Home },
-    { href: '/selection', label: '选型工具', icon: Search },
-    { href: '/products', label: '产品库', icon: Database },
   ]
 
   return (

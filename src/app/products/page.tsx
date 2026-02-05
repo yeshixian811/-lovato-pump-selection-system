@@ -260,28 +260,16 @@ export default function ProductsPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
         {/* Header */}
         <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
-            <img
-              src="/luwatto-logo.png"
-              alt="洛瓦托LOGO"
-              className="h-8 sm:h-10 w-auto"
-            />
-          </Link>
-          <nav className="flex gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
-            <Link href="/products">
-              <Button variant="default" size="sm" className="w-full sm:w-auto">
-                产品库
-              </Button>
+          <div className="container mx-auto px-4 py-4 flex items-center justify-center">
+            <Link href="/" className="flex items-center">
+              <img
+                src="/luwatto-logo.png"
+                alt="洛瓦托LOGO"
+                className="h-8 sm:h-10 w-auto"
+              />
             </Link>
-            <Link href="/selection">
-              <Button variant="ghost" size="sm" className="w-full sm:w-auto">
-                高级选型
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+          </div>
+        </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
