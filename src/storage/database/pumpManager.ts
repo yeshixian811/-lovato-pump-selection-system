@@ -210,27 +210,9 @@ export class PumpManager {
       });
     }
 
-    // 第三步：如果"选大"的型号都没有，放宽条件，查找最接近的可用型号
-    // 计算与需求的距离，返回最接近的型号（即使参数略小于需求）
-    const allPumps = await this.getPumps({ limit: 50, filters: baseFilters });
-
-    if (allPumps.length > 0) {
-      // 按距离排序（综合考虑流量和扬程的差距）
-      return allPumps.sort((a, b) => {
-        // 计算综合距离（优先满足扬程，其次满足流量）
-        const headDiffA = Math.abs(parseFloat(a.head) - options.head) / options.head;
-        const flowDiffA = Math.abs(parseFloat(a.flowRate) - options.flowRate) / options.flowRate;
-        const totalDiffA = headDiffA * 2 + flowDiffA;  // 扬程权重更高
-
-        const headDiffB = Math.abs(parseFloat(b.head) - options.head) / options.head;
-        const flowDiffB = Math.abs(parseFloat(b.flowRate) - options.flowRate) / options.flowRate;
-        const totalDiffB = headDiffB * 2 + flowDiffB;
-
-        return totalDiffA - totalDiffB;
-      });
-    }
-
-    // 实在没有结果，返回空数组
+    // 第三步：如果没有"选大"的型号，返回空结果
+    // 遵循"选大不选小"原则，不推荐参数小于需求的型号
+    // 用户需要调整需求参数或联系客服
     return [];
   }
 }

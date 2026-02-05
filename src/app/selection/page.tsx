@@ -411,24 +411,42 @@ export default function AdvancedSelectionPage() {
                           <div className="grid grid-cols-2 gap-3">
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">流量余量</div>
-                              <div className={`text-xl font-bold ${parseFloat(calculateError(highlightedPump).flow) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                              <div className={`text-xl font-bold ${
+                                parseFloat(calculateError(highlightedPump).flow) < 0
+                                  ? 'text-red-600'
+                                  : parseFloat(calculateError(highlightedPump).flow) <= 5
+                                  ? 'text-green-600'
+                                  : 'text-yellow-600'
+                              }`}>
                                 {calculateError(highlightedPump).flow}%
                               </div>
                             </div>
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">扬程余量</div>
-                              <div className={`text-xl font-bold ${parseFloat(calculateError(highlightedPump).head) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                              <div className={`text-xl font-bold ${
+                                parseFloat(calculateError(highlightedPump).head) < 0
+                                  ? 'text-red-600'
+                                  : parseFloat(calculateError(highlightedPump).head) <= 5
+                                  ? 'text-green-600'
+                                  : 'text-yellow-600'
+                              }`}>
                                 {calculateError(highlightedPump).head}%
                               </div>
                             </div>
                           </div>
-                          {parseFloat(calculateError(highlightedPump).max) > 5 && (
+                          {parseFloat(calculateError(highlightedPump).flow) < 0 || parseFloat(calculateError(highlightedPump).head) < 0 ? (
                             <div className="mt-2 pt-2 border-t">
                               <div className="text-xs text-red-600 font-medium">
-                                ⚠️ 余量超过5%，建议重新选型
+                                ⚠️ 余量为负，水泵参数小于需求，不符合"选大不选小"原则！
                               </div>
                             </div>
-                          )}
+                          ) : parseFloat(calculateError(highlightedPump).max) > 5 ? (
+                            <div className="mt-2 pt-2 border-t">
+                              <div className="text-xs text-yellow-600 font-medium">
+                                ⚠️ 余量超过5%，建议选择更接近需求的型号
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
 
                         {/* 其他参数 */}
@@ -497,7 +515,8 @@ export default function AdvancedSelectionPage() {
                     <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">未找到匹配的产品</h3>
                     <p className="text-muted-foreground mb-4">
-                      请尝试调整搜索条件或联系客服
+                      遵循"选大不选小"原则，未找到流量和扬程都不小于需求的水泵。<br />
+                      请尝试调整需求参数或联系客服。
                     </p>
                     <Link href="/products">
                       <Button variant="outline">
@@ -588,17 +607,34 @@ export default function AdvancedSelectionPage() {
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
                                   <span className="text-muted-foreground">流量余量：</span>
-                                  <span className={`font-semibold ${parseFloat(calculateError(pump).flow) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                                  <span className={`font-semibold ${
+                                    parseFloat(calculateError(pump).flow) < 0
+                                      ? 'text-red-600'
+                                      : parseFloat(calculateError(pump).flow) <= 5
+                                      ? 'text-green-600'
+                                      : 'text-yellow-600'
+                                  }`}>
                                     {calculateError(pump).flow}%
                                   </span>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">扬程余量：</span>
-                                  <span className={`font-semibold ${parseFloat(calculateError(pump).head) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                                  <span className={`font-semibold ${
+                                    parseFloat(calculateError(pump).head) < 0
+                                      ? 'text-red-600'
+                                      : parseFloat(calculateError(pump).head) <= 5
+                                      ? 'text-green-600'
+                                      : 'text-yellow-600'
+                                  }`}>
                                     {calculateError(pump).head}%
                                   </span>
                                 </div>
                               </div>
+                              {(parseFloat(calculateError(pump).flow) < 0 || parseFloat(calculateError(pump).head) < 0) && (
+                                <div className="mt-1 text-xs text-red-600 font-medium">
+                                  ⚠️ 参数小于需求，不符合选型原则
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex flex-wrap gap-1">
