@@ -382,27 +382,27 @@ export default function AdvancedSelectionPage() {
                 {/* 右上角展示框 - 固定显示选型水泵 */}
                 {highlightedPump && (
                   <Card className="sticky top-4 z-10 border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
-                    <CardHeader className="pb-3 px-5 py-4">
-                      <CardTitle className="text-base flex items-center gap-2">
+                    <CardHeader className="pb-2 px-4 py-2">
+                      <CardTitle className="text-sm flex items-center gap-2">
                         <Droplets className="h-4 w-4 text-blue-600" />
                         当前选型
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-5">
-                      <div className="space-y-4">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
                         {/* 水泵信息 */}
                         <div>
                           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                             {highlightedPump.model}
                           </h3>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-sm text-muted-foreground mt-0.5">
                             {highlightedPump.brand} · {highlightedPump.name}
                           </p>
                         </div>
 
                         {/* 流量和扬程定位 */}
-                        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
-                          <div className="flex items-center justify-between mb-3">
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium text-muted-foreground">性能曲线</span>
                             <Badge className="bg-blue-600">
                               匹配度 {calculateMatchScore(highlightedPump)}%
@@ -421,11 +421,11 @@ export default function AdvancedSelectionPage() {
                         </div>
 
                         {/* 参数余量信息 */}
-                        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
-                          <div className="text-sm font-medium text-muted-foreground mb-3">
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
+                          <div className="text-sm font-medium text-muted-foreground mb-2">
                             参数余量（遵循选大不选小原则，余量≤5%）
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-2 gap-3">
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">流量余量</div>
                               <div className={`text-xl font-bold ${parseFloat(calculateError(highlightedPump).flow) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
@@ -440,7 +440,7 @@ export default function AdvancedSelectionPage() {
                             </div>
                           </div>
                           {parseFloat(calculateError(highlightedPump).max) > 5 && (
-                            <div className="mt-3 pt-3 border-t">
+                            <div className="mt-2 pt-2 border-t">
                               <div className="text-xs text-red-600 font-medium">
                                 ⚠️ 余量超过5%，建议重新选型
                               </div>
