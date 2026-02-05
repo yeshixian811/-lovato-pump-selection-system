@@ -45,7 +45,7 @@ const menuItems: MenuItem[] = [
   {
     icon: Users,
     label: '用户管理',
-    href: '/admin/users',
+    href: '/admin/dashboard',
     badge: '会员'
   },
   {
@@ -115,13 +115,13 @@ export default function AdminLayout({
         if (data.user?.role === 'admin') {
           setUser(data.user)
         } else {
-          router.push('/admin/login')
+          router.push('/admin-login')
         }
       } else {
-        router.push('/admin/login')
+        router.push('/admin-login')
       }
     } catch (error) {
-      router.push('/admin/login')
+      router.push('/admin-login')
     } finally {
       setIsLoading(false)
     }
@@ -130,7 +130,7 @@ export default function AdminLayout({
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
-      router.push('/admin/login')
+      router.push('/admin-login')
     } catch (error) {
       console.error('登出失败:', error)
     }
