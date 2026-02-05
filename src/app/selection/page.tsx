@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Droplets, Search, ArrowLeft, Check, ChevronRight, Filter, X, Heart, Share2 } from "lucide-react";
+import PumpCurveChart from "@/components/pump-curve-chart";
 
 interface Pump {
   id: string;
@@ -423,47 +424,19 @@ export default function AdvancedSelectionPage() {
                         {/* 流量和扬程定位 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
                           <div className="flex items-center justify-between mb-3">
-                            <span className="text-sm font-medium text-muted-foreground">参数定位</span>
+                            <span className="text-sm font-medium text-muted-foreground">性能曲线</span>
                             <Badge className="bg-blue-600">
                               匹配度 {calculateMatchScore(highlightedPump)}%
                             </Badge>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <div className="text-xs text-muted-foreground mb-1">流量需求</div>
-                              <div className="text-lg font-bold text-blue-600">
-                                {flowRate}
-                              </div>
-                              <div className="text-xs text-muted-foreground">m³/h</div>
-                            </div>
-                            <div>
-                              <div className="text-xs text-muted-foreground mb-1">扬程需求</div>
-                              <div className="text-lg font-bold text-blue-600">
-                                {head}
-                              </div>
-                              <div className="text-xs text-muted-foreground">m</div>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 pt-4 border-t">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <div className="text-xs text-muted-foreground mb-1">水泵流量</div>
-                                <div className="text-base font-semibold text-green-600">
-                                  {highlightedPump.flowRate}
-                                </div>
-                                <div className="text-xs text-muted-foreground">m³/h</div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground mb-1">水泵扬程</div>
-                                <div className="text-base font-semibold text-green-600">
-                                  {highlightedPump.head}
-                                </div>
-                                <div className="text-xs text-muted-foreground">m</div>
-                              </div>
-                            </div>
-                          </div>
+                          {/* Q-H 曲线图 */}
+                          <PumpCurveChart
+                            pumpFlow={highlightedPump.flowRate}
+                            pumpHead={highlightedPump.head}
+                            userFlow={flowRate}
+                            userHead={head}
+                          />
                         </div>
 
                         {/* 其他参数 */}
