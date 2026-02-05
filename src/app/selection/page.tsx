@@ -390,21 +390,6 @@ export default function AdvancedSelectionPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {/* 水泵图片 */}
-                        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
-                          {highlightedPump.imageUrl ? (
-                            <img
-                              src={highlightedPump.imageUrl}
-                              alt={highlightedPump.name}
-                              className="w-full h-40 object-contain"
-                            />
-                          ) : (
-                            <div className="w-full h-40 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
-                              <Droplets className="h-16 w-16 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-
                         {/* 水泵信息 */}
                         <div>
                           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
