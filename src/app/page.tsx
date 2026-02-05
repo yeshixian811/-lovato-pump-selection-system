@@ -5,6 +5,16 @@ import { Button } from "@/components/ui/button";
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-center">
+          <img
+            src="/luwatto-logo.png"
+            alt="洛瓦托LOGO"
+            className="h-8 sm:h-10 w-auto"
+          />
+        </div>
+      </header>
 
 
       {/* Hero Section */}
