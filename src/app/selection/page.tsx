@@ -712,6 +712,33 @@ export default function AdvancedSelectionPage() {
                       <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                         输入流量和扬程参数，系统将智能匹配最合适的水泵产品
                       </p>
+
+                      {/* 产品和品牌介绍 */}
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 max-w-md mx-auto border">
+                        <div className="space-y-4">
+                          {/* 产品介绍 */}
+                          <div>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">产品介绍</h4>
+                            <p className="text-sm text-muted-foreground">
+                              洛瓦托水泵系列涵盖多种类型，包括离心泵、增压泵、屏蔽泵等，
+                              广泛应用于供水系统、工业循环、消防系统、暖通空调等领域。
+                              产品具有高效节能、稳定可靠、维护简便等特点。
+                            </p>
+                          </div>
+
+                          {/* 品牌介绍 */}
+                          <div className="pt-4 border-t">
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">洛瓦托品牌</h4>
+                            <p className="text-sm text-muted-foreground">
+                              洛瓦托（Luwatto）专注于高品质水泵产品的研发与制造，
+                              拥有多年的行业经验和技术积累。
+                              产品通过严格的质量认证，远销海内外，深受用户信赖。
+                              我们致力于为用户提供高效、可靠、环保的水泵解决方案。
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="flex justify-center gap-4">
                         <Link href="/products">
                           <Button variant="outline">
