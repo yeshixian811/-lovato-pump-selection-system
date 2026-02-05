@@ -54,12 +54,9 @@ export default function AdvancedSelectionPage() {
   ];
 
   const materials = [
-    "铸铁",
     "不锈钢",
+    "铸铁",
     "塑料",
-    "铸钢",
-    "青铜",
-    "合金",
   ];
 
   const applicationTypes = [

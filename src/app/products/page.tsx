@@ -342,12 +342,9 @@ export default function ProductsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">无</SelectItem>
-                            <SelectItem value="铸铁">铸铁</SelectItem>
                             <SelectItem value="不锈钢">不锈钢</SelectItem>
+                            <SelectItem value="铸铁">铸铁</SelectItem>
                             <SelectItem value="塑料">塑料</SelectItem>
-                            <SelectItem value="铸钢">铸钢</SelectItem>
-                            <SelectItem value="青铜">青铜</SelectItem>
-                            <SelectItem value="合金">合金</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
