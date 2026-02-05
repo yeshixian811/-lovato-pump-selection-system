@@ -63,13 +63,13 @@ export default function AdvancedSelectionPage() {
   ];
 
   const applicationTypes = [
+    "暖通",
     "工业",
     "民用",
     "农业",
     "消防",
     "市政",
     "给排水",
-    "暖通",
   ];
 
   const handleSearch = async () => {
