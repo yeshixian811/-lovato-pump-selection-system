@@ -554,10 +554,35 @@ export default function AdvancedSelectionPage() {
                   <Card className="text-center py-16">
                     <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">未找到匹配的产品</h3>
-                    <p className="text-muted-foreground mb-4">
+                    <p className="text-muted-foreground mb-4 text-sm">
                       遵循"选大不选小"原则，未找到流量和扬程都不小于需求的水泵。<br />
-                      请尝试调整需求参数或联系客服。
+                      请尝试以下方法：
                     </p>
+                    <div className="text-left max-w-md mx-auto space-y-2 text-sm mb-4">
+                      <div className="flex items-start gap-2">
+                        <span className="text-blue-600">1.</span>
+                        <span>降低需求参数（流量、扬程）</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-blue-600">2.</span>
+                        <span>清空筛选条件（泵类型、材质、应用场景）</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-blue-600">3.</span>
+                        <span>联系客服咨询定制化方案</span>
+                      </div>
+                    </div>
+                    {(pumpType || material || applicationType) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="mb-4"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        清空筛选条件
+                      </Button>
+                    )}
                     <Link href="/products">
                       <Button variant="outline">
                         前往产品库
