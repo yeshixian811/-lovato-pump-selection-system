@@ -119,6 +119,7 @@ export class PumpManager {
 
   /**
    * 水泵选型：根据流量和扬程筛选合适的水泵
+   * 遵循"选大不选小"原则：水泵流量和扬程应大于或等于需求
    */
   async selectPumps(options: {
     flowRate: number;
@@ -130,10 +131,10 @@ export class PumpManager {
     maxPressure?: number;
   }): Promise<Pump[]> {
     const filters: any = {
-      minFlowRate: options.flowRate * 0.95,
-      maxFlowRate: options.flowRate * 1.05,
-      minHead: options.head * 0.95,
-      maxHead: options.head * 1.05,
+      minFlowRate: options.flowRate,  // 流量不能小于需求
+      maxFlowRate: options.flowRate * 1.05,  // 最多超出5%
+      minHead: options.head,  // 扬程不能小于需求
+      maxHead: options.head * 1.05,  // 最多超出5%
     };
 
     if (options.pumpType) {

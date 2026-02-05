@@ -150,13 +150,15 @@ export default function AdvancedSelectionPage() {
     const pumpFlow = parseFloat(pump.flowRate);
     const pumpHead = parseFloat(pump.head);
 
-    const flowError = Math.abs(pumpFlow - targetFlow) / targetFlow * 100;
-    const headError = Math.abs(pumpHead - targetHead) / targetHead * 100;
+    // 计算正向余量（水泵参数超出需求参数的百分比）
+    // 遵循"选大不选小"原则
+    const flowMargin = (pumpFlow - targetFlow) / targetFlow * 100;
+    const headMargin = (pumpHead - targetHead) / targetHead * 100;
 
     return {
-      flow: flowError.toFixed(1),
-      head: headError.toFixed(1),
-      max: Math.max(flowError, headError).toFixed(1)
+      flow: flowMargin.toFixed(1),
+      head: headMargin.toFixed(1),
+      max: Math.max(flowMargin, headMargin).toFixed(1)
     };
   };
 
@@ -458,20 +460,20 @@ export default function AdvancedSelectionPage() {
                           />
                         </div>
 
-                        {/* 误差信息 */}
+                        {/* 参数余量信息 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
                           <div className="text-sm font-medium text-muted-foreground mb-3">
-                            选型误差（要求≤5%）
+                            参数余量（遵循选大不选小原则，余量≤5%）
                           </div>
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <div className="text-xs text-muted-foreground mb-1">流量误差</div>
+                              <div className="text-xs text-muted-foreground mb-1">流量余量</div>
                               <div className={`text-xl font-bold ${parseFloat(calculateError(highlightedPump).flow) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
                                 {calculateError(highlightedPump).flow}%
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs text-muted-foreground mb-1">扬程误差</div>
+                              <div className="text-xs text-muted-foreground mb-1">扬程余量</div>
                               <div className={`text-xl font-bold ${parseFloat(calculateError(highlightedPump).head) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
                                 {calculateError(highlightedPump).head}%
                               </div>
@@ -480,7 +482,7 @@ export default function AdvancedSelectionPage() {
                           {parseFloat(calculateError(highlightedPump).max) > 5 && (
                             <div className="mt-3 pt-3 border-t">
                               <div className="text-xs text-red-600 font-medium">
-                                ⚠️ 误差超过5%，建议重新选型
+                                ⚠️ 余量超过5%，建议重新选型
                               </div>
                             </div>
                           )}
@@ -635,18 +637,20 @@ export default function AdvancedSelectionPage() {
                               </div>
                             </div>
 
-                            {/* 误差信息 */}
+                            {/* 参数余量信息 */}
                             <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
-                              <div className="text-xs text-muted-foreground mb-1">选型误差（要求≤5%）</div>
+                              <div className="text-xs text-muted-foreground mb-1">
+                                参数余量（遵循选大不选小原则，余量≤5%）
+                              </div>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
-                                  <span className="text-muted-foreground">流量误差：</span>
+                                  <span className="text-muted-foreground">流量余量：</span>
                                   <span className={`font-semibold ${parseFloat(calculateError(pump).flow) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
                                     {calculateError(pump).flow}%
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-muted-foreground">扬程误差：</span>
+                                  <span className="text-muted-foreground">扬程余量：</span>
                                   <span className={`font-semibold ${parseFloat(calculateError(pump).head) <= 5 ? 'text-green-600' : 'text-red-600'}`}>
                                     {calculateError(pump).head}%
                                   </span>
