@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
@@ -12,11 +13,20 @@ import {
   Settings,
   Users,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  LogOut,
+  User
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 interface MenuItem {
   icon: any
@@ -87,8 +97,44 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
   const pathname = usePathname()
   const [expandedItems, setExpandedItems] = useState<string[]>(['content'])
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/user/me')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.user?.role === 'admin') {
+          setUser(data.user)
+        } else {
+          router.push('/admin/login')
+        }
+      } else {
+        router.push('/admin/login')
+      }
+    } catch (error) {
+      router.push('/admin/login')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('登出失败:', error)
+    }
+  }
 
   const toggleExpand = (label: string) => {
     setExpandedItems(prev => 
@@ -146,6 +192,17 @@ export default function AdminLayout({
     )
   }
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
@@ -169,8 +226,43 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 p-8">
-        {children}
+      <main className="ml-64">
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
+          <div className="flex items-center justify-between px-8 py-4">
+            <div className="flex items-center gap-2">
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600">
+                管理员
+              </Badge>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {user?.email || 'admin@lovato.com'}
+              </span>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span>个人中心</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  个人信息
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        <div className="p-8">
+          {children}
+        </div>
       </main>
     </div>
   )
