@@ -4,13 +4,24 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { 
   Menu, 
   X, 
   Home, 
   User, 
   Crown,
-  LogOut
+  LogOut,
+  LayoutDashboard,
+  ShoppingCart,
+  Layout
 } from 'lucide-react'
 
 export default function Navigation() {
@@ -46,7 +57,11 @@ export default function Navigation() {
 
   const navItems = [
     { href: '/', label: '首页', icon: Home },
+    { href: '/products', label: '产品库', icon: ShoppingCart },
+    { href: '/selection', label: '智能选型', icon: Layout },
   ]
+
+  const isAdminPage = pathname.startsWith('/admin')
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
@@ -66,7 +81,7 @@ export default function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
+            {!isAdminPage && navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -114,6 +129,17 @@ export default function Navigation() {
                         用户中心
                       </Link>
                     </DropdownMenuItem>
+                    {user.role === 'admin' && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin">
+                            <LayoutDashboard className="mr-2 h-4 w-4" />
+                            后台管理
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
@@ -164,7 +190,7 @@ export default function Navigation() {
               </Link>
             </div>
 
-            {navItems.map((item) => (
+            {!isAdminPage && navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -198,6 +224,14 @@ export default function Navigation() {
                       用户中心
                     </Button>
                   </Link>
+                  {user.role === 'admin' && (
+                    <Link href="/admin" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        后台管理
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     variant="ghost"
                     className="w-full justify-start"
@@ -228,13 +262,3 @@ export default function Navigation() {
     </nav>
   )
 }
-
-// 临时导入，实际应该在组件文件顶部
-import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
