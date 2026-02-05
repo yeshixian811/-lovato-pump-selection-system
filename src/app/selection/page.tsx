@@ -390,9 +390,9 @@ export default function AdvancedSelectionPage() {
                     <CardContent className="p-4 pt-0">
                       <div className="space-y-3">
                         {/* 水泵信息 */}
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center justify-between gap-3 -mt-3">
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-none">
                               {highlightedPump.model}
                             </h3>
                             <p className="text-sm text-muted-foreground leading-tight">
