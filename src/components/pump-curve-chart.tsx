@@ -36,7 +36,9 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
     // 如果有最大扬程参数，使用它；否则估计为 1.3 倍额定扬程
     const shutOffHead = pumpMaxHeadNum || pumpHeadNum * 1.3;
 
-    const step = maxFlow / 30;
+    // 按照用户要求：流量以0.1 m³/h为单位分配，扬程以0.1米为单位分配
+    const flowStep = 0.1; // 流量步长 0.1 m³/h
+    const headStep = 0.1; // 扬程步长 0.1 m
 
     // 使用二次函数生成曲线：H = a*x^2 + b*x + c
     // 其中 x = Q / Q_rated（相对流量）
@@ -72,16 +74,20 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
     const a = (c * x_max - H_rated * x_max - c) / (x_max * x_max - x_max);
     const b = H_rated - a - c;
 
-    for (let flow = 0; flow <= maxFlow; flow += step) {
+    // 以流量为自变量，从0到最大流量，以0.1 m³/h为步长
+    for (let flow = 0; flow <= maxFlow; flow += flowStep) {
       const x = flow / Q_rated; // 相对流量
       let head = a * x * x + b * x + c;
 
       // 确保扬程不为负
       head = Math.max(0, head);
 
+      // 将扬程四舍五入到0.1米精度
+      const roundedHead = Math.round(head / headStep) * headStep;
+
       data.push({
-        flow: Number(flow.toFixed(2)),
-        head: Number(head.toFixed(2)),
+        flow: Number(flow.toFixed(1)),
+        head: Number(roundedHead.toFixed(1)),
       });
     }
     return data;
