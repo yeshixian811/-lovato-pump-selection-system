@@ -1,34 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/db'
-import { subscriptions } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminAuth } from '@/lib/admin-auth';
+import { userManager } from '@/storage/database/userManager';
 
-// 修改用户订阅状态
+// 修改用户订阅状态（仅管理员）
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // TODO: 添加管理员权限验证
-    
-    const { status } = await request.json()
-
-    if (!status || !['active', 'expired', 'canceled', 'past_due'].includes(status)) {
-      return NextResponse.json({ error: '无效的订阅状态' }, { status: 400 })
+    // 验证管理员权限
+    const authResult = await verifyAdminAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
     }
 
-    // 更新订阅状态
-    await db
-      .update(subscriptions)
-      .set({
-        status,
-        updatedAt: new Date(),
-      })
-      .where(eq(subscriptions.userId, params.id))
+    const { id } = await params;
+    const { status } = await request.json();
 
-    return NextResponse.json({ success: true })
+    if (!status || !['active', 'expired', 'canceled', 'past_due'].includes(status)) {
+      return NextResponse.json({ error: '无效的订阅状态' }, { status: 400 });
+    }
+
+    // 更新用户订阅状态
+    await userManager.updateUser(id, {
+      subscriptionStatus: status,
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('修改用户状态失败:', error)
-    return NextResponse.json({ error: '修改用户状态失败' }, { status: 500 })
+    console.error('修改用户状态失败:', error);
+    return NextResponse.json({ error: '修改用户状态失败' }, { status: 500 });
   }
 }

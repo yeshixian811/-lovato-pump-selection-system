@@ -1,13 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/db'
-import { users, subscriptions } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdminAuth } from '@/lib/admin-auth';
+import { getDb } from "coze-coding-dev-sdk";
+import { users, subscriptions } from '@/storage/database/shared/schema';
+import { eq } from 'drizzle-orm';
 
-// 获取用户列表
+// 获取用户列表（仅管理员）
 export async function GET(request: NextRequest) {
   try {
-    // TODO: 添加管理员权限验证
-    
+    // 验证管理员权限
+    const authResult = await verifyAdminAuth(request);
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const db = await getDb();
     const userList = await db
       .select({
         id: users.id,
@@ -16,18 +22,17 @@ export async function GET(request: NextRequest) {
         role: users.role,
         emailVerified: users.emailVerified,
         createdAt: users.createdAt,
-        subscriptionTier: subscriptions.tier,
-        subscriptionStatus: subscriptions.status,
-        subscriptionStartDate: subscriptions.startDate,
-        subscriptionEndDate: subscriptions.endDate,
+        subscriptionTier: users.subscriptionTier,
+        subscriptionStatus: users.subscriptionStatus,
+        subscriptionStartDate: users.subscriptionStartDate,
+        subscriptionEndDate: users.subscriptionEndDate,
       })
       .from(users)
-      .leftJoin(subscriptions, eq(users.id, subscriptions.userId))
-      .orderBy(users.createdAt)
+      .orderBy(users.createdAt);
 
-    return NextResponse.json({ users: userList })
+    return NextResponse.json({ users: userList });
   } catch (error) {
-    console.error('获取用户列表失败:', error)
-    return NextResponse.json({ error: '获取用户列表失败' }, { status: 500 })
+    console.error('获取用户列表失败:', error);
+    return NextResponse.json({ error: '获取用户列表失败' }, { status: 500 });
   }
 }
