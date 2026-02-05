@@ -102,26 +102,41 @@ export default function AdminLayout({
   const [expandedItems, setExpandedItems] = useState<string[]>(['content'])
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
     checkAuth()
   }, [])
 
   const checkAuth = async () => {
+    setIsLoading(true)
     try {
       const response = await fetch('/api/user/me')
+      
       if (response.ok) {
         const data = await response.json()
+        
         if (data.user?.role === 'admin') {
           setUser(data.user)
+          setIsAuthenticated(true)
         } else {
-          router.push('/admin-login')
+          setIsAuthenticated(false)
+          setTimeout(() => {
+            window.location.href = '/admin-login'
+          }, 100)
         }
       } else {
-        router.push('/admin-login')
+        setIsAuthenticated(false)
+        setTimeout(() => {
+          window.location.href = '/admin-login'
+        }, 100)
       }
     } catch (error) {
-      router.push('/admin-login')
+      console.error('认证检查失败:', error)
+      setIsAuthenticated(false)
+      setTimeout(() => {
+        window.location.href = '/admin-login'
+      }, 100)
     } finally {
       setIsLoading(false)
     }
@@ -130,9 +145,12 @@ export default function AdminLayout({
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
-      router.push('/admin-login')
+      setUser(null)
+      setIsAuthenticated(false)
+      window.location.href = '/admin-login'
     } catch (error) {
       console.error('登出失败:', error)
+      window.location.href = '/admin-login'
     }
   }
 
@@ -201,6 +219,10 @@ export default function AdminLayout({
         </div>
       </div>
     )
+  }
+
+  if (!isAuthenticated) {
+    return null // 将由重定向处理
   }
 
   return (

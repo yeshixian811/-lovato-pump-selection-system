@@ -30,12 +30,14 @@ export default function AdminLoginPage() {
         },
         body: JSON.stringify({ email, password }),
       })
-
+      
       if (response.ok) {
         const data = await response.json()
+        
         // 检查是否是管理员
         if (data.user?.role === 'admin') {
-          router.push('/admin')
+          // 使用 window.location.href 确保页面完全刷新，Cookie 能正确传递
+          window.location.href = '/admin'
         } else {
           setError('您没有管理员权限')
         }
