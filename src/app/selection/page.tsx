@@ -391,13 +391,20 @@ export default function AdvancedSelectionPage() {
                     <CardContent className="p-4">
                       <div className="space-y-3">
                         {/* 水泵信息 */}
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                            {highlightedPump.model}
-                          </h3>
-                          <p className="text-sm text-muted-foreground mt-0.5">
-                            {highlightedPump.brand} · {highlightedPump.name}
-                          </p>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                              {highlightedPump.model}
+                            </h3>
+                            <p className="text-sm text-muted-foreground leading-tight">
+                              {highlightedPump.brand} · {highlightedPump.name}
+                            </p>
+                          </div>
+                          <img
+                            src="/assets/LOGO透明图.png"
+                            alt="洛瓦托"
+                            className="h-6 w-auto"
+                          />
                         </div>
 
                         {/* 流量和扬程定位 */}
