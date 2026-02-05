@@ -160,6 +160,12 @@ export default function Navigation() {
                     注册
                   </Button>
                 </Link>
+                <Link href="/admin-login">
+                  <Button variant="outline" size="sm">
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    后台
+                  </Button>
+                </Link>
               </>
             )}
           </div>
@@ -251,6 +257,12 @@ export default function Navigation() {
                   <Link href="/auth?tab=register" onClick={() => setIsMenuOpen(false)}>
                     <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
                       注册
+                    </Button>
+                  </Link>
+                  <Link href="/admin-login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      后台管理
                     </Button>
                   </Link>
                 </div>
