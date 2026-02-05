@@ -382,13 +382,12 @@ export default function AdvancedSelectionPage() {
                 {/* 右上角展示框 - 固定显示选型水泵 */}
                 {highlightedPump && (
                   <Card className="sticky top-4 z-10 border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
-                    <CardHeader className="pb-2 px-4 py-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <Droplets className="h-4 w-4 text-blue-600" />
+                    <CardHeader className="pb-1 px-4 py-2">
+                      <CardTitle className="text-sm">
                         当前选型
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 pt-2">
                       <div className="space-y-3">
                         {/* 水泵信息 */}
                         <div className="flex items-center justify-between gap-3">
