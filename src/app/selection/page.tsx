@@ -663,91 +663,132 @@ export default function AdvancedSelectionPage() {
 
             {/* Default View - Before Search */}
             {!searched && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
-                  <CardContent className="pt-6">
-                    <div className="text-center py-8">
-                      <Droplets className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-bold mb-2">开始您的选型之旅</h3>
-                      <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                  <CardContent className="p-6">
+                    <div className="text-center mb-6">
+                      <Droplets className="h-12 w-12 text-blue-600 mx-auto mb-3" />
+                      <h3 className="text-2xl font-bold mb-2">开始您的选型之旅</h3>
+                      <p className="text-muted-foreground">
                         输入流量和扬程参数，系统将智能匹配最合适的水泵产品
                       </p>
+                    </div>
 
-                      {/* 选型指导 */}
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 max-w-4xl mx-auto border text-left">
-                        <div className="space-y-6">
-                          {/* 一次系统选型指导 */}
-                          <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg">一次系统洛瓦托水泵选型</h4>
-                            <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4 mb-3">
-                              <p className="text-sm text-gray-800 dark:text-gray-200 mb-2">
-                                <strong>假设：</strong>套房面积150平方，选择一台20KW主机，主机水压降40Kpa，流量3.6吨，系统主管道最不利点单程20米，来回40米
-                              </p>
+                    {/* 选型指导 */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-5 border text-left mb-6">
+                      <div className="space-y-5">
+                        {/* 一次系统选型指导 */}
+                        <div>
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                            <span className="h-6 w-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                            一次系统选型
+                          </h4>
+                          <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3 mb-3 border-l-4 border-blue-600">
+                            <p className="text-sm text-gray-800 dark:text-gray-200">
+                              <strong>假设：</strong>套房150m²，20KW主机，主机水压降40Kpa，流量3.6吨，系统主管道最不利点单程20米，来回40米
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
+                              <p className="text-xs text-muted-foreground mb-1">主管道扬程</p>
+                              <p className="font-semibold">2.4米</p>
                             </div>
-                            <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                              <p><strong>扬程为：</strong>主管道长度×600pa每米=40×600=24000pa=24000/1000=24Kpa=2.4米</p>
-                              <p><strong>主机水压降：</strong>40Kpa=40/10=4米</p>
-                              <p><strong>风机盘管：</strong>选4米扬程</p>
-                              <p className="pt-2 pb-2 border-b"><strong>总扬程为：</strong>主机4米+主管道2.4米+风机盘管4米=<span className="text-blue-600 font-bold">10.4米扬程</span></p>
+                            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
+                              <p className="text-xs text-muted-foreground mb-1">主机水压降</p>
+                              <p className="font-semibold">4米</p>
+                            </div>
+                            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
+                              <p className="text-xs text-muted-foreground mb-1">风机盘管</p>
+                              <p className="font-semibold">4米</p>
+                            </div>
+                            <div className="bg-blue-100 dark:bg-blue-900 rounded p-2 border-2 border-blue-600">
+                              <p className="text-xs text-blue-800 dark:text-blue-200 mb-1">总扬程</p>
+                              <p className="font-bold text-blue-900 dark:text-blue-100">10.4米</p>
                             </div>
                           </div>
+                        </div>
 
-                          {/* 二次系统选型指导 */}
-                          <div className="pt-4 border-t">
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg">二次系统洛瓦托水泵选型</h4>
-                            <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                              <p>• 二次系统主机侧参考主机流量及水压降+1米即可</p>
-                              <p>• 二次系统二次侧流量参考主机</p>
-                              <p>• 二次侧扬程=主管道沿程阻力及局部阻力（600pa每米）+末端阻力（最大4米）</p>
-                              <p>• 二次系统匹配水泵时，需要考虑冷热源侧和二次侧的流量，避免两侧流量失衡</p>
-                              <p>• 二次系统多层分层输配时，二次侧水泵针对每个区，应考虑每个区域的同开系数，避免流量扬程过大，导致室内水流噪音的产生</p>
+                        {/* 二次系统选型指导 */}
+                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                            <span className="h-6 w-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                            二次系统选型
+                          </h4>
+                          <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <div className="space-y-1.5">
+                              <p className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>主机侧：参考主机流量及水压降+1米</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>二次侧流量：参考主机流量</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>二次侧扬程：主管道阻力(600pa/m)+末端阻力(≤4米)</span>
+                              </p>
+                            </div>
+                            <div className="space-y-1.5">
+                              <p className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>匹配水泵时，考虑冷热源侧和二次侧流量平衡</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>多层分层输配时，考虑区域同开系数</span>
+                              </p>
+                              <p className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>避免流量扬程过大，防止室内水流噪音</span>
+                              </p>
                             </div>
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      <div className="flex justify-center gap-4">
-                        <Link href="/products">
-                          <Button variant="outline">
-                            浏览全部产品
-                          </Button>
-                        </Link>
-                      </div>
+                    <div className="flex justify-center">
+                      <Link href="/products">
+                        <Button variant="outline" size="sm">
+                          浏览全部产品
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Features */}
-                <div className="grid md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardContent className="pt-6 text-center">
-                      <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Search className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="grid md:grid-cols-3 gap-3">
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 text-center">
+                      <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Search className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <h4 className="font-semibold mb-2">智能匹配</h4>
-                      <p className="text-sm text-muted-foreground">
-                        基于您的需求参数，智能推荐最合适的产品
+                      <h4 className="font-semibold text-sm mb-1">智能匹配</h4>
+                      <p className="text-xs text-muted-foreground">
+                        基于需求参数，智能推荐最合适的产品
                       </p>
                     </CardContent>
                   </Card>
-                  <Card>
-                    <CardContent className="pt-6 text-center">
-                      <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 text-center">
+                      <div className="h-10 w-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
                       </div>
-                      <h4 className="font-semibold mb-2">精准选型</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-semibold text-sm mb-1">精准选型</h4>
+                      <p className="text-xs text-muted-foreground">
                         考虑多种因素，提供专业的选型建议
                       </p>
                     </CardContent>
                   </Card>
-                  <Card>
-                    <CardContent className="pt-6 text-center">
-                      <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Heart className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 text-center">
+                      <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <Heart className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                       </div>
-                      <h4 className="font-semibold mb-2">产品对比</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-semibold text-sm mb-1">产品对比</h4>
+                      <p className="text-xs text-muted-foreground">
                         支持多产品对比，轻松找到最优方案
                       </p>
                     </CardContent>
