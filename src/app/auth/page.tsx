@@ -103,21 +103,10 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <img
-              src="/luwatto-logo.png"
-              alt="洛瓦托LOGO"
-              className="h-12 w-auto"
-            />
-            <div className="text-left">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                洛瓦托
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                水泵选型系统
-              </p>
-            </div>
-          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            登录 / 注册
+          </h1>
+        </div>
         </div>
 
         {/* 认证卡片 */}

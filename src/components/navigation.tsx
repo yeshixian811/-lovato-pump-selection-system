@@ -52,15 +52,6 @@ export default function Navigation() {
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <img
-              src="/luwatto-logo.png"
-              alt="洛瓦托LOGO"
-              className="h-8 w-auto"
-            />
-          </Link>
-
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
