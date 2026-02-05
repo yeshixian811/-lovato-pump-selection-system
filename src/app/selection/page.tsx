@@ -188,7 +188,15 @@ export default function AdvancedSelectionPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-900">
       {/* Header */}
       <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4"></div>
+        <div className="container mx-auto px-4 py-4 flex items-center justify-center">
+          <Link href="/" className="flex items-center">
+            <img
+              src="/luwatto-logo.png"
+              alt="洛瓦托LOGO"
+              className="h-8 sm:h-10 w-auto"
+            />
+          </Link>
+        </div>
       </header>
 
       {/* Main Content */}
