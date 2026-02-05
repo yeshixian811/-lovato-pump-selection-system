@@ -217,26 +217,26 @@ export default function AdvancedSelectionPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <Link href="/" className="hover:text-foreground">首页</Link>
           <ChevronRight className="h-4 w-4" />
           <span className="text-foreground font-medium">高级选型</span>
         </div>
 
-        <div className="grid lg:grid-cols-[400px_1fr] gap-6">
+        <div className="grid xl:grid-cols-[380px_1fr] lg:grid-cols-[350px_1fr] gap-6">
           {/* Left Sidebar - Search Form */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             <Card className="shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
-                <CardTitle className="flex items-center gap-2">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-5 py-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <Search className="h-5 w-5" />
                   选型参数
                 </CardTitle>
-                <CardDescription className="text-blue-100">
+                <CardDescription className="text-blue-100 text-sm">
                   输入您的需求，智能匹配最合适的产品
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-6 space-y-4">
+              <CardContent className="p-5 space-y-4">
                 {/* 流量和扬程 */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -360,11 +360,11 @@ export default function AdvancedSelectionPage() {
             {/* 已选产品 */}
             {selectedPumps.size > 0 && (
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="text-base">已选产品 ({selectedPumps.size})</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <Button className="w-full" variant="outline">
+                <CardContent className="pt-0">
+                  <Button className="w-full" variant="outline" size="sm">
                     <Share2 className="h-4 w-4 mr-2" />
                     对比已选产品
                   </Button>
@@ -376,19 +376,19 @@ export default function AdvancedSelectionPage() {
           </div>
 
           {/* Right Content - Results */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {searched && (
               <>
                 {/* 右上角展示框 - 固定显示选型水泵 */}
                 {highlightedPump && (
                   <Card className="sticky top-4 z-10 border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Droplets className="h-5 w-5 text-blue-600" />
+                    <CardHeader className="pb-3 px-5 py-4">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Droplets className="h-4 w-4 text-blue-600" />
                         当前选型
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-5">
                       <div className="space-y-4">
                         {/* 水泵信息 */}
                         <div>
@@ -474,7 +474,7 @@ export default function AdvancedSelectionPage() {
                 )}
 
                 {/* Results Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                       选型结果
@@ -485,7 +485,7 @@ export default function AdvancedSelectionPage() {
                         : `找到 ${results.length} 个匹配产品`}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <Button
                       size="sm"
                       variant={viewMode === "grid" ? "default" : "outline"}
@@ -505,12 +505,12 @@ export default function AdvancedSelectionPage() {
 
                 {/* Results Grid */}
                 {loading ? (
-                  <div className="text-center py-12">
+                  <div className="text-center py-16">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-muted-foreground">搜索中...</p>
                   </div>
                 ) : results.length === 0 ? (
-                  <Card className="text-center py-12">
+                  <Card className="text-center py-16">
                     <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">未找到匹配的产品</h3>
                     <p className="text-muted-foreground mb-4">
@@ -525,7 +525,7 @@ export default function AdvancedSelectionPage() {
                 ) : (
                   <div className={
                     viewMode === "grid"
-                      ? "grid md:grid-cols-2 xl:grid-cols-3 gap-4"
+                      ? "grid md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4"
                       : "space-y-4"
                   }>
                     {results
@@ -578,7 +578,7 @@ export default function AdvancedSelectionPage() {
                               </Button>
                             </div>
                           </CardHeader>
-                          <CardContent className="space-y-3">
+                          <CardContent className="space-y-3 pt-4">
                             <div className="grid grid-cols-3 gap-2 text-sm">
                               <div>
                                 <div className="text-muted-foreground">流量</div>
@@ -675,7 +675,7 @@ export default function AdvancedSelectionPage() {
                     </div>
 
                     {/* 选型指导 */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-5 border text-left mb-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border text-left mb-6">
                       <div className="space-y-5">
                         {/* 一次系统选型指导 */}
                         <div>
