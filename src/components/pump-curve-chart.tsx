@@ -3,8 +3,8 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot } from "recharts";
 
 interface PumpCurveChartProps {
-  pumpFlow: string; // 水泵流量 m³/h
-  pumpHead: string; // 水泵扬程 m
+  pumpFlow: string; // 水泵额定流量 m³/h
+  pumpHead: string; // 水泵额定扬程 m
   userFlow: string; // 用户需求流量 m³/h
   userHead: string; // 用户需求扬程 m
 }
@@ -17,17 +17,29 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, userFlow, userHead 
   const userHeadNum = parseFloat(userHead);
 
   // 生成模拟的 Q-H 曲线数据
-  // 水泵的流量-扬程曲线通常呈下降趋势
+  // 基于额定点生成性能曲线
+  // 关闭扬程（Q=0）约为额定点扬程的 1.3 倍
+  // 最大流量约为额定点流量的 1.5 倍
   const generateCurveData = () => {
     const data = [];
-    // 从0到1.5倍标称流量
+    // 从0到1.5倍额定流量
     const maxFlow = pumpFlowNum * 1.5;
-    const step = maxFlow / 20;
+    const step = maxFlow / 30;
+
+    // 使用二次函数生成曲线：H = a*x^2 + b*x + c
+    // 其中 x = Q / Q_rated（相对流量）
+    // 条件：
+    // 1. Q=0 时，H = 1.3 * H_rated（关闭扬程）
+    // 2. Q=Q_rated 时，H = H_rated（额定点）
+    // 3. Q=1.5*Q_rated 时，H = 0（最大流量点）
+    const H_rated = pumpHeadNum;
+    const a = -1.1333 * H_rated;
+    const b = 0.8333 * H_rated;
+    const c = 1.3 * H_rated;
 
     for (let flow = 0; flow <= maxFlow; flow += step) {
-      // 使用二次函数模拟曲线：H = H_max * (1 - (Q / Q_max)^2)
-      // 这是一个简化的模型，实际水泵曲线需要更复杂的公式
-      let head = pumpHeadNum * (1 - 0.3 * (flow / pumpFlowNum) - 0.7 * Math.pow(flow / pumpFlowNum, 2));
+      const x = flow / pumpFlowNum; // 相对流量
+      let head = a * x * x + b * x + c;
 
       // 确保扬程不为负
       head = Math.max(0, head);
@@ -80,7 +92,7 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, userFlow, userHead 
             name="性能曲线"
           />
 
-          {/* 水泵工作点 */}
+          {/* 水泵额定点（最佳工作点） */}
           <ReferenceDot
             x={pumpFlowNum}
             y={pumpHeadNum}
@@ -88,7 +100,7 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, userFlow, userHead 
             fill="#16a34a"
             stroke="white"
             strokeWidth={2}
-            label={{ value: "水泵点", position: "top", offset: 5 }}
+            label={{ value: "额定点", position: "top", offset: 5 }}
           />
 
           {/* 用户需求工作点 */}
