@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, Database, Settings, Droplets } from "lucide-react";
 
 export default function Home() {
   return (
@@ -46,22 +44,6 @@ export default function Home() {
                 立即选型
               </Button>
             </Link>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto mt-16">
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600">100+</div>
-            <div className="text-gray-600 dark:text-gray-400 mt-2">产品型号</div>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-cyan-600">99%</div>
-            <div className="text-gray-600 dark:text-gray-400 mt-2">匹配准确率</div>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-purple-600">24/7</div>
-            <div className="text-gray-600 dark:text-gray-400 mt-2">在线服务</div>
           </div>
         </div>
       </main>
