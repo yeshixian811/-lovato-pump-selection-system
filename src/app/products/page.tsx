@@ -324,13 +324,21 @@ export default function ProductsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">无</SelectItem>
-                            <SelectItem value="离心泵">离心泵</SelectItem>
-                            <SelectItem value="潜水泵">潜水泵</SelectItem>
-                            <SelectItem value="螺杆泵">螺杆泵</SelectItem>
-                            <SelectItem value="往复泵">往复泵</SelectItem>
-                            <SelectItem value="齿轮泵">齿轮泵</SelectItem>
-                            <SelectItem value="轴流泵">轴流泵</SelectItem>
-                            <SelectItem value="混流泵">混流泵</SelectItem>
+                            <SelectItem value="自适应变频屏蔽泵">自适应变频屏蔽泵</SelectItem>
+                            <SelectItem value="卧式多级离心泵">卧式多级离心泵</SelectItem>
+                            <SelectItem value="立式多级离心泵">立式多级离心泵</SelectItem>
+                            <SelectItem value="立式单级管道泵">立式单级管道泵</SelectItem>
+                            <SelectItem value="卧式单级端吸泵">卧式单级端吸泵</SelectItem>
+                            <SelectItem value="卧式多级离心增压泵">卧式多级离心增压泵</SelectItem>
+                            <SelectItem value="立式多级离心增压泵">立式多级离心增压泵</SelectItem>
+                            <SelectItem value="立式单级管道增压泵">立式单级管道增压泵</SelectItem>
+                            <SelectItem value="卧式单级端吸增压泵">卧式单级端吸增压泵</SelectItem>
+                            <SelectItem value="卧式多级离心变频增压泵">卧式多级离心变频增压泵</SelectItem>
+                            <SelectItem value="立式多级离心变频增压泵">立式多级离心变频增压泵</SelectItem>
+                            <SelectItem value="立式单级管道变频增压泵">立式单级管道变频增压泵</SelectItem>
+                            <SelectItem value="卧式单级端吸变频增压泵">卧式单级端吸变频增压泵</SelectItem>
+                            <SelectItem value="家用变频增压泵">家用变频增压泵</SelectItem>
+                            <SelectItem value="工频屏蔽泵">工频屏蔽泵</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
