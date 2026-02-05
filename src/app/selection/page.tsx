@@ -688,23 +688,23 @@ export default function AdvancedSelectionPage() {
                               <strong>假设：</strong>套房150m²，20KW主机，主机水压降40Kpa，流量3.6吨，系统主管道最不利点单程20米，来回40米
                             </p>
                           </div>
-                          <div className="grid grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-                              <p className="text-xs text-muted-foreground mb-1">主管道扬程</p>
-                              <p className="font-semibold">2.4米</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-                              <p className="text-xs text-muted-foreground mb-1">主机水压降</p>
-                              <p className="font-semibold">4米</p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-                              <p className="text-xs text-muted-foreground mb-1">风机盘管</p>
-                              <p className="font-semibold">4米</p>
-                            </div>
-                            <div className="bg-blue-100 dark:bg-blue-900 rounded p-2 border-2 border-blue-600">
-                              <p className="text-xs text-blue-800 dark:text-blue-200 mb-1">总扬程</p>
-                              <p className="font-bold text-blue-900 dark:text-blue-100">10.4米</p>
-                            </div>
+                          <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                            <p className="flex items-center gap-3">
+                              <span className="text-muted-foreground">主管道扬程</span>
+                              <span className="font-semibold">2.4米</span>
+                            </p>
+                            <p className="flex items-center gap-3">
+                              <span className="text-muted-foreground">主机水压降</span>
+                              <span className="font-semibold">4米</span>
+                            </p>
+                            <p className="flex items-center gap-3">
+                              <span className="text-muted-foreground">风机盘管</span>
+                              <span className="font-semibold">4米</span>
+                            </p>
+                            <p className="flex items-center gap-3 pt-1 border-t border-gray-200 dark:border-gray-700">
+                              <span className="text-muted-foreground">总扬程</span>
+                              <span className="font-bold text-blue-600">10.4米</span>
+                            </p>
                           </div>
                         </div>
 
