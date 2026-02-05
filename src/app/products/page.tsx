@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 import { Plus, Upload, Download, Edit, Trash2, Search, Droplets } from "lucide-react";
 
 interface Pump {
@@ -60,6 +61,19 @@ export default function ProductsPage() {
   useEffect(() => {
     fetchPumps();
   }, []);
+
+  // 提取唯一的产品名称、型号、品牌列表
+  const uniqueNames = useMemo(() => {
+    return [...new Set(pumps.map((p) => p.name).filter(Boolean))].sort();
+  }, [pumps]);
+
+  const uniqueModels = useMemo(() => {
+    return [...new Set(pumps.map((p) => p.model).filter(Boolean))].sort();
+  }, [pumps]);
+
+  const uniqueBrands = useMemo(() => {
+    return [...new Set(pumps.map((p) => p.brand).filter(Boolean))].sort();
+  }, [pumps]);
 
   const fetchPumps = async () => {
     try {
@@ -291,29 +305,32 @@ export default function ProductsPage() {
                     <div className="grid grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="name">产品名称 *</Label>
-                        <Input
-                          id="name"
+                        <Combobox
+                          options={uniqueNames}
                           value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          required
+                          onValueChange={(value) => setFormData({ ...formData, name: value })}
+                          placeholder="选择或输入产品名称"
+                          allowCustom={true}
                         />
                       </div>
                       <div>
                         <Label htmlFor="model">产品型号 *</Label>
-                        <Input
-                          id="model"
+                        <Combobox
+                          options={uniqueModels}
                           value={formData.model}
-                          onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                          required
+                          onValueChange={(value) => setFormData({ ...formData, model: value })}
+                          placeholder="选择或输入产品型号"
+                          allowCustom={true}
                         />
                       </div>
                       <div>
                         <Label htmlFor="brand">品牌 *</Label>
-                        <Input
-                          id="brand"
+                        <Combobox
+                          options={uniqueBrands}
                           value={formData.brand}
-                          onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                          required
+                          onValueChange={(value) => setFormData({ ...formData, brand: value })}
+                          placeholder="选择或输入品牌"
+                          allowCustom={true}
                         />
                       </div>
                       <div>
