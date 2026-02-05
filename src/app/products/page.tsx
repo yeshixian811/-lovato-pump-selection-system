@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Upload, Download, Edit, Trash2, Search, Droplets } from "lucide-react";
 
 interface Pump {
@@ -15,6 +16,8 @@ interface Pump {
   name: string;
   model: string;
   brand: string;
+  pumpType: string | null;
+  material: string | null;
   flowRate: string;
   head: string;
   power: string;
@@ -38,6 +41,8 @@ export default function ProductsPage() {
     name: "",
     model: "",
     brand: "",
+    pumpType: "",
+    material: "",
     flowRate: "",
     head: "",
     power: "",
@@ -48,6 +53,8 @@ export default function ProductsPage() {
     applicationType: "",
     description: "",
     price: "",
+    maxTemperature: "",
+    maxPressure: "",
   });
 
   useEffect(() => {
@@ -98,6 +105,8 @@ export default function ProductsPage() {
         inletDiameter: formData.inletDiameter ? parseInt(formData.inletDiameter) : null,
         outletDiameter: formData.outletDiameter ? parseInt(formData.outletDiameter) : null,
         price: formData.price ? parseFloat(formData.price) : null,
+        maxTemperature: formData.maxTemperature ? parseFloat(formData.maxTemperature) : null,
+        maxPressure: formData.maxPressure ? parseFloat(formData.maxPressure) : null,
       };
 
       if (editingPump) {
@@ -140,6 +149,8 @@ export default function ProductsPage() {
       name: pump.name,
       model: pump.model,
       brand: pump.brand,
+      pumpType: pump.pumpType || "",
+      material: pump.material || "",
       flowRate: pump.flowRate,
       head: pump.head,
       power: pump.power,
@@ -150,6 +161,8 @@ export default function ProductsPage() {
       applicationType: pump.applicationType || "",
       description: pump.description || "",
       price: pump.price || "",
+      maxTemperature: "",
+      maxPressure: "",
     });
     setIsDialogOpen(true);
   };
@@ -159,6 +172,8 @@ export default function ProductsPage() {
       name: "",
       model: "",
       brand: "",
+      pumpType: "",
+      material: "",
       flowRate: "",
       head: "",
       power: "",
@@ -169,6 +184,8 @@ export default function ProductsPage() {
       applicationType: "",
       description: "",
       price: "",
+      maxTemperature: "",
+      maxPressure: "",
     });
   };
 
@@ -229,7 +246,7 @@ export default function ProductsPage() {
               <Button variant="default">产品库</Button>
             </Link>
             <Link href="/selection">
-              <Button variant="ghost">水泵选型</Button>
+              <Button variant="ghost">高级选型</Button>
             </Link>
           </nav>
         </div>
@@ -264,12 +281,12 @@ export default function ProductsPage() {
                     添加产品
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{editingPump ? "编辑产品" : "添加产品"}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="name">产品名称 *</Label>
                         <Input
@@ -296,6 +313,41 @@ export default function ProductsPage() {
                           onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                           required
                         />
+                      </div>
+                      <div>
+                        <Label htmlFor="pumpType">泵类型</Label>
+                        <Select value={formData.pumpType} onValueChange={(value) => setFormData({ ...formData, pumpType: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择类型" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">无</SelectItem>
+                            <SelectItem value="离心泵">离心泵</SelectItem>
+                            <SelectItem value="潜水泵">潜水泵</SelectItem>
+                            <SelectItem value="螺杆泵">螺杆泵</SelectItem>
+                            <SelectItem value="往复泵">往复泵</SelectItem>
+                            <SelectItem value="齿轮泵">齿轮泵</SelectItem>
+                            <SelectItem value="轴流泵">轴流泵</SelectItem>
+                            <SelectItem value="混流泵">混流泵</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="material">材质</Label>
+                        <Select value={formData.material} onValueChange={(value) => setFormData({ ...formData, material: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择材质" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">无</SelectItem>
+                            <SelectItem value="铸铁">铸铁</SelectItem>
+                            <SelectItem value="不锈钢">不锈钢</SelectItem>
+                            <SelectItem value="塑料">塑料</SelectItem>
+                            <SelectItem value="铸钢">铸钢</SelectItem>
+                            <SelectItem value="青铜">青铜</SelectItem>
+                            <SelectItem value="合金">合金</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <Label htmlFor="applicationType">应用类型</Label>
@@ -386,6 +438,26 @@ export default function ProductsPage() {
                           onChange={(e) => setFormData({ ...formData, outletDiameter: e.target.value })}
                         />
                       </div>
+                      <div>
+                        <Label htmlFor="maxTemperature">最高温度 (°C)</Label>
+                        <Input
+                          id="maxTemperature"
+                          type="number"
+                          step="0.01"
+                          value={formData.maxTemperature}
+                          onChange={(e) => setFormData({ ...formData, maxTemperature: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="maxPressure">最高压力 (bar)</Label>
+                        <Input
+                          id="maxPressure"
+                          type="number"
+                          step="0.01"
+                          value={formData.maxPressure}
+                          onChange={(e) => setFormData({ ...formData, maxPressure: e.target.value })}
+                        />
+                      </div>
                     </div>
                     <div>
                       <Label htmlFor="description">描述</Label>
@@ -441,6 +513,8 @@ export default function ProductsPage() {
                         <TableHead>产品名称</TableHead>
                         <TableHead>型号</TableHead>
                         <TableHead>品牌</TableHead>
+                        <TableHead>泵类型</TableHead>
+                        <TableHead>材质</TableHead>
                         <TableHead>流量 (m³/h)</TableHead>
                         <TableHead>扬程 (m)</TableHead>
                         <TableHead>功率 (kW)</TableHead>
@@ -452,7 +526,7 @@ export default function ProductsPage() {
                     <TableBody>
                       {pumps.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={9} className="text-center py-8">
+                          <TableCell colSpan={11} className="text-center py-8">
                             暂无产品数据，请添加产品或导入数据
                           </TableCell>
                         </TableRow>
@@ -462,6 +536,8 @@ export default function ProductsPage() {
                             <TableCell className="font-medium">{pump.name}</TableCell>
                             <TableCell>{pump.model}</TableCell>
                             <TableCell>{pump.brand}</TableCell>
+                            <TableCell>{pump.pumpType || "-"}</TableCell>
+                            <TableCell>{pump.material || "-"}</TableCell>
                             <TableCell>{pump.flowRate}</TableCell>
                             <TableCell>{pump.head}</TableCell>
                             <TableCell>{pump.power}</TableCell>

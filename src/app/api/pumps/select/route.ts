@@ -4,7 +4,7 @@ import { pumpManager } from "@/storage/database";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { flowRate, head } = body;
+    const { flowRate, head, pumpType, material, applicationType, maxTemperature, maxPressure } = body;
 
     if (!flowRate || !head) {
       return NextResponse.json(
@@ -13,7 +13,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const pumps = await pumpManager.selectPumps(flowRate, head);
+    const pumps = await pumpManager.selectPumps({
+      flowRate,
+      head,
+      pumpType,
+      material,
+      applicationType,
+      maxTemperature,
+      maxPressure,
+    });
     return NextResponse.json(pumps);
   } catch (error) {
     console.error("Error selecting pumps:", error);

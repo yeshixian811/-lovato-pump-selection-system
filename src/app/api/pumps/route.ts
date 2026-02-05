@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
       brand: searchParams.get("brand") || undefined,
       model: searchParams.get("model") || undefined,
       applicationType: searchParams.get("applicationType") || undefined,
+      pumpType: searchParams.get("pumpType") || undefined,
+      material: searchParams.get("material") || undefined,
       minFlowRate: searchParams.get("minFlowRate")
         ? parseFloat(searchParams.get("minFlowRate")!)
         : undefined,
@@ -20,6 +22,12 @@ export async function GET(request: NextRequest) {
         : undefined,
       maxHead: searchParams.get("maxHead")
         ? parseFloat(searchParams.get("maxHead")!)
+        : undefined,
+      minPower: searchParams.get("minPower")
+        ? parseFloat(searchParams.get("minPower")!)
+        : undefined,
+      maxPower: searchParams.get("maxPower")
+        ? parseFloat(searchParams.get("maxPower")!)
         : undefined,
     };
 

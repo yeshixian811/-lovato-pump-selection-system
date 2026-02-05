@@ -21,10 +21,14 @@ export class PumpManager {
       brand?: string;
       model?: string;
       applicationType?: string;
+      pumpType?: string;
+      material?: string;
       minFlowRate?: number;
       maxFlowRate?: number;
       minHead?: number;
       maxHead?: number;
+      minPower?: number;
+      maxPower?: number;
     };
   } = {}): Promise<Pump[]> {
     const { skip = 0, limit = 100, filters = {} } = options;
@@ -41,6 +45,12 @@ export class PumpManager {
     if (filters.applicationType) {
       conditions.push(eq(pumps.applicationType, filters.applicationType));
     }
+    if (filters.pumpType) {
+      conditions.push(eq(pumps.pumpType, filters.pumpType));
+    }
+    if (filters.material) {
+      conditions.push(eq(pumps.material, filters.material));
+    }
     if (filters.minFlowRate !== undefined) {
       conditions.push(sql`${pumps.flowRate} >= ${filters.minFlowRate}`);
     }
@@ -52,6 +62,12 @@ export class PumpManager {
     }
     if (filters.maxHead !== undefined) {
       conditions.push(sql`${pumps.head} <= ${filters.maxHead}`);
+    }
+    if (filters.minPower !== undefined) {
+      conditions.push(sql`${pumps.power} >= ${filters.minPower}`);
+    }
+    if (filters.maxPower !== undefined) {
+      conditions.push(sql`${pumps.power} <= ${filters.maxPower}`);
     }
 
     if (conditions.length > 0) {
@@ -104,16 +120,33 @@ export class PumpManager {
   /**
    * 水泵选型：根据流量和扬程筛选合适的水泵
    */
-  async selectPumps(flowRate: number, head: number): Promise<Pump[]> {
-    return this.getPumps({
-      limit: 50,
-      filters: {
-        minFlowRate: flowRate * 0.8, // 允许 20% 的偏差
-        maxFlowRate: flowRate * 1.2,
-        minHead: head * 0.8,
-        maxHead: head * 1.2,
-      },
-    });
+  async selectPumps(options: {
+    flowRate: number;
+    head: number;
+    pumpType?: string;
+    material?: string;
+    applicationType?: string;
+    maxTemperature?: number;
+    maxPressure?: number;
+  }): Promise<Pump[]> {
+    const filters: any = {
+      minFlowRate: options.flowRate * 0.8,
+      maxFlowRate: options.flowRate * 1.2,
+      minHead: options.head * 0.8,
+      maxHead: options.head * 1.2,
+    };
+
+    if (options.pumpType) {
+      filters.pumpType = options.pumpType;
+    }
+    if (options.material) {
+      filters.material = options.material;
+    }
+    if (options.applicationType) {
+      filters.applicationType = options.applicationType;
+    }
+
+    return this.getPumps({ limit: 50, filters });
   }
 }
 

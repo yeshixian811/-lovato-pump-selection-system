@@ -20,7 +20,7 @@ export default function Home() {
               <Button variant="ghost">产品库</Button>
             </Link>
             <Link href="/selection">
-              <Button variant="ghost">水泵选型</Button>
+              <Button variant="ghost">高级选型</Button>
             </Link>
           </nav>
         </div>
@@ -58,9 +58,9 @@ export default function Home() {
             <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader>
                 <LayoutDashboard className="h-12 w-12 text-cyan-600 mb-2" />
-                <CardTitle>智能选型</CardTitle>
+                <CardTitle>高级选型</CardTitle>
                 <CardDescription>
-                  输入流量和扬程，智能匹配合适的水泵产品
+                  输入详细参数，智能匹配合适的水泵产品
                 </CardDescription>
               </CardHeader>
               <CardContent>
