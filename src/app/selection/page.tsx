@@ -42,6 +42,7 @@ export default function AdvancedSelectionPage() {
   const [searched, setSearched] = useState(false);
   const [selectedPumps, setSelectedPumps] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [highlightedPump, setHighlightedPump] = useState<Pump | null>(null);
 
   const pumpTypes = [
     "自适应变频屏蔽泵",
@@ -113,6 +114,12 @@ export default function AdvancedSelectionPage() {
 
       const data = await response.json();
       setResults(data);
+      // 自动选中匹配度最高的水泵
+      if (data && data.length > 0) {
+        setHighlightedPump(data[0]);
+      } else {
+        setHighlightedPump(null);
+      }
     } catch (error) {
       console.error("Error searching pumps:", error);
       alert("搜索失败，请稍后重试");
@@ -377,6 +384,113 @@ export default function AdvancedSelectionPage() {
           <div className="space-y-6">
             {searched && (
               <>
+                {/* 右上角展示框 - 固定显示选型水泵 */}
+                {highlightedPump && (
+                  <Card className="sticky top-4 z-10 border-2 border-blue-500 shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Droplets className="h-5 w-5 text-blue-600" />
+                        当前选型
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {/* 水泵图片 */}
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
+                          {highlightedPump.imageUrl ? (
+                            <img
+                              src={highlightedPump.imageUrl}
+                              alt={highlightedPump.name}
+                              className="w-full h-40 object-contain"
+                            />
+                          ) : (
+                            <div className="w-full h-40 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+                              <Droplets className="h-16 w-16 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* 水泵信息 */}
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                            {highlightedPump.model}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {highlightedPump.brand} · {highlightedPump.name}
+                          </p>
+                        </div>
+
+                        {/* 流量和扬程定位 */}
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-sm font-medium text-muted-foreground">参数定位</span>
+                            <Badge className="bg-blue-600">
+                              匹配度 {calculateMatchScore(highlightedPump)}%
+                            </Badge>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">流量需求</div>
+                              <div className="text-lg font-bold text-blue-600">
+                                {flowRate}
+                              </div>
+                              <div className="text-xs text-muted-foreground">m³/h</div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">扬程需求</div>
+                              <div className="text-lg font-bold text-blue-600">
+                                {head}
+                              </div>
+                              <div className="text-xs text-muted-foreground">m</div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 pt-4 border-t">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <div className="text-xs text-muted-foreground mb-1">水泵流量</div>
+                                <div className="text-base font-semibold text-green-600">
+                                  {highlightedPump.flowRate}
+                                </div>
+                                <div className="text-xs text-muted-foreground">m³/h</div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-muted-foreground mb-1">水泵扬程</div>
+                                <div className="text-base font-semibold text-green-600">
+                                  {highlightedPump.head}
+                                </div>
+                                <div className="text-xs text-muted-foreground">m</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 其他参数 */}
+                        <div className="grid grid-cols-3 gap-2 text-sm">
+                          <div className="text-center p-2 bg-white dark:bg-gray-900 rounded border">
+                            <div className="text-xs text-muted-foreground">功率</div>
+                            <div className="font-semibold">{highlightedPump.power}</div>
+                            <div className="text-xs text-muted-foreground">kW</div>
+                          </div>
+                          <div className="text-center p-2 bg-white dark:bg-gray-900 rounded border">
+                            <div className="text-xs text-muted-foreground">类型</div>
+                            <div className="font-semibold text-xs truncate">
+                              {highlightedPump.pumpType || "-"}
+                            </div>
+                          </div>
+                          <div className="text-center p-2 bg-white dark:bg-gray-900 rounded border">
+                            <div className="text-xs text-muted-foreground">材质</div>
+                            <div className="font-semibold text-xs truncate">
+                              {highlightedPump.material || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Results Header */}
                 <div className="flex items-center justify-between">
                   <div>
@@ -441,16 +555,22 @@ export default function AdvancedSelectionPage() {
                       .map((pump) => (
                         <Card
                           key={pump.id}
-                          className={`overflow-hidden transition-all hover:shadow-lg ${
+                          className={`overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
                             selectedPumps.has(pump.id)
                               ? "ring-2 ring-blue-600 shadow-lg"
                               : ""
-                          }`}
+                          } ${highlightedPump?.id === pump.id ? "ring-2 ring-green-500 shadow-xl" : ""}`}
+                          onClick={() => setHighlightedPump(pump)}
                         >
                           <CardHeader className="pb-4">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
+                                  {highlightedPump?.id === pump.id && (
+                                    <Badge className="bg-green-600">
+                                      当前展示
+                                    </Badge>
+                                  )}
                                   <Badge className={getScoreColor(parseFloat(calculateMatchScore(pump)))}>
                                     匹配度 {calculateMatchScore(pump)}%
                                   </Badge>
@@ -463,7 +583,10 @@ export default function AdvancedSelectionPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => togglePumpSelection(pump.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  togglePumpSelection(pump.id);
+                                }}
                               >
                                 {selectedPumps.has(pump.id) ? (
                                   <Check className="h-4 w-4 text-blue-600" />
