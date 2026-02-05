@@ -9,8 +9,12 @@ export default function Home() {
       {/* Header */}
       <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Droplets className="h-8 w-8 text-blue-600" />
+          <div className="flex items-center gap-3">
+            <img
+              src="/luwatto-logo.png"
+              alt="洛瓦托LOGO"
+              className="h-10 w-auto"
+            />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               洛瓦托水泵选型系统
             </h1>
