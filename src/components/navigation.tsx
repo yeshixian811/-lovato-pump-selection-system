@@ -52,6 +52,18 @@ export default function Navigation() {
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
+          {/* Logo and Slogan */}
+          <Link href="/" className="flex items-center gap-3">
+            <img
+              src="/luwatto-logo.png"
+              alt="洛瓦托LOGO"
+              className="h-8 w-auto"
+            />
+            <span className="text-gray-900 dark:text-white font-medium hidden sm:block">
+              精准输配 冷暖随心
+            </span>
+          </Link>
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
@@ -138,6 +150,20 @@ export default function Navigation() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 space-y-2">
+            {/* Logo and Slogan in Mobile */}
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+              <Link href="/" className="flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+                <img
+                  src="/luwatto-logo.png"
+                  alt="洛瓦托LOGO"
+                  className="h-8 w-auto"
+                />
+                <span className="text-gray-900 dark:text-white font-medium">
+                  精准输配 冷暖随心
+                </span>
+              </Link>
+            </div>
+
             {navItems.map((item) => (
               <Link
                 key={item.href}
