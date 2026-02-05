@@ -681,29 +681,16 @@ export default function AdvancedSelectionPage() {
                         <div>
                           <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                             <span className="h-6 w-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                            一次系统选型
+                            一次系统洛瓦托水泵选型
                           </h4>
-                          <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3 mb-3 border-l-4 border-blue-600">
-                            <p className="text-sm text-gray-800 dark:text-gray-200">
-                              <strong>假设：</strong>套房150m²，20KW主机，主机水压降40Kpa，流量3.6吨，系统主管道最不利点单程20米，来回40米
+                          <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                            <p className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3 border-l-4 border-blue-600 text-gray-800 dark:text-gray-200">
+                              <strong>假设：</strong>套房面积150平方，选择一台20KW主机，主机水压降40Kpa,流量3.6吨，系统主管道最不利点单程20米，来回40米
                             </p>
-                          </div>
-                          <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                            <p className="flex items-center gap-3">
-                              <span className="text-muted-foreground">主管道扬程</span>
-                              <span className="font-semibold">2.4米</span>
-                            </p>
-                            <p className="flex items-center gap-3">
-                              <span className="text-muted-foreground">主机水压降</span>
-                              <span className="font-semibold">4米</span>
-                            </p>
-                            <p className="flex items-center gap-3">
-                              <span className="text-muted-foreground">风机盘管</span>
-                              <span className="font-semibold">4米</span>
-                            </p>
-                            <p className="flex items-center gap-3 pt-1 border-t border-gray-200 dark:border-gray-700">
-                              <span className="text-muted-foreground">总扬程</span>
-                              <span className="font-bold text-blue-600">10.4米</span>
+                            <p>扬程为：主管道长度*600pa每米=40*600=24000pa=24000/1000=24Kpa=2.4米</p>
+                            <p>主机水压降40Kpa=40/10=4米 风机盘管选4米扬程</p>
+                            <p className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                              <strong>总扬程为：</strong>主机4米+主管道2.4米+风机盘管4米=<span className="font-bold text-blue-600">10.4米扬程</span>
                             </p>
                           </div>
                         </div>
