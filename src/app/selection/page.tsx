@@ -665,21 +665,23 @@ export default function AdvancedSelectionPage() {
             {!searched && (
               <div className="space-y-4">
                 <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
-                  <CardContent className="p-5">
-                    <div className="text-center mb-4">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4 mb-3">
                       <img
                         src="/assets/LOGO透明图.png"
                         alt="洛瓦托LOGO"
-                        className="h-16 w-auto mx-auto mb-3"
+                        className="h-8 w-auto"
                       />
-                      <h3 className="text-2xl font-bold mb-2">开始您的选型之旅</h3>
-                      <p className="text-muted-foreground">
-                        输入流量和扬程参数，系统将智能匹配最合适的水泵产品
-                      </p>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-1">开始您的选型之旅</h3>
+                        <p className="text-sm text-muted-foreground">
+                          输入流量和扬程参数，系统将智能匹配最合适的水泵产品
+                        </p>
+                      </div>
                     </div>
 
                     {/* 选型指导 */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border text-left mb-5">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border text-left mb-4">
                       <div className="space-y-5">
                         {/* 一次系统选型指导 */}
                         <div>
