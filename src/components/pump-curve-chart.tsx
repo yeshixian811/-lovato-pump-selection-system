@@ -137,22 +137,24 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
           <ReferenceDot
             x={pumpFlowNum}
             y={pumpHeadNum}
-            r={6}
+            r={5}
             fill="#16a34a"
             stroke="white"
-            strokeWidth={2}
-            label={{ value: "额定点", position: "top", offset: 5 }}
+            strokeWidth={1}
+            label={{ value: "额定点", position: "top", offset: 5, fontSize: 12, fill: "#16a34a" }}
+            isFront={true}
           />
 
           {/* 用户需求工作点 */}
           <ReferenceDot
             x={userFlowNum}
             y={userHeadNum}
-            r={6}
+            r={5}
             fill="#dc2626"
             stroke="white"
-            strokeWidth={2}
-            label={{ value: "需求点", position: "top", offset: 5 }}
+            strokeWidth={1}
+            label={{ value: "需求点", position: "top", offset: 5, fontSize: 12, fill: "#dc2626" }}
+            isFront={true}
           />
         </LineChart>
       </ResponsiveContainer>
