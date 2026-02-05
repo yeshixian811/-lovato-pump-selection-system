@@ -669,32 +669,39 @@ export default function AdvancedSelectionPage() {
                     <div className="text-center py-8">
                       <Droplets className="h-16 w-16 text-blue-600 mx-auto mb-4" />
                       <h3 className="text-xl font-bold mb-2">开始您的选型之旅</h3>
-                      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                         输入流量和扬程参数，系统将智能匹配最合适的水泵产品
                       </p>
 
-                      {/* 产品和品牌介绍 */}
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 max-w-md mx-auto border">
-                        <div className="space-y-4">
-                          {/* 产品介绍 */}
+                      {/* 选型指导 */}
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 max-w-4xl mx-auto border text-left">
+                        <div className="space-y-6">
+                          {/* 一次系统选型指导 */}
                           <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">产品介绍</h4>
-                            <p className="text-sm text-muted-foreground">
-                              洛瓦托水泵系列涵盖多种类型，包括离心泵、增压泵、屏蔽泵等，
-                              广泛应用于供水系统、工业循环、消防系统、暖通空调等领域。
-                              产品具有高效节能、稳定可靠、维护简便等特点。
-                            </p>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg">一次系统洛瓦托水泵选型</h4>
+                            <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4 mb-3">
+                              <p className="text-sm text-gray-800 dark:text-gray-200 mb-2">
+                                <strong>假设：</strong>套房面积150平方，选择一台20KW主机，主机水压降40Kpa，流量3.6吨，系统主管道最不利点单程20米，来回40米
+                              </p>
+                            </div>
+                            <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                              <p><strong>扬程为：</strong>主管道长度×600pa每米=40×600=24000pa=24000/1000=24Kpa=2.4米</p>
+                              <p><strong>主机水压降：</strong>40Kpa=40/10=4米</p>
+                              <p><strong>风机盘管：</strong>选4米扬程</p>
+                              <p className="pt-2 pb-2 border-b"><strong>总扬程为：</strong>主机4米+主管道2.4米+风机盘管4米=<span className="text-blue-600 font-bold">10.4米扬程</span></p>
+                            </div>
                           </div>
 
-                          {/* 品牌介绍 */}
+                          {/* 二次系统选型指导 */}
                           <div className="pt-4 border-t">
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">洛瓦托品牌</h4>
-                            <p className="text-sm text-muted-foreground">
-                              洛瓦托（Luwatto）专注于高品质水泵产品的研发与制造，
-                              拥有多年的行业经验和技术积累。
-                              产品通过严格的质量认证，远销海内外，深受用户信赖。
-                              我们致力于为用户提供高效、可靠、环保的水泵解决方案。
-                            </p>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 text-lg">二次系统洛瓦托水泵选型</h4>
+                            <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                              <p>• 二次系统主机侧参考主机流量及水压降+1米即可</p>
+                              <p>• 二次系统二次侧流量参考主机</p>
+                              <p>• 二次侧扬程=主管道沿程阻力及局部阻力（600pa每米）+末端阻力（最大4米）</p>
+                              <p>• 二次系统匹配水泵时，需要考虑冷热源侧和二次侧的流量，避免两侧流量失衡</p>
+                              <p>• 二次系统多层分层输配时，二次侧水泵针对每个区，应考虑每个区域的同开系数，避免流量扬程过大，导致室内水流噪音的产生</p>
+                            </div>
                           </div>
                         </div>
                       </div>
