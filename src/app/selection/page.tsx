@@ -319,6 +319,33 @@ export default function AdvancedSelectionPage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* 推荐产品 */}
+            <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">推荐产品</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="relative">
+                  <img
+                    src="/luwatto-product.jpg"
+                    alt="洛瓦托高端水泵"
+                    className="w-full h-auto rounded-lg"
+                  />
+                  <div className="mt-3 space-y-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">洛瓦托高端水泵系列</h3>
+                    <p className="text-sm text-muted-foreground">
+                      高性能、高效率、高可靠性，为您的工业应用提供最佳解决方案
+                    </p>
+                    <Link href="/products">
+                      <Button className="w-full" size="sm">
+                        了解更多
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Content - Results */}

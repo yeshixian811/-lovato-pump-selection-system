@@ -28,13 +28,45 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-            智能水泵选型系统
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            快速、精准、高效 - 根据您的需求智能匹配最合适的水泵产品
-          </p>
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+          {/* Left Content */}
+          <div>
+            <h2 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+              智能水泵选型系统
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              快速、精准、高效 - 根据您的需求智能匹配最合适的水泵产品
+            </p>
+            <div className="flex gap-4">
+              <Link href="/selection">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700">
+                  立即选型
+                </Button>
+              </Link>
+              <Link href="/products">
+                <Button size="lg" variant="outline">
+                  浏览产品库
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Content - Product Image */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-2xl blur-2xl opacity-20"></div>
+              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+                <img
+                  src="/luwatto-product.jpg"
+                  alt="洛瓦托水泵产品"
+                  className="w-full h-auto max-w-lg rounded-lg"
+                />
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">洛瓦托高端水泵系列</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Feature Cards */}
