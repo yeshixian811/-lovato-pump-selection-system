@@ -382,13 +382,33 @@ export default function ProductsPage() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="applicationType">应用类型</Label>
-                        <Input
-                          id="applicationType"
-                          value={formData.applicationType}
-                          onChange={(e) => setFormData({ ...formData, applicationType: e.target.value })}
-                          placeholder="如：工业、民用、农业"
-                        />
+                        <Label htmlFor="applicationType">应用场景</Label>
+                        <Select value={formData.applicationType} onValueChange={(value) => setFormData({ ...formData, applicationType: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择应用场景" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="供水系统">供水系统</SelectItem>
+                            <SelectItem value="建筑供水">建筑供水</SelectItem>
+                            <SelectItem value="市政供水">市政供水</SelectItem>
+                            <SelectItem value="消防系统">消防系统</SelectItem>
+                            <SelectItem value="暖通空调">暖通空调</SelectItem>
+                            <SelectItem value="工业循环">工业循环</SelectItem>
+                            <SelectItem value="化工流程">化工流程</SelectItem>
+                            <SelectItem value="污水处理">污水处理</SelectItem>
+                            <SelectItem value="污水提升">污水提升</SelectItem>
+                            <SelectItem value="农业灌溉">农业灌溉</SelectItem>
+                            <SelectItem value="深井取水">深井取水</SelectItem>
+                            <SelectItem value="地下水抽取">地下水抽取</SelectItem>
+                            <SelectItem value="锅炉给水">锅炉给水</SelectItem>
+                            <SelectItem value="冷却循环">冷却循环</SelectItem>
+                            <SelectItem value="泳池循环">泳池循环</SelectItem>
+                            <SelectItem value="园林喷灌">园林喷灌</SelectItem>
+                            <SelectItem value="水产养殖">水产养殖</SelectItem>
+                            <SelectItem value="船舶">船舶</SelectItem>
+                            <SelectItem value="其他">其他</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <Label htmlFor="flowRate">流量 (m³/h) *</Label>
@@ -550,7 +570,7 @@ export default function ProductsPage() {
                         <TableHead className="whitespace-nowrap">流量 (m³/h)</TableHead>
                         <TableHead className="whitespace-nowrap">扬程 (m)</TableHead>
                         <TableHead className="whitespace-nowrap">功率 (kW)</TableHead>
-                        <TableHead className="whitespace-nowrap">应用类型</TableHead>
+                        <TableHead className="whitespace-nowrap">应用场景</TableHead>
                         <TableHead className="whitespace-nowrap">价格</TableHead>
                         <TableHead className="text-right whitespace-nowrap">操作</TableHead>
                       </TableRow>
