@@ -72,11 +72,11 @@ export default function AdvancedSelectionPage() {
   ];
 
   const applicationTypes = [
+    "暖通空调",
     "供水系统",
     "建筑供水",
     "市政供水",
     "消防系统",
-    "暖通空调",
     "工业循环",
     "化工流程",
     "污水处理",
