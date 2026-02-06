@@ -226,14 +226,21 @@ export class PumpManager {
   }
 
   /**
-   * 水泵选型：基于性能曲线数据进行精确选型
-   * 遵循"选大不选小"原则：基于水泵性能曲线，找到满足需求的型号
+   * 水泵选型：基于性能曲线数据进行精确选型（参考格兰富选型算法）
+   * 
+   * 格兰富选型算法特点：
+   * 1. BEP（最佳效率点）匹配：优先推荐在BEP附近运行的水泵
+   * 2. 效率优先：效率高的水泵评分更高
+   * 3. 合理余量：流量和扬程余量控制在5%-20%之间
+   * 4. 功率余量：功率余量控制在10%-30%之间
+   * 5. 综合评分：多维度评分系统（流量余量、扬程余量、效率、BEP匹配、功率余量）
+   * 6. 推荐等级：最佳选择、推荐选择、备选方案、警告
    * 
    * 选型策略：
    * 1. 在性能曲线中查找能满足需求流量和扬程的水泵
-   * 2. 性能曲线数据点步长为0.1 m³/h
-   * 3. 按余量从小到大排序，优先推荐最接近需求的型号
-   * 4. 余量控制在5%以内，超出则给出警告
+   * 2. 计算每个水泵的综合评分
+   * 3. 按评分从高到低排序
+   * 4. 给出推荐等级和推荐理由
    */
   async selectPumps(options: {
     flowRate: number;
@@ -266,68 +273,209 @@ export class PumpManager {
           options.maxPressure ? sql`${pumps.maxPressure} >= ${options.maxPressure}` : undefined,
         )
       )
-      .limit(50);
+      .limit(100);
 
     if (matchingPoints.length === 0) {
       return [];
     }
 
-    // 按水泵去重，并计算余量
+    // 按水泵去重，并计算余量和综合评分
     const pumpMap = new Map<string, any>();
 
     for (const { pump, point } of matchingPoints) {
       if (!pumpMap.has(pump.id)) {
-        // 计算余量
-        const flowMargin = ((parseFloat(point.flowRate) - options.flowRate) / options.flowRate) * 100;
-        const headMargin = ((parseFloat(point.head) - options.head) / options.head) * 100;
-
-        pumpMap.set(pump.id, {
-          pump,
-          flowMargin,
-          headMargin,
-          totalMargin: flowMargin + headMargin,
-          operatingPoint: {
-            flowRate: point.flowRate,
-            head: point.head,
-            power: point.power,
-            efficiency: point.efficiency,
-          },
-        });
+        const pumpData = this.calculatePumpScore(pump, point, options);
+        pumpMap.set(pump.id, pumpData);
       } else {
-        // 如果已有该水泵，选择余量更小的数据点
+        // 如果已有该水泵，选择综合评分更高的数据点
         const existing = pumpMap.get(pump.id);
-        const flowMargin = ((parseFloat(point.flowRate) - options.flowRate) / options.flowRate) * 100;
-        const headMargin = ((parseFloat(point.head) - options.head) / options.head) * 100;
-        const totalMargin = flowMargin + headMargin;
+        const pumpData = this.calculatePumpScore(pump, point, options);
 
-        if (totalMargin < existing.totalMargin) {
-          pumpMap.set(pump.id, {
-            pump,
-            flowMargin,
-            headMargin,
-            totalMargin,
-            operatingPoint: {
-              flowRate: point.flowRate,
-              head: point.head,
-              power: point.power,
-              efficiency: point.efficiency,
-            },
-          });
+        if (pumpData.comprehensiveScore > existing.comprehensiveScore) {
+          pumpMap.set(pump.id, pumpData);
         }
       }
     }
 
-    // 按总余量从小到大排序
+    // 按综合评分从高到低排序
     const sortedPumps = Array.from(pumpMap.values())
-      .sort((a, b) => a.totalMargin - b.totalMargin)
+      .sort((a, b) => b.comprehensiveScore - a.comprehensiveScore)
       .map((item) => ({
         ...item.pump,
         flowMargin: item.flowMargin.toFixed(1),
         headMargin: item.headMargin.toFixed(1),
+        powerMargin: item.powerMargin?.toFixed(1) || null,
+        bepMatchScore: item.bepMatchScore.toFixed(1),
+        efficiencyScore: item.efficiencyScore.toFixed(1),
+        comprehensiveScore: item.comprehensiveScore.toFixed(1),
+        recommendationLevel: item.recommendationLevel,
+        recommendationReason: item.recommendationReason,
         operatingPoint: item.operatingPoint,
+        annualOperatingCost: item.annualOperatingCost,
       }));
 
     return sortedPumps;
+  }
+
+  /**
+   * 计算水泵的综合评分（参考格兰富评分算法）
+   */
+  private calculatePumpScore(
+    pump: Pump,
+    point: any,
+    options: { flowRate: number; head: number }
+  ) {
+    const requiredFlow = options.flowRate;
+    const requiredHead = options.head;
+    const ratedFlow = parseFloat(pump.flowRate);
+    const ratedHead = parseFloat(pump.head);
+    const ratedPower = parseFloat(pump.power);
+
+    // 1. 计算余量
+    const operatingFlow = parseFloat(point.flowRate);
+    const operatingHead = parseFloat(point.head);
+    const operatingPower = parseFloat(point.power);
+    const operatingEfficiency = point.efficiency ? parseFloat(point.efficiency) : null;
+
+    const flowMargin = ((operatingFlow - requiredFlow) / requiredFlow) * 100;
+    const headMargin = ((operatingHead - requiredHead) / requiredHead) * 100;
+    const powerMargin = operatingPower ? ((operatingPower - ratedPower) / ratedPower) * 100 : null;
+
+    // 2. 流量余量评分（权重：20%）
+    // 最佳余量范围：5%-20%
+    let flowMarginScore: number;
+    if (flowMargin < 5) {
+      flowMarginScore = 60 + (flowMargin / 5) * 20; // 60-80分
+    } else if (flowMargin <= 20) {
+      flowMarginScore = 80 + ((20 - flowMargin) / 15) * 15; // 65-80分
+    } else if (flowMargin <= 50) {
+      flowMarginScore = 65 - ((flowMargin - 20) / 30) * 35; // 30-65分
+    } else if (flowMargin <= 100) {
+      flowMarginScore = 30 - ((flowMargin - 50) / 50) * 20; // 10-30分
+    } else {
+      flowMarginScore = 5; // 超大余量，最低分
+    }
+
+    // 3. 扬程余量评分（权重：20%）
+    // 最佳余量范围：5%-15%
+    let headMarginScore: number;
+    if (headMargin < 5) {
+      headMarginScore = 60 + (headMargin / 5) * 20; // 60-80分
+    } else if (headMargin <= 15) {
+      headMarginScore = 80 + ((15 - headMargin) / 10) * 15; // 65-80分
+    } else if (headMargin <= 40) {
+      headMarginScore = 65 - ((headMargin - 15) / 25) * 35; // 30-65分
+    } else if (headMargin <= 100) {
+      headMarginScore = 30 - ((headMargin - 40) / 60) * 20; // 10-30分
+    } else {
+      headMarginScore = 5; // 超大余量，最低分
+    }
+
+    // 4. 效率评分（权重：30%）
+    // 最佳效率：>75%，良好：60-75%，一般：<60%
+    let efficiencyScore: number;
+    if (operatingEfficiency) {
+      if (operatingEfficiency >= 75) {
+        efficiencyScore = Math.min(100, 95 + ((operatingEfficiency - 75) / 25) * 5); // 95-100分
+      } else if (operatingEfficiency >= 60) {
+        efficiencyScore = 75 + ((operatingEfficiency - 60) / 15) * 20; // 75-95分
+      } else {
+        efficiencyScore = 50 + ((operatingEfficiency - 30) / 30) * 25; // 50-75分
+      }
+    } else {
+      efficiencyScore = 50; // 无效率数据，默认50分
+    }
+
+    // 5. BEP（最佳效率点）匹配度评分（权重：20%）
+    // BEP通常在额定流量附近，最佳匹配范围：80%-120%额定流量
+    const flowRatio = operatingFlow / ratedFlow;
+    let bepMatchScore: number;
+    if (flowRatio >= 0.8 && flowRatio <= 1.2) {
+      // 最佳匹配：90-100分，flowRatio越接近1，评分越高
+      const distanceFromOptimal = Math.abs(flowRatio - 1);
+      bepMatchScore = 90 + (1 - distanceFromOptimal / 0.2) * 10;
+    } else if (flowRatio >= 0.6 && flowRatio <= 1.4) {
+      // 良好匹配：70-90分
+      const distanceFromOptimal = Math.abs(flowRatio - 1);
+      bepMatchScore = 70 + (1 - (distanceFromOptimal - 0.2) / 0.2) * 20;
+    } else if (flowRatio >= 0.3 && flowRatio <= 1.7) {
+      // 一般匹配：40-70分
+      const distanceFromOptimal = Math.abs(flowRatio - 1);
+      bepMatchScore = 40 + (1 - (distanceFromOptimal - 0.4) / 0.3) * 30;
+    } else {
+      // 远离BEP：20-40分
+      const distanceFromOptimal = Math.abs(flowRatio - 1);
+      bepMatchScore = 20 + (1 - Math.min((distanceFromOptimal - 0.7) / 0.3, 1)) * 20;
+    }
+
+    // 6. 功率余量评分（权重：10%）
+    // 最佳余量范围：10%-30%
+    let powerMarginScore: number;
+    if (powerMargin !== null) {
+      if (powerMargin < 10) {
+        powerMarginScore = 60 + (powerMargin / 10) * 20; // 60-80分
+      } else if (powerMargin <= 30) {
+        powerMarginScore = 80 + ((30 - powerMargin) / 20) * 15; // 80-95分
+      } else if (powerMargin <= 60) {
+        powerMarginScore = 95 - ((powerMargin - 30) / 30) * 35; // 60-95分
+      } else {
+        powerMarginScore = Math.max(0, 60 - (powerMargin - 60) / 10); // <60分
+      }
+    } else {
+      powerMarginScore = 50; // 无功率数据，默认50分
+    }
+
+    // 7. 综合评分（加权平均）
+    const comprehensiveScore = 
+      flowMarginScore * 0.2 +
+      headMarginScore * 0.2 +
+      efficiencyScore * 0.3 +
+      bepMatchScore * 0.2 +
+      powerMarginScore * 0.1;
+
+    // 8. 推荐等级
+    let recommendationLevel: string;
+    let recommendationReason: string;
+
+    if (comprehensiveScore >= 90) {
+      recommendationLevel = "最佳选择";
+      recommendationReason = "余量合理、效率高、BEP匹配度优秀，是最佳选择";
+    } else if (comprehensiveScore >= 80) {
+      recommendationLevel = "推荐选择";
+      recommendationReason = "性能匹配良好，性价比高，值得推荐";
+    } else if (comprehensiveScore >= 65) {
+      recommendationLevel = "备选方案";
+      recommendationReason = "满足基本需求，可作为备选方案";
+    } else {
+      recommendationLevel = "警告";
+      recommendationReason = "余量过大或效率较低，建议谨慎选择";
+    }
+
+    // 9. 年运行成本估算（按年运行8000小时计算）
+    const annualOperatingHours = 8000;
+    const annualOperatingCost = operatingPower * annualOperatingHours * 0.8; // 0.8元/kWh
+
+    return {
+      pump,
+      flowMargin,
+      headMargin,
+      powerMargin,
+      flowMarginScore,
+      headMarginScore,
+      efficiencyScore,
+      bepMatchScore,
+      powerMarginScore,
+      comprehensiveScore,
+      recommendationLevel,
+      recommendationReason,
+      operatingPoint: {
+        flowRate: point.flowRate,
+        head: point.head,
+        power: point.power,
+        efficiency: point.efficiency,
+      },
+      annualOperatingCost: annualOperatingCost.toFixed(2),
+    };
   }
 }
 

@@ -34,12 +34,19 @@ interface Pump {
   imageUrl: string | null;
   flowMargin?: string; // 流量余量（%）
   headMargin?: string; // 扬程余量（%）
+  powerMargin?: string | null; // 功率余量（%）
+  bepMatchScore?: string; // BEP匹配度评分
+  efficiencyScore?: string; // 效率评分
+  comprehensiveScore?: string; // 综合评分
+  recommendationLevel?: string; // 推荐等级
+  recommendationReason?: string; // 推荐理由
   operatingPoint?: {
     flowRate: string;
     head: string;
     power: string;
     efficiency: string | null;
   };
+  annualOperatingCost?: string; // 年运行成本（元）
 }
 
 export default function AdvancedSelectionPage() {
@@ -431,6 +438,34 @@ export default function AdvancedSelectionPage() {
                           </p>
                         </div>
 
+                        {/* 推荐等级和综合评分 */}
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">推荐等级</div>
+                              <Badge className={
+                                highlightedPump.recommendationLevel === "最佳选择" ? "bg-green-600" :
+                                highlightedPump.recommendationLevel === "推荐选择" ? "bg-blue-600" :
+                                highlightedPump.recommendationLevel === "备选方案" ? "bg-yellow-600" :
+                                "bg-red-600"
+                              }>
+                                {highlightedPump.recommendationLevel || "-"}
+                              </Badge>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs text-muted-foreground mb-1">综合评分</div>
+                              <div className="text-2xl font-bold text-blue-600">
+                                {highlightedPump.comprehensiveScore || "-"}
+                              </div>
+                            </div>
+                          </div>
+                          {highlightedPump.recommendationReason && (
+                            <div className="mt-2 pt-2 border-t text-xs text-muted-foreground">
+                              {highlightedPump.recommendationReason}
+                            </div>
+                          )}
+                        </div>
+
                         {/* 额定流量和额定扬程定位 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
                           <div className="flex items-center justify-between mb-2">
@@ -462,6 +497,8 @@ export default function AdvancedSelectionPage() {
                               <div className={`text-xl font-bold ${
                                 parseFloat(highlightedPump.flowMargin || "0") <= 5
                                   ? 'text-green-600'
+                                  : parseFloat(highlightedPump.flowMargin || "0") <= 20
+                                  ? 'text-blue-600'
                                   : 'text-yellow-600'
                               }`}>
                                 {highlightedPump.flowMargin || "-"}%
@@ -472,20 +509,51 @@ export default function AdvancedSelectionPage() {
                               <div className={`text-xl font-bold ${
                                 parseFloat(highlightedPump.headMargin || "0") <= 5
                                   ? 'text-green-600'
+                                  : parseFloat(highlightedPump.headMargin || "0") <= 15
+                                  ? 'text-blue-600'
                                   : 'text-yellow-600'
                               }`}>
                                 {highlightedPump.headMargin || "-"}%
                               </div>
                             </div>
                           </div>
-                          {parseFloat(highlightedPump.flowMargin || "0") > 5 && parseFloat(highlightedPump.headMargin || "0") > 5 ? (
-                            <div className="mt-2 pt-2 border-t">
-                              <div className="text-xs text-yellow-600 font-medium">
-                                ℹ️ 余量较大，水泵有充足的工作范围冗余
+                        </div>
+
+                        {/* 评分详情 */}
+                        <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
+                          <div className="text-sm font-medium text-muted-foreground mb-2">
+                            评分详情
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">BEP匹配度</div>
+                              <div className="text-xl font-bold text-purple-600">
+                                {highlightedPump.bepMatchScore || "-"}
                               </div>
                             </div>
-                          ) : null}
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">效率评分</div>
+                              <div className="text-xl font-bold text-green-600">
+                                {highlightedPump.efficiencyScore || "-"}
+                              </div>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* 年运行成本 */}
+                        {highlightedPump.annualOperatingCost && (
+                          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="text-xs text-muted-foreground">预计年运行成本</div>
+                                <div className="text-sm text-muted-foreground">（按8000小时/年计算）</div>
+                              </div>
+                              <div className="text-2xl font-bold text-blue-600">
+                                ¥{highlightedPump.annualOperatingCost}
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         {/* 其他参数 */}
                         <div className="grid grid-cols-3 gap-2 text-sm">
@@ -595,8 +663,9 @@ export default function AdvancedSelectionPage() {
                   }>
                     {results
                       .sort((a, b) => {
-                        const scoreA = parseFloat(calculateMatchScore(a));
-                        const scoreB = parseFloat(calculateMatchScore(b));
+                        // 使用综合评分排序，如果没有综合评分则使用推荐等级
+                        const scoreA = parseFloat(a.comprehensiveScore || "0");
+                        const scoreB = parseFloat(b.comprehensiveScore || "0");
                         return scoreB - scoreA;
                       })
                       .map((pump) => (
@@ -618,8 +687,16 @@ export default function AdvancedSelectionPage() {
                                       当前展示
                                     </Badge>
                                   )}
-                                  <Badge className={getScoreColor(parseFloat(calculateMatchScore(pump)))}>
-                                    匹配度 {calculateMatchScore(pump)}%
+                                  <Badge className={
+                                    pump.recommendationLevel === "最佳选择" ? "bg-green-600" :
+                                    pump.recommendationLevel === "推荐选择" ? "bg-blue-600" :
+                                    pump.recommendationLevel === "备选方案" ? "bg-yellow-600" :
+                                    "bg-red-600"
+                                  }>
+                                    {pump.recommendationLevel || "-"}
+                                  </Badge>
+                                  <Badge className="bg-purple-600">
+                                    评分 {pump.comprehensiveScore || "-"}
                                   </Badge>
                                 </div>
                                 <CardTitle className="text-lg">{pump.name}</CardTitle>
@@ -673,6 +750,8 @@ export default function AdvancedSelectionPage() {
                                   <span className={`font-semibold ${
                                     parseFloat(pump.flowMargin || "0") <= 5
                                       ? 'text-green-600'
+                                      : parseFloat(pump.flowMargin || "0") <= 20
+                                      ? 'text-blue-600'
                                       : 'text-yellow-600'
                                   }`}>
                                     {pump.flowMargin || "-"}%
@@ -683,6 +762,8 @@ export default function AdvancedSelectionPage() {
                                   <span className={`font-semibold ${
                                     parseFloat(pump.headMargin || "0") <= 5
                                       ? 'text-green-600'
+                                      : parseFloat(pump.headMargin || "0") <= 15
+                                      ? 'text-blue-600'
                                       : 'text-yellow-600'
                                   }`}>
                                     {pump.headMargin || "-"}%
@@ -690,6 +771,28 @@ export default function AdvancedSelectionPage() {
                                 </div>
                               </div>
                             </div>
+
+                            {/* 评分详情 */}
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">BEP匹配：</span>
+                                <span className="font-semibold text-purple-600">
+                                  {pump.bepMatchScore || "-"}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">效率评分：</span>
+                                <span className="font-semibold text-green-600">
+                                  {pump.efficiencyScore || "-"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {pump.annualOperatingCost && (
+                              <div className="text-xs text-muted-foreground">
+                                年运行成本：¥{pump.annualOperatingCost}
+                              </div>
+                            )}
 
                             <div className="flex flex-wrap gap-1">
                               {pump.pumpType && (
