@@ -135,10 +135,12 @@ export default function AdvancedSelectionPage() {
       });
 
       const data = await response.json();
-      setResults(data);
+      // 确保 data 是数组
+      const resultsArray = Array.isArray(data) ? data : [];
+      setResults(resultsArray);
       // 自动选中匹配度最高的水泵
-      if (data && data.length > 0) {
-        setHighlightedPump(data[0]);
+      if (resultsArray && resultsArray.length > 0) {
+        setHighlightedPump(resultsArray[0]);
       } else {
         setHighlightedPump(null);
       }
@@ -661,23 +663,24 @@ export default function AdvancedSelectionPage() {
                       ? "grid md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4"
                       : "space-y-4"
                   }>
-                    {results
-                      .sort((a, b) => {
-                        // 使用综合评分排序，如果没有综合评分则使用推荐等级
-                        const scoreA = parseFloat(a.comprehensiveScore || "0");
-                        const scoreB = parseFloat(b.comprehensiveScore || "0");
-                        return scoreB - scoreA;
-                      })
-                      .map((pump) => (
-                        <Card
-                          key={pump.id}
-                          className={`overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
-                            selectedPumps.has(pump.id)
-                              ? "ring-2 ring-blue-600 shadow-lg"
-                              : ""
-                          } ${highlightedPump?.id === pump.id ? "ring-2 ring-green-500 shadow-xl" : ""}`}
-                          onClick={() => setHighlightedPump(pump)}
-                        >
+                    {Array.isArray(results) && results.length > 0 ? (
+                      results
+                        .sort((a, b) => {
+                          // 使用综合评分排序，如果没有综合评分则使用推荐等级
+                          const scoreA = parseFloat(a.comprehensiveScore || "0");
+                          const scoreB = parseFloat(b.comprehensiveScore || "0");
+                          return scoreB - scoreA;
+                        })
+                        .map((pump) => (
+                          <Card
+                            key={pump.id}
+                            className={`overflow-hidden transition-all hover:shadow-lg cursor-pointer ${
+                              selectedPumps.has(pump.id)
+                                ? "ring-2 ring-blue-600 shadow-lg"
+                                : ""
+                            } ${highlightedPump?.id === pump.id ? "ring-2 ring-green-500 shadow-xl" : ""}`}
+                            onClick={() => setHighlightedPump(pump)}
+                          >
                           <CardHeader className="pb-4">
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
@@ -831,7 +834,8 @@ export default function AdvancedSelectionPage() {
                             </div>
                           </CardContent>
                         </Card>
-                      ))}
+                      ))
+                    ) : null}
                   </div>
                 )}
               </>
