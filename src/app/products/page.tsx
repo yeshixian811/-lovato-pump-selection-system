@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Combobox } from "@/components/ui/combobox";
 import { PasswordProtect } from "@/components/password-protect";
-import { Plus, Upload, Download, Edit, Trash2, Search, Droplets } from "lucide-react";
+import { Plus, Upload, Download, Edit, Trash2, Search, Droplets, TrendingUp } from "lucide-react";
+import PumpCurveChart from "@/components/pump-curve-chart";
 
 interface Pump {
   id: string;
@@ -35,12 +36,25 @@ interface Pump {
   createdAt: string;
 }
 
+interface PerformanceData {
+  pump: Pump;
+  performancePoints: Array<{
+    flowRate: number;
+    head: number;
+    power: number;
+    efficiency: number | null;
+  }>;
+}
+
 export default function ProductsPage() {
   const [pumps, setPumps] = useState<Pump[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPump, setEditingPump] = useState<Pump | null>(null);
+  const [isPerformanceOpen, setIsPerformanceOpen] = useState(false);
+  const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
+  const [performanceLoading, setPerformanceLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     model: "",
@@ -188,6 +202,27 @@ export default function ProductsPage() {
       maxPressure: "",
     });
     setIsDialogOpen(true);
+  };
+
+  const handleViewPerformance = async (pump: Pump) => {
+    try {
+      setPerformanceLoading(true);
+      setIsPerformanceOpen(true);
+
+      const response = await fetch(`/api/pumps/${pump.id}/performance`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch performance data");
+      }
+
+      const data = await response.json();
+      setPerformanceData(data);
+    } catch (error) {
+      console.error("Error fetching performance data:", error);
+      alert("加载性能曲线失败，请稍后重试");
+      setIsPerformanceOpen(false);
+    } finally {
+      setPerformanceLoading(false);
+    }
   };
 
   const resetForm = () => {
@@ -614,7 +649,16 @@ export default function ProductsPage() {
                                 <Button
                                   size="sm"
                                   variant="ghost"
+                                  onClick={() => handleViewPerformance(pump)}
+                                  title="查看性能曲线"
+                                >
+                                  <TrendingUp className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
                                   onClick={() => handleEdit(pump)}
+                                  title="编辑"
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
@@ -622,6 +666,7 @@ export default function ProductsPage() {
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => handleDelete(pump.id)}
+                                  title="删除"
                                 >
                                   <Trash2 className="h-4 w-4 text-red-500" />
                                 </Button>
@@ -639,6 +684,85 @@ export default function ProductsPage() {
         </Card>
       </main>
     </div>
+
+    {/* 性能曲线查看弹窗 */}
+    <Dialog open={isPerformanceOpen} onOpenChange={setIsPerformanceOpen}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>性能曲线查看</DialogTitle>
+        </DialogHeader>
+        {performanceLoading ? (
+          <div className="py-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-muted-foreground">加载中...</p>
+          </div>
+        ) : performanceData ? (
+          <div className="space-y-4">
+            {/* 水泵基本信息 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <Label className="text-xs text-muted-foreground">型号</Label>
+                <div className="font-semibold">{performanceData.pump.model}</div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">额定流量</Label>
+                <div className="font-semibold">{performanceData.pump.flowRate} m³/h</div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">额定扬程</Label>
+                <div className="font-semibold">{performanceData.pump.head} m</div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">功率</Label>
+                <div className="font-semibold">{performanceData.pump.power} kW</div>
+              </div>
+            </div>
+
+            {/* 性能曲线图 */}
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
+              <Label className="mb-2 block">Q-H 性能曲线</Label>
+              <PumpCurveChart
+                pumpFlow={performanceData.pump.flowRate}
+                pumpHead={performanceData.pump.head}
+                pumpMaxFlow={performanceData.pump.maxFlow}
+                pumpMaxHead={performanceData.pump.maxHead}
+                userFlow={null}
+                userHead={null}
+              />
+            </div>
+
+            {/* 性能数据统计 */}
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+              <Label className="mb-2 block">性能数据统计</Label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-muted-foreground">数据点数量：</span>
+                  <span className="font-semibold ml-1">{performanceData.performancePoints.length}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">流量范围：</span>
+                  <span className="font-semibold ml-1">
+                    {performanceData.performancePoints[0]?.flowRate.toFixed(1)} - {performanceData.performancePoints[performanceData.performancePoints.length - 1]?.flowRate.toFixed(1)} m³/h
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">最大扬程：</span>
+                  <span className="font-semibold ml-1">
+                    {Math.max(...performanceData.performancePoints.map(p => p.head)).toFixed(1)} m
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">最大功率：</span>
+                  <span className="font-semibold ml-1">
+                    {Math.max(...performanceData.performancePoints.map(p => p.power)).toFixed(2)} kW
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </DialogContent>
+    </Dialog>
     </PasswordProtect>
   );
 }
