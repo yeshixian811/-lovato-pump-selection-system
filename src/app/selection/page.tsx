@@ -105,7 +105,7 @@ export default function AdvancedSelectionPage() {
 
   const handleSearch = async () => {
     if (!flowRate || !head) {
-      alert("请输入流量和扬程");
+      alert("请输入额定流量和额定扬程");
       return;
     }
 
@@ -228,11 +228,11 @@ export default function AdvancedSelectionPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-5 space-y-4">
-                {/* 流量和扬程 */}
+                {/* 额定流量和额定扬程 */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="flowRate">
-                      流量 <span className="text-red-500">*</span>
+                      额定流量 <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative mt-1">
                       <Input
@@ -251,7 +251,7 @@ export default function AdvancedSelectionPage() {
                   </div>
                   <div>
                     <Label htmlFor="head">
-                      扬程 <span className="text-red-500">*</span>
+                      额定扬程 <span className="text-red-500">*</span>
                     </Label>
                     <div className="relative mt-1">
                       <Input
@@ -431,7 +431,7 @@ export default function AdvancedSelectionPage() {
                           </p>
                         </div>
 
-                        {/* 流量和扬程定位 */}
+                        {/* 额定流量和额定扬程定位 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium text-muted-foreground">性能曲线</span>
@@ -646,12 +646,12 @@ export default function AdvancedSelectionPage() {
                           <CardContent className="space-y-3 pt-4">
                             <div className="grid grid-cols-3 gap-2 text-sm">
                               <div>
-                                <div className="text-muted-foreground">流量</div>
+                                <div className="text-muted-foreground">额定流量</div>
                                 <div className="font-semibold text-blue-600">{pump.flowRate}</div>
                                 <div className="text-xs text-muted-foreground">m³/h</div>
                               </div>
                               <div>
-                                <div className="text-muted-foreground">扬程</div>
+                                <div className="text-muted-foreground">额定扬程</div>
                                 <div className="font-semibold text-blue-600">{pump.head}</div>
                                 <div className="text-xs text-muted-foreground">m</div>
                               </div>
@@ -750,7 +750,7 @@ export default function AdvancedSelectionPage() {
                     <div className="mb-3 -mt-8">
                       <h3 className="text-xl font-bold mb-1">开始您的选型之旅</h3>
                       <p className="text-sm text-muted-foreground">
-                        输入流量和扬程参数，系统将智能匹配最合适的水泵产品
+                        输入额定流量和额定扬程参数，系统将智能匹配最合适的水泵产品
                       </p>
                     </div>
 
