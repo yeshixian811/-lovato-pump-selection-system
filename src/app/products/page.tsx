@@ -398,7 +398,7 @@ export default function ProductsPage() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="flowRate">流量 (m³/h) *</Label>
+                        <Label htmlFor="flowRate">额定流量 (m³/h) *</Label>
                         <Input
                           id="flowRate"
                           type="number"
@@ -409,7 +409,7 @@ export default function ProductsPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="head">扬程 (m) *</Label>
+                        <Label htmlFor="head">额定扬程 (m) *</Label>
                         <Input
                           id="head"
                           type="number"
@@ -581,8 +581,8 @@ export default function ProductsPage() {
                         <TableHead className="whitespace-nowrap">品牌</TableHead>
                         <TableHead className="whitespace-nowrap">泵类型</TableHead>
                         <TableHead className="whitespace-nowrap">材质</TableHead>
-                        <TableHead className="whitespace-nowrap">流量 (m³/h)</TableHead>
-                        <TableHead className="whitespace-nowrap">扬程 (m)</TableHead>
+                        <TableHead className="whitespace-nowrap">额定流量 (m³/h)</TableHead>
+                        <TableHead className="whitespace-nowrap">额定扬程 (m)</TableHead>
                         <TableHead className="whitespace-nowrap">功率 (kW)</TableHead>
                         <TableHead className="whitespace-nowrap">应用场景</TableHead>
                         <TableHead className="whitespace-nowrap">价格</TableHead>
