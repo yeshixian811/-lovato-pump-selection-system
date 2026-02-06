@@ -6,7 +6,13 @@
   "framework": "nextjs",
   "regions": ["hkg1"],
   "env": {
-    "NODE_ENV": "production"
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_APP_URL": "https://luowato-pump-selection.vercel.app"
+    }
   },
   "headers": [
     {
@@ -23,12 +29,14 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
   ]
 }
