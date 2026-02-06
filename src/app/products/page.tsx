@@ -742,19 +742,19 @@ export default function ProductsPage() {
                 <div>
                   <span className="text-muted-foreground">流量范围：</span>
                   <span className="font-semibold ml-1">
-                    {performanceData.performancePoints[0]?.flowRate.toFixed(1)} - {performanceData.performancePoints[performanceData.performancePoints.length - 1]?.flowRate.toFixed(1)} m³/h
+                    {parseFloat(performanceData.performancePoints[0]?.flowRate || '0').toFixed(1)} - {parseFloat(performanceData.performancePoints[performanceData.performancePoints.length - 1]?.flowRate || '0').toFixed(1)} m³/h
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">最大扬程：</span>
                   <span className="font-semibold ml-1">
-                    {Math.max(...performanceData.performancePoints.map(p => p.head)).toFixed(1)} m
+                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(p.head))).toFixed(1)} m
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">最大功率：</span>
                   <span className="font-semibold ml-1">
-                    {Math.max(...performanceData.performancePoints.map(p => p.power)).toFixed(2)} kW
+                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(p.power))).toFixed(2)} kW
                   </span>
                 </div>
               </div>
