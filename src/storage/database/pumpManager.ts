@@ -171,6 +171,45 @@ export class PumpManager {
       .set({ ...validated, updatedAt: new Date() })
       .where(eq(pumps.id, id))
       .returning();
+
+    if (pump) {
+      // 如果更新了额定流量、额定扬程、最大流量、最大扬程或功率，重新生成性能曲线数据
+      const shouldRegenerate = 
+        data.flowRate !== undefined ||
+        data.head !== undefined ||
+        data.maxFlow !== undefined ||
+        data.maxHead !== undefined ||
+        data.power !== undefined ||
+        data.efficiency !== undefined;
+
+      if (shouldRegenerate) {
+        // 删除旧的性能曲线数据
+        await db.delete(pumpPerformancePoints).where(eq(pumpPerformancePoints.pumpId, id));
+
+        // 获取更新后的水泵完整数据
+        const updatedPump = await this.getPumpById(id);
+        if (updatedPump) {
+          // 生成新的性能曲线数据
+          const performancePoints = this.generatePerformancePoints({
+            flowRate: updatedPump.flowRate,
+            head: updatedPump.head,
+            maxFlow: updatedPump.maxFlow,
+            maxHead: updatedPump.maxHead,
+            power: updatedPump.power,
+            efficiency: updatedPump.efficiency,
+          } as InsertPump);
+
+          // 插入新的性能曲线数据
+          for (const point of performancePoints) {
+            await db.insert(pumpPerformancePoints).values({
+              pumpId: id,
+              ...point,
+            });
+          }
+        }
+      }
+    }
+
     return pump || null;
   }
 
