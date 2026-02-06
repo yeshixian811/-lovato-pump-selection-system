@@ -42,10 +42,8 @@ export async function POST(request: NextRequest) {
     let failed = 0;
     const errors: any[] = [];
 
-    // 只处理前5个水泵进行测试
-    const testPumps = allPumps.rows.slice(0, 5);
-
-    for (const pump of testPumps) {
+    // 处理所有水泵
+    for (const pump of allPumps.rows) {
       try {
         const ratedFlow = parseFloat(pump.flow_rate);
         const ratedHead = parseFloat(pump.head);
@@ -60,9 +58,10 @@ export async function POST(request: NextRequest) {
 
         // 先删除该水泵的旧性能曲线数据（如果表存在）
         try {
-          await db.execute(`
-            DELETE FROM pump_performance_points WHERE pump_id = $1
-          `, [pump.id]);
+          await db.execute(
+            `DELETE FROM pump_performance_points WHERE pump_id = $1`,
+            [pump.id]
+          );
         } catch (deleteError) {
           // 表可能不存在，忽略DELETE错误
           console.log(`跳过DELETE操作: ${pump.id}`);
@@ -92,10 +91,11 @@ export async function POST(request: NextRequest) {
 
           if (head > 0) {
             try {
-              await db.execute(`
-                INSERT INTO pump_performance_points (pump_id, flow_rate, head, power, efficiency)
-                VALUES ($1, $2, $3, $4, $5)
-              `, [pump.id, parseFloat(flow.toFixed(2)), parseFloat(head.toFixed(2)), parseFloat(power.toFixed(2)), eff ? parseFloat(eff.toFixed(2)) : null]);
+              await db.execute(
+                `INSERT INTO pump_performance_points (pump_id, flow_rate, head, power, efficiency)
+                 VALUES ($1, $2, $3, $4, $5)`,
+                [pump.id, parseFloat(flow.toFixed(2)), parseFloat(head.toFixed(2)), parseFloat(power.toFixed(2)), eff ? parseFloat(eff.toFixed(2)) : null]
+              );
               pointCount++;
             } catch (insertError) {
               console.error(`插入数据点失败: flow=${flow}, pump=${pump.id}`, insertError);
@@ -115,9 +115,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "性能曲线数据初始化完成（测试模式：仅前5个水泵）",
+      message: "性能曲线数据初始化完成",
       result: {
-        total: testPumps.length,
+        total: allPumps.rows.length,
         success,
         failed,
         errors: errors.slice(0, 10),

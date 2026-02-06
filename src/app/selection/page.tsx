@@ -34,6 +34,12 @@ interface Pump {
   imageUrl: string | null;
   flowMargin?: string; // 流量余量（%）
   headMargin?: string; // 扬程余量（%）
+  operatingPoint?: {
+    flowRate: string;
+    head: string;
+    power: string;
+    efficiency: string | null;
+  };
 }
 
 export default function AdvancedSelectionPage() {
@@ -448,7 +454,7 @@ export default function AdvancedSelectionPage() {
                         {/* 参数余量信息 */}
                         <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border">
                           <div className="text-sm font-medium text-muted-foreground mb-2">
-                            参数余量（基于水泵工作范围）
+                            参数余量（基于性能曲线工作点，遵循选大不选小原则）
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
@@ -659,7 +665,7 @@ export default function AdvancedSelectionPage() {
                             {/* 参数余量信息 */}
                             <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
                               <div className="text-xs text-muted-foreground mb-1">
-                                参数余量（基于水泵工作范围）
+                                参数余量（基于性能曲线工作点，遵循选大不选小原则）
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>

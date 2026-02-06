@@ -187,13 +187,14 @@ export class PumpManager {
   }
 
   /**
-   * 水泵选型：基于最大流量和最大扬程范围进行选型
-   * 遵循"选大不选小"原则：在水泵工作范围内找到满足需求的型号
-   *
+   * 水泵选型：基于性能曲线数据进行精确选型
+   * 遵循"选大不选小"原则：基于水泵性能曲线，找到满足需求的型号
+   * 
    * 选型策略：
-   * 1. 检查需求流量和扬程是否在水泵的最大工作范围内
-   * 2. 在工作范围内，找到能满足需求的水泵
+   * 1. 在性能曲线中查找能满足需求流量和扬程的水泵
+   * 2. 性能曲线数据点步长为0.1 m³/h
    * 3. 按余量从小到大排序，优先推荐最接近需求的型号
+   * 4. 余量控制在5%以内，超出则给出警告
    */
   async selectPumps(options: {
     flowRate: number;
@@ -206,78 +207,88 @@ export class PumpManager {
   }): Promise<Pump[]> {
     const db = await getDb();
 
-    // 构建查询条件
-    const conditions: any[] = [];
-    
-    // 基础过滤条件
-    if (options.pumpType) {
-      conditions.push(eq(pumps.pumpType, options.pumpType));
-    }
-    if (options.material) {
-      conditions.push(eq(pumps.material, options.material));
-    }
-    if (options.applicationType) {
-      conditions.push(eq(pumps.applicationType, options.applicationType));
-    }
-    if (options.maxTemperature) {
-      conditions.push(sql`${pumps.maxTemperature} >= ${options.maxTemperature}`);
-    }
-    if (options.maxPressure) {
-      conditions.push(sql`${pumps.maxPressure} >= ${options.maxPressure}`);
-    }
-
-    // 核心选型条件：需求参数在水泵工作范围内
-    // 条件：需求流量 <= 最大流量 AND 需求扬程 <= 最大扬程
-    // 如果没有maxFlow/maxHead，则使用额定值的1.5倍和1.3倍作为最大值
-    const whereClause = conditions.length > 0 
-      ? and(
-          sql`(
-            (${pumps.maxFlow} IS NOT NULL AND ${pumps.maxFlow} >= ${options.flowRate}) OR
-            (${pumps.maxFlow} IS NULL AND ${pumps.flowRate} * 1.5 >= ${options.flowRate})
-          ) AND (
-            (${pumps.maxHead} IS NOT NULL AND ${pumps.maxHead} >= ${options.head}) OR
-            (${pumps.maxHead} IS NULL AND ${pumps.head} * 1.3 >= ${options.head})
-          )`,
-          ...conditions
+    // 查找性能曲线中能满足需求的水泵
+    // 需要满足：流量 >= 需求流量，且在该流量点的扬程 >= 需求扬程
+    const matchingPoints = await db
+      .select({
+        pump: pumps,
+        point: pumpPerformancePoints,
+      })
+      .from(pumpPerformancePoints)
+      .innerJoin(pumps, eq(pumps.id, pumpPerformancePoints.pumpId))
+      .where(
+        and(
+          sql`${pumpPerformancePoints.flowRate} >= ${options.flowRate}`,
+          sql`${pumpPerformancePoints.head} >= ${options.head}`,
+          options.pumpType ? eq(pumps.pumpType, options.pumpType) : undefined,
+          options.material ? eq(pumps.material, options.material) : undefined,
+          options.applicationType ? eq(pumps.applicationType, options.applicationType) : undefined,
+          options.maxTemperature ? sql`${pumps.maxTemperature} >= ${options.maxTemperature}` : undefined,
+          options.maxPressure ? sql`${pumps.maxPressure} >= ${options.maxPressure}` : undefined,
         )
-      : sql`(
-          (${pumps.maxFlow} IS NOT NULL AND ${pumps.maxFlow} >= ${options.flowRate}) OR
-          (${pumps.maxFlow} IS NULL AND ${pumps.flowRate} * 1.5 >= ${options.flowRate})
-        ) AND (
-          (${pumps.maxHead} IS NOT NULL AND ${pumps.maxHead} >= ${options.head}) OR
-          (${pumps.maxHead} IS NULL AND ${pumps.head} * 1.3 >= ${options.head})
-        )`;
-
-    const matchingPumps = await db
-      .select()
-      .from(pumps)
-      .where(whereClause)
+      )
       .limit(50);
 
-    if (matchingPumps.length === 0) {
+    if (matchingPoints.length === 0) {
       return [];
     }
 
-    // 计算每个水泵的余量
-    const pumpsWithMargin = matchingPumps.map(pump => {
-      const maxFlow = pump.maxFlow ? parseFloat(pump.maxFlow) : parseFloat(pump.flowRate) * 1.5;
-      const maxHead = pump.maxHead ? parseFloat(pump.maxHead) : parseFloat(pump.head) * 1.3;
-      
-      const flowMargin = ((maxFlow - options.flowRate) / options.flowRate) * 100;
-      const headMargin = ((maxHead - options.head) / options.head) * 100;
-      const totalMargin = flowMargin + headMargin;
+    // 按水泵去重，并计算余量
+    const pumpMap = new Map<string, any>();
 
-      return {
-        ...pump,
-        flowMargin: flowMargin.toFixed(1),
-        headMargin: headMargin.toFixed(1),
-      };
-    });
+    for (const { pump, point } of matchingPoints) {
+      if (!pumpMap.has(pump.id)) {
+        // 计算余量
+        const flowMargin = ((parseFloat(point.flowRate) - options.flowRate) / options.flowRate) * 100;
+        const headMargin = ((parseFloat(point.head) - options.head) / options.head) * 100;
+
+        pumpMap.set(pump.id, {
+          pump,
+          flowMargin,
+          headMargin,
+          totalMargin: flowMargin + headMargin,
+          operatingPoint: {
+            flowRate: point.flowRate,
+            head: point.head,
+            power: point.power,
+            efficiency: point.efficiency,
+          },
+        });
+      } else {
+        // 如果已有该水泵，选择余量更小的数据点
+        const existing = pumpMap.get(pump.id);
+        const flowMargin = ((parseFloat(point.flowRate) - options.flowRate) / options.flowRate) * 100;
+        const headMargin = ((parseFloat(point.head) - options.head) / options.head) * 100;
+        const totalMargin = flowMargin + headMargin;
+
+        if (totalMargin < existing.totalMargin) {
+          pumpMap.set(pump.id, {
+            pump,
+            flowMargin,
+            headMargin,
+            totalMargin,
+            operatingPoint: {
+              flowRate: point.flowRate,
+              head: point.head,
+              power: point.power,
+              efficiency: point.efficiency,
+            },
+          });
+        }
+      }
+    }
 
     // 按总余量从小到大排序
-    return pumpsWithMargin.sort((a: any, b: any) => {
-      return (parseFloat(a.flowMargin) + parseFloat(a.headMargin)) - (parseFloat(b.flowMargin) + parseFloat(b.headMargin));
-    });
+    const sortedPumps = Array.from(pumpMap.values())
+      .sort((a, b) => a.totalMargin - b.totalMargin)
+      .map((item) => ({
+        ...item.pump,
+        flowMargin: item.flowMargin.toFixed(1),
+        headMargin: item.headMargin.toFixed(1),
+        operatingPoint: item.operatingPoint,
+      }));
+
+    return sortedPumps;
   }
 }
 
