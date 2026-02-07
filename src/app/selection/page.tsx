@@ -268,6 +268,7 @@ export default function PumpSelectionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<Pump[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<Pump[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
 
@@ -315,9 +316,25 @@ export default function PumpSelectionPage() {
 
       const data = await response.json();
       setResults(data.pumps || []);
+
+      // 如果没有匹配结果，获取推荐产品
+      if (!data.pumps || data.pumps.length === 0) {
+        try {
+          const recommendResponse = await fetch('/api/pumps?limit=6');
+          if (recommendResponse.ok) {
+            const recommendData = await recommendResponse.json();
+            setRecommendedProducts(recommendData.pumps || []);
+          }
+        } catch (err) {
+          console.error('获取推荐产品失败:', err);
+        }
+      } else {
+        setRecommendedProducts([]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '发生未知错误');
       setResults([]);
+      setRecommendedProducts([]);
     } finally {
       setIsSearching(false);
     }
@@ -334,6 +351,7 @@ export default function PumpSelectionPage() {
     });
     setShowResults(false);
     setResults([]);
+    setRecommendedProducts([]);
     setError(null);
   };
 
@@ -595,17 +613,135 @@ export default function PumpSelectionPage() {
             )}
 
             {showResults && !isSearching && results.length === 0 && !error && (
-              <Card>
-                <CardContent className="py-12 flex flex-col items-center justify-center text-center">
-                  <XCircle className="w-12 h-12 text-yellow-600 mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">
-                    未找到匹配的水泵产品
-                  </p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    请尝试调整参数或联系我们的技术支持
-                  </p>
-                </CardContent>
-              </Card>
+              <div>
+                <Card className="mb-4">
+                  <CardContent className="py-8 flex flex-col items-center justify-center text-center">
+                    <XCircle className="w-12 h-12 text-yellow-600 mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400">
+                      未找到匹配的水泵产品
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      以下为您推荐的热门产品
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {recommendedProducts.length > 0 && (
+                  <div className="space-y-3 md:space-y-4">
+                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                      推荐产品
+                    </div>
+                    {recommendedProducts.slice(0, 6).map((pump) => (
+                      <Card
+                        key={pump.id}
+                        className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-blue-300"
+                      >
+                        <CardContent className="p-4 md:p-6">
+                          {/* 产品名称、型号 */}
+                          <div className="mb-3">
+                            <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
+                              {pump.name}
+                            </h3>
+                            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                              型号: {pump.model}
+                            </p>
+                          </div>
+
+                          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 md:gap-3 mb-4">
+                            <div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                流量范围
+                              </div>
+                              <div className="text-xs font-medium text-gray-900 dark:text-white">
+                                {typeof pump.min_flow_rate === 'number' ? pump.min_flow_rate.toFixed(1) : pump.min_flow_rate} - {typeof pump.max_flow_rate === 'number' ? pump.max_flow_rate.toFixed(1) : pump.max_flow_rate} m³/h
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                扬程范围
+                              </div>
+                              <div className="text-xs font-medium text-gray-900 dark:text-white">
+                                {typeof pump.min_head === 'number' ? pump.min_head.toFixed(1) : pump.min_head} - {typeof pump.max_head === 'number' ? pump.max_head.toFixed(1) : pump.max_head} m
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                                额定流量
+                                <TooltipProvider delayDuration={0}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">性能参数图形的参考点</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                              <div className="text-xs font-medium text-gray-900 dark:text-white">
+                                {typeof pump.rated_flow_rate === 'number' ? pump.rated_flow_rate.toFixed(1) : pump.rated_flow_rate} m³/h
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                                额定扬程
+                                <TooltipProvider delayDuration={0}>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">性能参数图形的参考点</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                              <div className="text-xs font-medium text-gray-900 dark:text-white">
+                                {typeof pump.rated_head === 'number' ? pump.rated_head.toFixed(1) : pump.rated_head} m
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                额定功率
+                              </div>
+                              <div className="text-xs font-medium text-gray-900 dark:text-white">
+                                {typeof pump.rated_power === 'number' ? pump.rated_power.toFixed(1) : pump.rated_power} kW
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
+                                效率
+                              </div>
+                              <div className="text-xs font-medium text-gray-900 dark:text-white">
+                                {typeof pump.efficiency === 'number' ? pump.efficiency.toFixed(1) : pump.efficiency}%
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                            <div className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
+                              ¥{pump.price.toLocaleString()}
+                            </div>
+                            <div className="flex gap-2">
+                              {pump.in_stock ? (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  有货
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                  <XCircle className="w-3 h-3 mr-1" />
+                                  无货
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             {showResults && !isSearching && results.length > 0 && (
