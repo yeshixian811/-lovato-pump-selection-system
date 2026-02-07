@@ -24,16 +24,17 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
 
   // 生成模拟的 Q-H 曲线数据
   // 基于最大点生成性能曲线
-  // 关闭扬程（Q=0）约为最大扬程的 1.3 倍
-  // 如果有最大流量和最大扬程参数，则使用它们；否则使用默认估计值
+  // 关断点扬程（Q=0时的扬程）是水泵性能曲线的数学模型参数
+  // 使用二次曲线模型：H = shutOffHead - k * Q^2
+  // 当 Q = maxFlow 时，H = 0（最大流量点扬程为0）
   const generateCurveData = () => {
     const data = [];
 
-    // pumpFlow 和 pumpHead 现在是实际的最大流量和最大扬程
+    // pumpFlow 和 pumpHead 严格对应实际的最大流量和最大扬程
     const maxFlow = pumpFlowNum;
     const maxHead = pumpHeadNum;
 
-    // 估计关闭扬程（Q=0时的扬程）通常为最大扬程的 1.25 倍
+    // 关断点扬程（Q=0时的扬程），通常为最大扬程的 1.25 倍（性能曲线数学模型参数）
     const shutOffHead = pumpMaxHeadNum || maxHead * 1.25;
 
     // 按照用户要求：流量以0.1 m³/h为单位分配，扬程以0.1米为单位分配

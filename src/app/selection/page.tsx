@@ -110,11 +110,11 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
       }));
       setPerformanceData(formattedData);
       
-      // 根据真实数据更新显示范围
+      // 根据真实数据更新显示范围（严格对应实际值）
       const maxFlow = Math.max(...formattedData.map(d => d.flowRate));
       const maxHead = Math.max(...formattedData.map(d => d.head));
-      setDisplayMaxFlow(maxFlow * 1.1); // 留10%余量
-      setDisplayMaxHead(maxHead * 1.1);
+      setDisplayMaxFlow(maxFlow); // 严格对应实际值
+      setDisplayMaxHead(maxHead);
       setZoomLevel(1);
       setLoading(false);
     } else {
@@ -168,14 +168,16 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
   // 生成模拟性能曲线数据
   const generateMockPerformanceData = (flow: number, head: number) => {
     const data: any[] = [];
-    const maxFlow = flow * 2;
-    const maxHead = head * 1.5;
+    const maxFlow = flow; // 严格对应实际最大流量
+    const maxHead = head * 1.25; // 关断点扬程为最大扬程的1.25倍（二次曲线模型）
     const step = maxFlow / 20;
 
     for (let i = 0; i <= 20; i++) {
       const currentFlow = Math.round(i * step * 10) / 10;
-      // 简单的二次曲线模型
-      const currentHead = maxHead * (1 - Math.pow(currentFlow / maxFlow, 2));
+      // 使用二次曲线模型：H = shutOffHead - k * Q^2
+      // 当 Q = maxFlow 时，H = 0
+      const k = maxHead / (maxFlow * maxFlow);
+      const currentHead = maxHead - k * currentFlow * currentFlow;
       if (currentHead >= 0) {
         data.push({
           flowRate: currentFlow,
