@@ -631,12 +631,12 @@ export default function PumpSelectionPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-3 md:gap-4 mb-4">
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 md:gap-3 mb-4">
                         <div>
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             流量范围
                           </div>
-                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
                             {typeof pump.min_flow_rate === 'number' ? pump.min_flow_rate.toFixed(1) : pump.min_flow_rate} - {typeof pump.max_flow_rate === 'number' ? pump.max_flow_rate.toFixed(1) : pump.max_flow_rate} m³/h
                           </div>
                         </div>
@@ -644,7 +644,7 @@ export default function PumpSelectionPage() {
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             扬程范围
                           </div>
-                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
                             {typeof pump.min_head === 'number' ? pump.min_head.toFixed(1) : pump.min_head} - {typeof pump.max_head === 'number' ? pump.max_head.toFixed(1) : pump.max_head} m
                           </div>
                         </div>
@@ -662,7 +662,7 @@ export default function PumpSelectionPage() {
                               </Tooltip>
                             </TooltipProvider>
                           </div>
-                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
                             {typeof pump.rated_flow_rate === 'number' ? pump.rated_flow_rate.toFixed(1) : pump.rated_flow_rate} m³/h
                           </div>
                         </div>
@@ -680,7 +680,7 @@ export default function PumpSelectionPage() {
                               </Tooltip>
                             </TooltipProvider>
                           </div>
-                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
                             {typeof pump.rated_head === 'number' ? pump.rated_head.toFixed(1) : pump.rated_head} m
                           </div>
                         </div>
@@ -688,7 +688,7 @@ export default function PumpSelectionPage() {
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             额定功率
                           </div>
-                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
                             {typeof pump.rated_power === 'number' ? pump.rated_power.toFixed(1) : pump.rated_power} kW
                           </div>
                         </div>
@@ -696,7 +696,7 @@ export default function PumpSelectionPage() {
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             效率
                           </div>
-                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
                             {typeof pump.efficiency === 'number' ? pump.efficiency.toFixed(1) : pump.efficiency}%
                           </div>
                         </div>
