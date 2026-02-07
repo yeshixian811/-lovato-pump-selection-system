@@ -129,6 +129,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* 移动端优化：防止iOS文本缩放 */
+    -webkit-text-size-adjust: 100%;
+    /* 移动端优化：防止水平滚动 */
+    overflow-x: hidden;
+    /* 移动端优化：触摸平滑滚动 */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 移动端输入框优化 */
+  input,
+  textarea,
+  select {
+    @apply text-base;
+    font-size: 16px; /* 防止iOS缩放 */
   }
 }
 

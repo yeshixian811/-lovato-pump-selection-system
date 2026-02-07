@@ -4,6 +4,7 @@ import Navigation from '@/components/navigation';
 import './globals.css';
 
 export const metadata: Metadata = {
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes',
   title: {
     default: '洛瓦托水泵选型系统',
     template: '%s | 洛瓦托水泵选型',
