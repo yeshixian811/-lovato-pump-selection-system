@@ -12,25 +12,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { 
-  Menu, 
-  X, 
-  Home, 
-  User, 
+import {
+  Menu,
+  X,
+  Home,
+  User,
   Crown,
   LogOut,
   LayoutDashboard,
   ShoppingCart,
   Layout
 } from 'lucide-react'
+import { isWechatMiniProgram } from '@/lib/wechat'
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [isMiniProgram, setIsMiniProgram] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
     fetchUserInfo()
+    setIsMiniProgram(isWechatMiniProgram())
   }, [])
 
   const fetchUserInfo = async () => {
@@ -62,6 +65,11 @@ export default function Navigation() {
   ]
 
   const isAdminPage = pathname.startsWith('/admin')
+
+  // 在微信小程序中隐藏导航栏
+  if (isMiniProgram) {
+    return null
+  }
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">

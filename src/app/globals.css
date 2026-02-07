@@ -149,3 +149,46 @@
 body {
   @apply font-sans;
 }
+
+/* 微信小程序环境样式 */
+body.wechat-miniprogram {
+  /* 小程序中隐藏顶部导航栏 */
+  .nav-hidden {
+    display: none !important;
+  }
+
+  /* 小程序中调整页面顶部间距 */
+  main {
+    padding-top: 0;
+  }
+
+  /* 小程序中优化输入框 */
+  input,
+  select,
+  textarea {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* 小程序中优化按钮 */
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* 微信浏览器环境样式 */
+body.wechat-browser {
+  /* 微信浏览器中的一些特殊处理 */
+  a {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 优化触摸体验 */
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}

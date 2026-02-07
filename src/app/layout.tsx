@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inspector } from 'react-dev-inspector';
 import Navigation from '@/components/navigation';
+import { WechatInitializer } from '@/components/wechat/initializer';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -48,6 +49,10 @@ export const metadata: Metadata = {
     locale: 'zh_CN',
     type: 'website',
   },
+  other: {
+    // 微信小程序相关标签
+    'weixin-appid': process.env.NEXT_PUBLIC_WECHAT_APP_ID || '',
+  },
   robots: {
     index: true,
     follow: true,
@@ -62,8 +67,17 @@ export default function RootLayout({
   const isDev = process.env.NODE_ENV === 'development';
 
   return (
-    <html lang="en">
-      <body className={`antialiased`}>
+    <html lang="zh-CN">
+      <head>
+        {/* 微信小程序兼容性标签 */}
+        <meta name="wechat-enable-compatible" content="true" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="洛瓦托选型" />
+      </head>
+      <body className="antialiased">
+        <WechatInitializer />
         <Navigation />
         <main>
           {isDev && <Inspector />}

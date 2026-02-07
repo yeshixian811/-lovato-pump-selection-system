@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2, Info, Zap, Droplet, Gauge } from 'lucide-react';
 import Link from 'next/link';
+import { WechatShareConfig } from '@/components/wechat/initializer';
 
 // 类型定义
 interface Pump {
@@ -169,6 +170,12 @@ export default function PumpSelectionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+      {/* 微信分享配置 */}
+      <WechatShareConfig
+        title="洛瓦托智能水泵选型"
+        desc="快速、精准、高效 - 根据您的需求智能匹配最合适的水泵产品"
+      />
+
       {/* Header */}
       <div className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
