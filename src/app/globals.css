@@ -192,3 +192,55 @@ select,
 textarea {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* 自定义滚动条样式 - 始终显示在最前方 */
+.custom-scrollbar {
+  position: relative;
+  z-index: 10;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  position: fixed;
+  z-index: 9999;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 5px;
+  position: fixed;
+  z-index: 9999;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 5px;
+  position: fixed;
+  z-index: 9999;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+  position: fixed;
+  z-index: 9999;
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: var(--muted);
+  position: fixed;
+  z-index: 9999;
+}
+
+/* Firefox 滚动条样式 */
+.custom-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: var(--muted-foreground) var(--muted);
+  z-index: 10;
+}
+
+/* 强制滚动条始终可见 */
+.custom-scrollbar {
+  overflow-y: scroll !important;
+  overflow-x: scroll !important;
+}

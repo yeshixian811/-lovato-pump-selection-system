@@ -316,71 +316,73 @@ export default function ProductsPage() {
               <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>图片</TableHead>
-                  <TableHead>型号</TableHead>
-                  <TableHead>名称</TableHead>
-                  <TableHead>类型</TableHead>
-                  <TableHead>流量</TableHead>
-                  <TableHead>扬程</TableHead>
-                  <TableHead>功率</TableHead>
-                  <TableHead>价格</TableHead>
-                  <TableHead>操作</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPumps.map((pump) => (
-                  <TableRow key={pump.id}>
-                    <TableCell>
-                      {pump.imageUrl ? (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                          <img
-                            src={pump.imageUrl}
-                            alt={pump.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
-                          <Package className="w-8 h-8 text-gray-400" />
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{pump.model}</TableCell>
-                    <TableCell>{pump.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{pump.pumpType}</Badge>
-                    </TableCell>
-                    <TableCell>{pump.flowRate} m³/h</TableCell>
-                    <TableCell>{pump.head} m</TableCell>
-                    <TableCell>{pump.power} kW</TableCell>
-                    <TableCell>
-                      {pump.price ? `¥${parseFloat(pump.price).toLocaleString()}` : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(pump)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(pump.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <div className="overflow-auto max-h-[calc(100vh-300px)] custom-scrollbar relative">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>图片</TableHead>
+                    <TableHead>型号</TableHead>
+                    <TableHead>名称</TableHead>
+                    <TableHead>类型</TableHead>
+                    <TableHead>流量</TableHead>
+                    <TableHead>扬程</TableHead>
+                    <TableHead>功率</TableHead>
+                    <TableHead>价格</TableHead>
+                    <TableHead>操作</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredPumps.map((pump) => (
+                    <TableRow key={pump.id}>
+                      <TableCell>
+                        {pump.imageUrl ? (
+                          <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                            <img
+                              src={pump.imageUrl}
+                              alt={pump.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                            <Package className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">{pump.model}</TableCell>
+                      <TableCell>{pump.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{pump.pumpType}</Badge>
+                      </TableCell>
+                      <TableCell>{pump.flowRate} m³/h</TableCell>
+                      <TableCell>{pump.head} m</TableCell>
+                      <TableCell>{pump.power} kW</TableCell>
+                      <TableCell>
+                        {pump.price ? `¥${parseFloat(pump.price).toLocaleString()}` : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(pump)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(pump.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
