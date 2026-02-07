@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2, Info, Zap, Droplet, Gauge } from 'lucide-react';
 import Link from 'next/link';
 import { WechatShareConfig } from '@/components/wechat/initializer';
@@ -224,67 +223,33 @@ export default function PumpSelectionPage() {
                 {/* 流量需求 - 支持键盘输入 */}
                 <div className="space-y-2">
                   <Label htmlFor="flow_rate" className="text-sm md:text-base">流量需求 (m³/h)</Label>
-                  <div className="flex items-center gap-2 md:gap-4">
-                    <Input
-                      id="flow_rate_input"
-                      type="number"
-                      min="1"
-                      max="500"
-                      step="0.1"
-                      value={formData.required_flow_rate}
-                      onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
-                      className="w-16 md:w-24 text-sm md:text-base"
-                    />
-                    <Slider
-                      id="flow_rate"
-                      min={1}
-                      max={500}
-                      step={1}
-                      value={[formData.required_flow_rate]}
-                      onValueChange={(value) =>
-                        handleInputChange('required_flow_rate', value[0])
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs md:text-sm text-gray-500 w-10 md:w-12 whitespace-nowrap">{formData.required_flow_rate}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>1 m³/h</span>
-                    <span>500 m³/h</span>
-                  </div>
+                  <Input
+                    id="flow_rate_input"
+                    type="number"
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    placeholder="请输入流量需求"
+                    value={formData.required_flow_rate}
+                    onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
+                    className="w-full text-sm md:text-base"
+                  />
                 </div>
 
                 {/* 扬程需求 - 支持键盘输入 */}
                 <div className="space-y-2">
                   <Label htmlFor="head" className="text-sm md:text-base">扬程需求 (m)</Label>
-                  <div className="flex items-center gap-2 md:gap-4">
-                    <Input
-                      id="head_input"
-                      type="number"
-                      min="1"
-                      max="200"
-                      step="0.1"
-                      value={formData.required_head}
-                      onChange={(e) => handleNumberInput('required_head', e.target.value)}
-                      className="w-16 md:w-24 text-sm md:text-base"
-                    />
-                    <Slider
-                      id="head"
-                      min={1}
-                      max={200}
-                      step={1}
-                      value={[formData.required_head]}
-                      onValueChange={(value) =>
-                        handleInputChange('required_head', value[0])
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs md:text-sm text-gray-500 w-10 md:w-12 whitespace-nowrap">{formData.required_head}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>1 m</span>
-                    <span>200 m</span>
-                  </div>
+                  <Input
+                    id="head_input"
+                    type="number"
+                    min="1"
+                    max="200"
+                    step="0.1"
+                    placeholder="请输入扬程需求"
+                    value={formData.required_head}
+                    onChange={(e) => handleNumberInput('required_head', e.target.value)}
+                    className="w-full text-sm md:text-base"
+                  />
                 </div>
 
                 {/* 应用类型 */}
