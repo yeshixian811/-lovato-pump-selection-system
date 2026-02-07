@@ -1,10 +1,10 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-PORT=3002
+PORT=5000
 COZE_WORKSPACE_PATH="${COZE_WORKSPACE_PATH:-$(pwd)}"
 NODE_ENV=development
-DEPLOY_RUN_PORT=3002
+DEPLOY_RUN_PORT=5000
 
 # Add pnpm bin to PATH
 export PATH="${COZE_WORKSPACE_PATH}/node_modules/.bin:${PATH}"
