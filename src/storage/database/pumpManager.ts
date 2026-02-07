@@ -105,7 +105,7 @@ export class PumpManager {
       minPower?: number;
       maxPower?: number;
     };
-  } = {}): Promise<Pump[]> {
+  } = {}): Promise<(Pump & { performance_curve?: Array<{ flowRate: number; head: number }> })[]> {
     const { skip = 0, limit = 100, filters = {} } = options;
     const db = await getDb(schema);
 
@@ -145,22 +145,44 @@ export class PumpManager {
       conditions.push(sql`${pumps.power} <= ${filters.maxPower}`);
     }
 
+    let pumpList: Pump[];
     if (conditions.length > 0) {
-      return db
+      pumpList = await db
         .select()
         .from(pumps)
         .where(and(...conditions))
         .limit(limit)
         .offset(skip)
         .orderBy(pumps.createdAt);
+    } else {
+      pumpList = await db
+        .select()
+        .from(pumps)
+        .limit(limit)
+        .offset(skip)
+        .orderBy(pumps.createdAt);
     }
 
-    return db
-      .select()
-      .from(pumps)
-      .limit(limit)
-      .offset(skip)
-      .orderBy(pumps.createdAt);
+    // 为每个水泵获取性能曲线数据
+    const pumpsWithCurve = await Promise.all(
+      pumpList.map(async (pump) => {
+        const curveData = await db
+          .select()
+          .from(pumpPerformancePoints)
+          .where(eq(pumpPerformancePoints.pumpId, pump.id))
+          .orderBy(pumpPerformancePoints.flowRate);
+
+        return {
+          ...pump,
+          performance_curve: curveData.map((point) => ({
+            flowRate: parseFloat(point.flowRate),
+            head: parseFloat(point.head),
+          })),
+        };
+      })
+    );
+
+    return pumpsWithCurve;
   }
 
   async getPumpById(id: string): Promise<Pump | null> {

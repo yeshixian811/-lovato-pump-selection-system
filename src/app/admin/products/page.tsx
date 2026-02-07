@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Upload, Plus, Edit, Trash2, Search, RefreshCw, Package } from 'lucide-react'
+import ProductCurvePreview from '@/components/product-curve-preview'
 
 interface Pump {
   id: string
@@ -36,6 +37,12 @@ interface Pump {
   description: string
   createdAt: string
   updatedAt: string
+  max_flow_rate?: number
+  max_head?: number
+  performance_curve?: Array<{
+    flowRate: number
+    head: number
+  }>
 }
 
 interface PumpFormData {
@@ -327,6 +334,7 @@ export default function ProductsPage() {
                     <TableHead>流量</TableHead>
                     <TableHead>扬程</TableHead>
                     <TableHead>功率</TableHead>
+                    <TableHead>性能曲线</TableHead>
                     <TableHead>价格</TableHead>
                     <TableHead>操作</TableHead>
                   </TableRow>
@@ -357,6 +365,9 @@ export default function ProductsPage() {
                       <TableCell>{pump.flowRate} m³/h</TableCell>
                       <TableCell>{pump.head} m</TableCell>
                       <TableCell>{pump.power} kW</TableCell>
+                      <TableCell>
+                        <ProductCurvePreview pump={pump} />
+                      </TableCell>
                       <TableCell>
                         {pump.price ? `¥${parseFloat(pump.price).toLocaleString()}` : '-'}
                       </TableCell>
