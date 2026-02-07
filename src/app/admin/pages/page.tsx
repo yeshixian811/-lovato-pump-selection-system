@@ -327,18 +327,33 @@ export default function PagesManagementPage() {
                           <Label>标题</Label>
                           <Input
                             value={selectedComponent.settings.title}
+                            onChange={(e) => {
+                              const updated = { ...selectedComponent }
+                              updated.settings.title = e.target.value
+                              setSelectedComponent(updated)
+                            }}
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>描述</Label>
                           <Input
                             value={selectedComponent.settings.description}
+                            onChange={(e) => {
+                              const updated = { ...selectedComponent }
+                              updated.settings.description = e.target.value
+                              setSelectedComponent(updated)
+                            }}
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>按钮文字</Label>
                           <Input
                             value={selectedComponent.settings.buttonText}
+                            onChange={(e) => {
+                              const updated = { ...selectedComponent }
+                              updated.settings.buttonText = e.target.value
+                              setSelectedComponent(updated)
+                            }}
                           />
                         </div>
                       </div>
