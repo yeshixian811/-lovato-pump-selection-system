@@ -92,23 +92,23 @@ export default function AdminDashboard() {
   const filteredUsers = handleSearch()
 
   const getTierBadge = (tier: string) => {
-    const badges = {
-      free: { label: '免费会员', variant: 'secondary' as const },
-      basic: { label: '基础会员', variant: 'default' as const },
-      pro: { label: '高级会员', variant: 'default' as const, gradient: true },
-      enterprise: { label: '企业会员', variant: 'outline' as const },
+    const badges: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; gradient?: boolean }> = {
+      free: { label: '免费会员', variant: 'secondary' },
+      basic: { label: '基础会员', variant: 'default' },
+      pro: { label: '高级会员', variant: 'default', gradient: true },
+      enterprise: { label: '企业会员', variant: 'outline' },
     }
-    return badges[tier as keyof typeof badges] || badges.free
+    return badges[tier] || badges.free
   }
 
   const getStatusBadge = (status: string) => {
-    const badges = {
-      active: { label: '正常', variant: 'default' as const, color: 'bg-green-600' },
-      expired: { label: '已过期', variant: 'destructive' as const },
-      canceled: { label: '已取消', variant: 'secondary' as const },
-      past_due: { label: '逾期', variant: 'destructive' as const },
+    const badges: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; color?: string }> = {
+      active: { label: '正常', variant: 'default', color: 'bg-green-600' },
+      expired: { label: '已过期', variant: 'destructive' },
+      canceled: { label: '已取消', variant: 'secondary' },
+      past_due: { label: '逾期', variant: 'destructive' },
     }
-    return badges[status as keyof typeof badges] || badges.active
+    return badges[status] || badges.active
   }
 
   const formatDate = (dateString: string | null) => {
@@ -302,12 +302,12 @@ export default function AdminDashboard() {
                               </TableCell>
                               <TableCell>
                                 <Badge className={tierBadge.gradient ? 'bg-gradient-to-r from-blue-600 to-purple-600' : ''} variant={tierBadge.variant}>
-                                  {tierBadge.gradient && <Crown className="w-3 h-3 mr-1" />}
+                                  {tierBadge.gradient === true && <Crown className="w-3 h-3 mr-1" />}
                                   {tierBadge.label}
                                 </Badge>
                               </TableCell>
                               <TableCell>
-                                <Badge variant={statusBadge.variant} className={statusBadge.color}>
+                                <Badge variant={statusBadge.variant} className={statusBadge.color || ''}>
                                   {statusBadge.label}
                                 </Badge>
                               </TableCell>

@@ -45,12 +45,13 @@ export async function POST(request: NextRequest) {
     // 处理所有水泵
     for (const pump of allPumps.rows) {
       try {
-        const ratedFlow = parseFloat(pump.flow_rate);
-        const ratedHead = parseFloat(pump.head);
-        const ratedPower = parseFloat(pump.power);
-        const maxFlow = pump.max_flow ? parseFloat(pump.max_flow) : ratedFlow * 1.5;
-        const maxHead = pump.max_head ? parseFloat(pump.max_head) : ratedHead * 1.3;
-        const efficiency = pump.efficiency ? parseFloat(pump.efficiency) : null;
+        const pumpData = pump as any;
+        const ratedFlow = parseFloat(pumpData.flow_rate || '0');
+        const ratedHead = parseFloat(pumpData.head || '0');
+        const ratedPower = parseFloat(pumpData.power || '0');
+        const maxFlow = pumpData.max_flow ? parseFloat(pumpData.max_flow) : ratedFlow * 1.5;
+        const maxHead = pumpData.max_head ? parseFloat(pumpData.max_head) : ratedHead * 1.3;
+        const efficiency = pumpData.efficiency ? parseFloat(pumpData.efficiency) : null;
 
         // 步长0.1 m³/h
         const step = 0.1;
@@ -58,13 +59,10 @@ export async function POST(request: NextRequest) {
 
         // 先删除该水泵的旧性能曲线数据（如果表存在）
         try {
-          await db.execute(
-            `DELETE FROM pump_performance_points WHERE pump_id = $1`,
-            [pump.id]
-          );
+          await db.execute(`DELETE FROM pump_performance_points WHERE pump_id = '${pumpData.id}'`);
         } catch (deleteError) {
           // 表可能不存在，忽略DELETE错误
-          console.log(`跳过DELETE操作: ${pump.id}`);
+          console.log(`跳过DELETE操作: ${pumpData.id}`);
         }
 
         // 生成新的性能曲线数据点
@@ -93,23 +91,23 @@ export async function POST(request: NextRequest) {
             try {
               await db.execute(
                 `INSERT INTO pump_performance_points (pump_id, flow_rate, head, power, efficiency)
-                 VALUES ($1, $2, $3, $4, $5)`,
-                [pump.id, parseFloat(flow.toFixed(2)), parseFloat(head.toFixed(2)), parseFloat(power.toFixed(2)), eff ? parseFloat(eff.toFixed(2)) : null]
+                 VALUES ('${pumpData.id}', ${parseFloat(flow.toFixed(2))}, ${parseFloat(head.toFixed(2))}, ${parseFloat(power.toFixed(2))}, ${eff ? parseFloat(eff.toFixed(2)) : 'NULL'})`
               );
               pointCount++;
             } catch (insertError) {
-              console.error(`插入数据点失败: flow=${flow}, pump=${pump.id}`, insertError);
+              console.error(`插入数据点失败: flow=${flow}, pump=${pumpData.id}`, insertError);
             }
           }
         }
 
         success++;
-        console.log(`✓ ${pump.id}: 生成 ${pointCount} 个性能曲线数据点`);
+        console.log(`✓ ${pumpData.id}: 生成 ${pointCount} 个性能曲线数据点`);
       } catch (error) {
         failed++;
         const errorMsg = error instanceof Error ? error.message : String(error);
-        errors.push({ pumpId: pump.id, error: errorMsg });
-        console.error(`✗ ${pump.id}: 生成失败`, error);
+        const pumpData = pump as any;
+        errors.push({ pumpId: pumpData.id, error: errorMsg });
+        console.error(`✗ ${pumpData.id}: 生成失败`, error);
       }
     }
 

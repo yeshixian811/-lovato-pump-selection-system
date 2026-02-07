@@ -42,11 +42,12 @@ export async function POST(request: NextRequest) {
     }> = [];
 
     // 首先添加起点（Q=0, H=maxHead）
+    const pumpEfficiencyValue = pump.efficiency ? parseFloat(String(pump.efficiency)) : undefined;
     points.push({
       flowRate: 0,
       head: parseFloat(shutOffHead.toFixed(2)),
       power: parseFloat((ratedPower * 0.3).toFixed(2)),
-      efficiency: parseFloat((pump.efficiency ? parseFloat(typeof pump.efficiency === 'string' ? pump.efficiency : pump.efficiency.toString()) * 0.5 : 0).toFixed(2)),
+      efficiency: pumpEfficiencyValue ? parseFloat((pumpEfficiencyValue * 0.5).toFixed(2)) : undefined,
     });
 
     // 然后生成其他点
@@ -68,13 +69,12 @@ export async function POST(request: NextRequest) {
       const power = ratedPower * (0.3 + 0.7 * flowRatio);
 
       // 计算效率：效率在 60% 流量处最高
-      const pumpEfficiency = pump.efficiency ? parseFloat(typeof pump.efficiency === 'string' ? pump.efficiency : pump.efficiency.toString()) : undefined;
       let efficiency: number | undefined;
-      if (pumpEfficiency) {
+      if (pumpEfficiencyValue) {
         if (flowRatio <= 0.6) {
-          efficiency = pumpEfficiency * (0.5 + 0.5 * (flowRatio / 0.6));
+          efficiency = pumpEfficiencyValue * (0.5 + 0.5 * (flowRatio / 0.6));
         } else {
-          efficiency = pumpEfficiency * (1.0 - 0.2 * ((flowRatio - 0.6) / 0.4));
+          efficiency = pumpEfficiencyValue * (1.0 - 0.2 * ((flowRatio - 0.6) / 0.4));
         }
       }
 

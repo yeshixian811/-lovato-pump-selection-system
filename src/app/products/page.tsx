@@ -779,10 +779,10 @@ export default function ProductsPage() {
             <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
               <Label className="mb-2 block">Q-H 性能曲线</Label>
               <PumpCurveChart
-                pumpFlow={performanceData.pump.flowRate}
-                pumpHead={performanceData.pump.head}
-                pumpMaxFlow={performanceData.pump.maxFlow}
-                pumpMaxHead={performanceData.pump.maxHead}
+                pumpFlow={performanceData.pump.flowRate || 0}
+                pumpHead={performanceData.pump.head || 0}
+                pumpMaxFlow={performanceData.pump.maxFlow || 0}
+                pumpMaxHead={performanceData.pump.maxHead || 0}
                 userFlow={null}
                 userHead={null}
               />
@@ -799,19 +799,19 @@ export default function ProductsPage() {
                 <div>
                   <span className="text-muted-foreground">流量范围：</span>
                   <span className="font-semibold ml-1">
-                    {parseFloat(performanceData.performancePoints[0]?.flowRate || '0').toFixed(1)} - {parseFloat(performanceData.performancePoints[performanceData.performancePoints.length - 1]?.flowRate || '0').toFixed(1)} m³/h
+                    {parseFloat(String(performanceData.performancePoints[0]?.flowRate || '0')).toFixed(1)} - {parseFloat(String(performanceData.performancePoints[performanceData.performancePoints.length - 1]?.flowRate || '0')).toFixed(1)} m³/h
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">最大扬程：</span>
                   <span className="font-semibold ml-1">
-                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(p.head))).toFixed(1)} m
+                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(String(p.head)))).toFixed(1)} m
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">最大功率：</span>
                   <span className="font-semibold ml-1">
-                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(p.power))).toFixed(2)} kW
+                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(String(p.power)))).toFixed(2)} kW
                   </span>
                 </div>
               </div>

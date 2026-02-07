@@ -6,7 +6,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge'
 import { Check, Star } from 'lucide-react'
 
-const PLAN_FEATURES = {
+interface PlanFeatures {
+  name: string
+  description: string
+  price: number | null
+  features: Array<{ text: string; included: boolean }>
+  popular?: boolean
+}
+
+const PLAN_FEATURES: Record<string, PlanFeatures> = {
   free: {
     name: '免费会员',
     description: '体验基础功能',

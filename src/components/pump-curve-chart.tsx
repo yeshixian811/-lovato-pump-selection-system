@@ -3,24 +3,24 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot } from "recharts";
 
 interface PumpCurveChartProps {
-  pumpFlow: string; // 水泵最大流量 m³/h
-  pumpHead: string; // 水泵最大扬程 m
-  pumpMaxFlow?: string | null; // 水泵最大流量 m³/h（可选）- 已废弃
-  pumpMaxHead?: string | null; // 水泵最大扬程 m（可选）- 已废弃
-  userFlow: string; // 用户需求流量 m³/h
-  userHead: string; // 用户需求扬程 m
+  pumpFlow: string | number; // 水泵最大流量 m³/h
+  pumpHead: string | number; // 水泵最大扬程 m
+  pumpMaxFlow?: string | number | null; // 水泵最大流量 m³/h（可选）- 已废弃
+  pumpMaxHead?: string | number | null; // 水泵最大扬程 m（可选）- 已废弃
+  userFlow: string | number | null; // 用户需求流量 m³/h
+  userHead: string | number | null; // 用户需求扬程 m
 }
 
 export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMaxHead, userFlow, userHead }: PumpCurveChartProps) {
   // 解析数值
-  const pumpFlowNum = parseFloat(pumpFlow);
-  const pumpHeadNum = parseFloat(pumpHead);
-  const userFlowNum = parseFloat(userFlow);
-  const userHeadNum = parseFloat(userHead);
+  const pumpFlowNum = parseFloat(String(pumpFlow));
+  const pumpHeadNum = parseFloat(String(pumpHead));
+  const userFlowNum = userFlow ? parseFloat(String(userFlow)) : 0;
+  const userHeadNum = userHead ? parseFloat(String(userHead)) : 0;
 
   // 解析可选的最大流量和最大扬程
-  const pumpMaxFlowNum = pumpMaxFlow ? parseFloat(pumpMaxFlow) : null;
-  const pumpMaxHeadNum = pumpMaxHead ? parseFloat(pumpMaxHead) : null;
+  const pumpMaxFlowNum = pumpMaxFlow ? parseFloat(String(pumpMaxFlow)) : null;
+  const pumpMaxHeadNum = pumpMaxHead ? parseFloat(String(pumpMaxHead)) : null;
 
   // 生成模拟的 Q-H 曲线数据
   // 基于最大点生成性能曲线
