@@ -6,6 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2, Info, Zap, Droplet, Gauge } from 'lucide-react';
 import Link from 'next/link';
 import { WechatShareConfig } from '@/components/wechat/initializer';
@@ -23,6 +29,8 @@ interface Pump {
   min_flow_rate: number;
   max_head: number;
   min_head: number;
+  rated_flow_rate: number;
+  rated_head: number;
   rated_power: number;
   rated_speed: number;
   efficiency: number;
@@ -496,6 +504,42 @@ export default function PumpSelectionPage() {
                           </div>
                           <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
                             {pump.min_head} - {pump.max_head} m
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                            额定流量
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">性能参数图形的参考点</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                            {pump.rated_flow_rate} m³/h
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                            额定扬程
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs">性能参数图形的参考点</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <div className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
+                            {pump.rated_head} m
                           </div>
                         </div>
                         <div>

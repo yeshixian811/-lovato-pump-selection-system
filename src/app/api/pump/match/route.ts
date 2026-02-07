@@ -53,7 +53,29 @@ interface Pump {
   match_score: number;
 }
 
-// 匹配度计算函数
+// 计算水泵性能曲线上的扬程
+// 使用二次曲线模型：H = H_max - k * Q^2
+function calculateHeadAtFlow(pump: any, flowRate: number): number {
+  const maxHead = parseFloat(pump.max_head);
+  const maxFlow = parseFloat(pump.max_flow_rate);
+  const minFlow = parseFloat(pump.min_flow_rate || 0);
+  
+  // 关断点扬程（流量为0时的扬程），通常是最大扬程的1.2-1.3倍
+  const shutOffHead = maxHead * 1.25;
+  
+  // 计算曲线系数
+  // 当 Q = maxFlow 时，H = minHead
+  // minHead = shutOffHead - k * maxFlow^2
+  // k = (shutOffHead - minHead) / maxFlow^2
+  const k = (shutOffHead - maxHead) / Math.pow(maxFlow, 2);
+  
+  // 计算指定流量下的扬程
+  const head = shutOffHead - k * Math.pow(flowRate, 2);
+  
+  return Math.max(0, head);
+}
+
+// 匹配度计算函数 - 基于性能曲线
 function calculateMatchScore(
   pump: any,
   params: SelectionParams
@@ -61,71 +83,68 @@ function calculateMatchScore(
   let score = 0;
   const maxScore = 100;
 
-  // 1. 流量匹配 (权重: 35%)
-  const minFlow = parseFloat(pump.min_flow_rate || pump.flowRate);
-  const maxFlow = parseFloat(pump.max_flow_rate || pump.maxFlow || pump.flowRate * 1.5);
+  const requiredFlow = params.required_flow_rate;
+  const requiredHead = params.required_head;
   
-  if (params.required_flow_rate >= minFlow && params.required_flow_rate <= maxFlow) {
-    // 完全在范围内
-    const flowRange = maxFlow - minFlow;
-    const flowPosition = (params.required_flow_rate - minFlow) / flowRange;
-    const flowScore = 35 * (1 - Math.abs(flowPosition - 0.5) * 0.5);
-    score += flowScore;
-  } else {
-    // 超出范围，给予部分分数
-    if (params.required_flow_rate < minFlow) {
-      const diff = minFlow - params.required_flow_rate;
-      score += Math.max(0, 35 - (diff / minFlow) * 20);
+  const maxFlow = parseFloat(pump.max_flow_rate);
+  const minFlow = parseFloat(pump.min_flow_rate || maxFlow * 0.3);
+  const maxHead = parseFloat(pump.max_head);
+  const minHead = parseFloat(pump.min_head || maxHead * 0.6);
+
+  // 1. 检查需求点是否在工作范围内 (权重: 60%)
+  // 工作范围：流量在 [minFlow, maxFlow] 之间
+  const inFlowRange = requiredFlow >= minFlow && requiredFlow <= maxFlow;
+  
+  if (inFlowRange) {
+    // 流量在范围内，检查扬程
+    const curveHead = calculateHeadAtFlow(pump, requiredFlow);
+    
+    // 允许一定的误差范围（±15%）
+    const headError = Math.abs(curveHead - requiredHead) / requiredHead;
+    
+    if (headError <= 0.15) {
+      // 在性能曲线的允许误差范围内
+      const flowScore = 60 * (1 - headError / 0.15);
+      score += flowScore;
+    } else if (headError <= 0.3) {
+      // 稍微超出允许误差
+      score += 30;
     } else {
-      const diff = params.required_flow_rate - maxFlow;
-      score += Math.max(0, 35 - (diff / maxFlow) * 20);
+      // 严重偏离性能曲线
+      score += 10;
+    }
+  } else {
+    // 流量超出工作范围
+    if (requiredFlow < minFlow) {
+      // 流量太小，可能导致过载
+      const flowRatio = requiredFlow / minFlow;
+      score += Math.max(0, 60 * flowRatio);
+    } else {
+      // 流量太大，超过水泵能力
+      const flowExcess = (requiredFlow - maxFlow) / maxFlow;
+      score += Math.max(0, 60 * (1 - flowExcess * 2));
     }
   }
 
-  // 2. 扬程匹配 (权重: 35%)
-  const minHead = parseFloat(pump.min_head || pump.head);
-  const maxHead = parseFloat(pump.max_head || pump.maxHead || pump.head * 1.3);
-  
-  if (params.required_head >= minHead && params.required_head <= maxHead) {
-    const headRange = maxHead - minHead;
-    const headPosition = (params.required_head - minHead) / headRange;
-    const headScore = 35 * (1 - Math.abs(headPosition - 0.5) * 0.5);
-    score += headScore;
-  } else {
-    if (params.required_head < minHead) {
-      const diff = minHead - params.required_head;
-      score += Math.max(0, 35 - (diff / minHead) * 20);
-    } else {
-      const diff = params.required_head - maxHead;
-      score += Math.max(0, 35 - (diff / maxHead) * 20);
-    }
-  }
-
-  // 3. 功率匹配 (权重: 15%) - 可选
-  if (params.preferred_power && params.preferred_power > 0) {
-    const ratedPower = parseFloat(pump.power || pump.rated_power);
-    const powerDiff = Math.abs(ratedPower - params.preferred_power);
-    const powerScore = Math.max(0, 15 - (powerDiff / params.preferred_power) * 10);
-    score += powerScore;
-  } else {
-    // 如果没有提供功率偏好，给予部分分数
-    score += 7.5;
-  }
-
-  // 4. 应用场景匹配 (权重: 10%)
+  // 2. 应用场景匹配 (权重: 25%)
+  const pumpApplications = pump.applications || [];
   const pumpApplication = pump.application_type || pump.applicationType;
-  if (pumpApplication && pumpApplication === params.application_type) {
-    score += 10;
+  
+  if (pumpApplications.includes(params.application_type) || 
+      pumpApplication === params.application_type) {
+    score += 25;
   } else {
-    score += 5;
+    score += 10;
   }
 
-  // 5. 流体类型匹配 (权重: 5%)
-  const pumpFluid = pump.material; // 简化：使用材质作为流体类型参考
-  if (pumpFluid) {
-    score += 5;
+  // 3. 流体类型匹配 (权重: 15%)
+  const pumpFluidTypes = pump.fluid_types || [];
+  
+  if (pumpFluidTypes.includes(params.fluid_type) ||
+      pumpFluidTypes.includes('清水') && params.fluid_type.includes('水')) {
+    score += 15;
   } else {
-    score += 2;
+    score += 5;
   }
 
   return Math.min(Math.round(score * 10) / 10, maxScore);
@@ -154,6 +173,21 @@ export async function POST(request: NextRequest) {
 
     // 计算每个水泵的匹配度
     const pumpsWithScore = dbPumps.map((pump: any) => {
+      // 解析基础数据
+      const baseFlowRate = parseFloat(pump.flowRate);
+      const baseHead = parseFloat(pump.head);
+      
+      // 基于性能曲线定义工作范围
+      // 最大流量：通常为额定流量的1.5-2倍
+      const maxFlow = baseFlowRate * 1.8;
+      // 最小流量：通常为额定流量的0.3-0.5倍
+      const minFlow = baseFlowRate * 0.4;
+      
+      // 最大扬程：关断点扬程（流量为0时）
+      const maxHead = baseHead * 1.25;
+      // 最小扬程：最大流量点的扬程
+      const minHead = baseHead * 0.65;
+      
       // 转换为前端期望的格式
       const formattedPump: any = {
         id: pump.id,
@@ -163,10 +197,17 @@ export async function POST(request: NextRequest) {
         type: pump.pumpType,
         series: pump.pumpType,
         description: pump.description,
-        max_flow_rate: parseFloat(pump.maxFlow || pump.flowRate) * 1.5,
-        min_flow_rate: parseFloat(pump.flowRate) * 0.5,
-        max_head: parseFloat(pump.maxHead || pump.head) * 1.3,
-        min_head: parseFloat(pump.head) * 0.7,
+        
+        // 性能曲线范围（用于选型匹配）
+        max_flow_rate: maxFlow,
+        min_flow_rate: minFlow,
+        max_head: maxHead,
+        min_head: minHead,
+        
+        // 额定参数（仅作为性能参数图形的参考）
+        rated_flow_rate: baseFlowRate,
+        rated_head: baseHead,
+        
         rated_power: parseFloat(pump.power),
         rated_speed: pump.speed || 2900,
         efficiency: pump.efficiency ? parseFloat(pump.efficiency) : 75,
