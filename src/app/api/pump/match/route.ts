@@ -222,79 +222,87 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // 计算每个水泵的匹配度
-    const pumpsWithScore = dbPumps.map((pump: any) => {
-      // 解析基础数据
-      const baseFlowRate = parseFloat(pump.flowRate);
-      const baseHead = parseFloat(pump.head);
-      
-      // 基于性能曲线定义工作范围
-      // 最大流量：通常为额定流量的1.5-2倍
-      const maxFlow = baseFlowRate * 1.8;
-      // 最小流量：通常为额定流量的0.3-0.5倍
-      const minFlow = baseFlowRate * 0.4;
-      
-      // 最大扬程：关断点扬程（流量为0时）
-      const maxHead = baseHead * 1.25;
-      // 最小扬程：最大流量点的扬程
-      const minHead = baseHead * 0.65;
-      
-      // 转换为前端期望的格式
-      const formattedPump: any = {
-        id: pump.id,
-        model: pump.model,
-        name: pump.name,
-        brand: pump.brand,
-        type: pump.pumpType,
-        series: pump.pumpType,
-        description: pump.description,
+    // 计算每个水泵的匹配度，并获取真实性能曲线数据
+    const pumpsWithScore = await Promise.all(
+      dbPumps.map(async (pump: any) => {
+        // 解析基础数据
+        const baseFlowRate = parseFloat(pump.flowRate);
+        const baseHead = parseFloat(pump.head);
         
-        // 性能曲线范围（用于选型匹配）
-        max_flow_rate: maxFlow,
-        min_flow_rate: minFlow,
-        max_head: maxHead,
-        min_head: minHead,
+        // 基于性能曲线定义工作范围
+        // 最大流量：通常为额定流量的1.5-2倍
+        const maxFlow = baseFlowRate * 1.8;
+        // 最小流量：通常为额定流量的0.3-0.5倍
+        const minFlow = baseFlowRate * 0.4;
         
-        // 额定参数（仅作为性能参数图形的参考）
-        rated_flow_rate: baseFlowRate,
-        rated_head: baseHead,
+        // 最大扬程：关断点扬程（流量为0时）
+        const maxHead = baseHead * 1.25;
+        // 最小扬程：最大流量点的扬程
+        const minHead = baseHead * 0.65;
         
-        rated_power: parseFloat(pump.power),
-        rated_speed: pump.speed || 2900,
-        efficiency: pump.efficiency ? parseFloat(pump.efficiency) : 75,
-        voltage: '380V',
-        frequency: 50,
-        current: 15,
-        power_factor: 0.85,
-        inlet_diameter: pump.inletDiameter || 50,
-        outlet_diameter: pump.outletDiameter || 40,
-        weight: pump.weight ? parseFloat(pump.weight) : 100,
-        dimensions: '500x400x600',
-        casing_material: pump.material || '铸铁',
-        impeller_material: pump.material || '不锈钢',
-        seal_type: '机械密封',
-        protection_level: 'IP55',
-        insulation_class: 'F',
-        applications: pump.applicationType ? [pump.applicationType] : [],
-        fluid_types: pump.material ? [pump.material] : [],
-        max_temperature: pump.maxTemperature ? parseFloat(pump.maxTemperature) : 80,
-        min_temperature: 0,
-        max_viscosity: 10,
-        price: pump.price ? parseFloat(pump.price) : 5000,
-        currency: 'CNY',
-        in_stock: true,
-        stock_quantity: 10,
-        image_url: pump.imageUrl || '',
-        spec_sheet_url: '',
-        manual_url: '',
-        match_score: 0,
-      };
+        // 获取真实的性能曲线数据
+        const performancePoints = await pumpManager.getPumpPerformancePoints(pump.id);
+        
+        // 转换为前端期望的格式
+        const formattedPump: any = {
+          id: pump.id,
+          model: pump.model,
+          name: pump.name,
+          brand: pump.brand,
+          type: pump.pumpType,
+          series: pump.pumpType,
+          description: pump.description,
+          
+          // 性能曲线范围（用于选型匹配）
+          max_flow_rate: maxFlow,
+          min_flow_rate: minFlow,
+          max_head: maxHead,
+          min_head: minHead,
+          
+          // 额定参数（仅作为性能参数图形的参考）
+          rated_flow_rate: baseFlowRate,
+          rated_head: baseHead,
+          
+          // 真实性能曲线数据
+          performance_curve: performancePoints,
+          
+          rated_power: parseFloat(pump.power),
+          rated_speed: pump.speed || 2900,
+          efficiency: pump.efficiency ? parseFloat(pump.efficiency) : 75,
+          voltage: '380V',
+          frequency: 50,
+          current: 15,
+          power_factor: 0.85,
+          inlet_diameter: pump.inletDiameter || 50,
+          outlet_diameter: pump.outletDiameter || 40,
+          weight: pump.weight ? parseFloat(pump.weight) : 100,
+          dimensions: '500x400x600',
+          casing_material: pump.material || '铸铁',
+          impeller_material: pump.material || '不锈钢',
+          seal_type: '机械密封',
+          protection_level: 'IP55',
+          insulation_class: 'F',
+          applications: pump.applicationType ? [pump.applicationType] : [],
+          fluid_types: pump.material ? [pump.material] : [],
+          max_temperature: pump.maxTemperature ? parseFloat(pump.maxTemperature) : 80,
+          min_temperature: 0,
+          max_viscosity: 10,
+          price: pump.price ? parseFloat(pump.price) : 5000,
+          currency: 'CNY',
+          in_stock: true,
+          stock_quantity: 10,
+          image_url: pump.imageUrl || '',
+          spec_sheet_url: '',
+          manual_url: '',
+          match_score: 0,
+        };
 
-      // 计算匹配度
-      formattedPump.match_score = calculateMatchScore(formattedPump, params);
+        // 计算匹配度
+        formattedPump.match_score = calculateMatchScore(formattedPump, params);
 
-      return formattedPump;
-    });
+        return formattedPump;
+      })
+    );
 
     // 按匹配度排序
     pumpsWithScore.sort((a: any, b: any) => b.match_score - a.match_score);

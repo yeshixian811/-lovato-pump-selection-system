@@ -220,6 +220,30 @@ export class PumpManager {
     return (result.rowCount ?? 0) > 0;
   }
 
+  /**
+   * 获取水泵的性能曲线数据
+   */
+  async getPumpPerformancePoints(pumpId: string): Promise<Array<{
+    flowRate: number;
+    head: number;
+    power?: number;
+    efficiency?: number;
+  }>> {
+    const db = await getDb(schema);
+    const points = await db
+      .select()
+      .from(pumpPerformancePoints)
+      .where(eq(pumpPerformancePoints.pumpId, pumpId))
+      .orderBy(pumpPerformancePoints.flowRate);
+    
+    return points.map(point => ({
+      flowRate: parseFloat(point.flowRate),
+      head: parseFloat(point.head),
+      power: point.power ? parseFloat(point.power) : undefined,
+      efficiency: point.efficiency ? parseFloat(point.efficiency) : undefined,
+    }));
+  }
+
   async getTotalCount(): Promise<number> {
     const db = await getDb(schema);
     const result = await db.select({ count: sql<number>`count(*)` }).from(pumps);
