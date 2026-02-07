@@ -99,26 +99,33 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <img
-              src="/luwatto-logo.png"
-              alt="洛瓦托LOGO"
-              className="h-12 w-auto"
-            />
-            <div className="text-left">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                洛瓦托
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                水泵选型系统
-              </p>
-            </div>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col">
+      {/* Logo - 在最左侧 */}
+      <div className="w-full border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center h-16">
+            <Link href="/" className="flex items-center gap-3">
+              <img
+                src="/luwatto-logo.png"
+                alt="洛瓦托LOGO"
+                className="h-8 w-auto"
+              />
+              <div className="text-left">
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+                  洛瓦托
+                </h1>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  水泵选型系统
+                </p>
+              </div>
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* 登录/注册表单 */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
 
         {/* 认证卡片 */}
         <Card>
@@ -314,13 +321,6 @@ export default function AuthPage() {
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* 返回首页 */}
-        <div className="mt-4 text-center">
-          <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-            ← 返回首页
-          </Link>
-        </div>
       </div>
     </div>
   )

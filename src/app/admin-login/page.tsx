@@ -60,22 +60,33 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <img
-            src="/luwatto-logo.png"
-            alt="洛瓦托LOGO"
-            className="h-16 w-auto mx-auto mb-4"
-          />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            后台管理系统
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            管理员登录
-          </p>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Logo - 在最左侧 */}
+      <div className="w-full border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center h-16">
+            <Link href="/" className="flex items-center gap-3">
+              <img
+                src="/luwatto-logo.png"
+                alt="洛瓦托LOGO"
+                className="h-8 w-auto"
+              />
+              <div className="text-left">
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+                  洛瓦托
+                </h1>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  后台管理系统
+                </p>
+              </div>
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* 登录表单 */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
 
         {/* Login Card */}
         <Card>
@@ -152,22 +163,8 @@ export default function AdminLoginPage() {
                 <p>密码：admin123</p>
               </div>
             </div>
-
-            <div className="mt-4 text-center">
-              <Link
-                href="/"
-                className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-              >
-                返回首页
-              </Link>
-            </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
-          <p>© 2024 洛瓦托水泵选型系统</p>
-        </div>
       </div>
     </div>
   )
