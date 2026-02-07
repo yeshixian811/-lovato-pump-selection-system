@@ -30,8 +30,9 @@ export default function ProductCurvePreview({ pump }: ProductCurvePreviewProps) 
   const [displayMaxHead, setDisplayMaxHead] = useState<number>(0)
 
   // 解析最大流量和最大扬程
-  const maxFlowRate = pump.max_flow_rate || (typeof pump.flowRate === 'number' ? pump.flowRate : parseFloat(pump.flowRate || '0'))
-  const maxHead = pump.max_head || (typeof pump.head === 'number' ? pump.head : parseFloat(pump.head || '0'))
+  // 优先使用 flowRate 和 head 字段（实际最大值），忽略废弃的 maxFlow 和 maxHead 字段
+  const maxFlowRate = typeof pump.flowRate === 'number' ? pump.flowRate : parseFloat(pump.flowRate || '0')
+  const maxHead = typeof pump.head === 'number' ? pump.head : parseFloat(pump.head || '0')
 
   useEffect(() => {
     // 优先使用产品库中的真实性能曲线数据

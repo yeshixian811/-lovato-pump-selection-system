@@ -540,6 +540,14 @@ export class PumpManager {
       annualOperatingCost: annualOperatingCost.toFixed(2),
     };
   }
+
+  /**
+   * 删除水泵的性能曲线数据点
+   */
+  async deletePerformancePoints(pumpId: string): Promise<void> {
+    const db = await getDb(schema);
+    await db.delete(pumpPerformancePoints).where(eq(pumpPerformancePoints.pumpId, pumpId));
+  }
 }
 
 export const pumpManager = new PumpManager();
