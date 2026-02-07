@@ -7,7 +7,7 @@ interface SelectionParams {
   application_type: string;
   fluid_type: string;
   pump_type: string;
-  preferred_power: number;
+  preferred_power?: number; // 可选参数
 }
 
 interface Pump {
@@ -101,11 +101,16 @@ function calculateMatchScore(
     }
   }
 
-  // 3. 功率匹配 (权重: 15%)
-  const ratedPower = parseFloat(pump.power || pump.rated_power);
-  const powerDiff = Math.abs(ratedPower - params.preferred_power);
-  const powerScore = Math.max(0, 15 - (powerDiff / params.preferred_power) * 10);
-  score += powerScore;
+  // 3. 功率匹配 (权重: 15%) - 可选
+  if (params.preferred_power && params.preferred_power > 0) {
+    const ratedPower = parseFloat(pump.power || pump.rated_power);
+    const powerDiff = Math.abs(ratedPower - params.preferred_power);
+    const powerScore = Math.max(0, 15 - (powerDiff / params.preferred_power) * 10);
+    score += powerScore;
+  } else {
+    // 如果没有提供功率偏好，给予部分分数
+    score += 7.5;
+  }
 
   // 4. 应用场景匹配 (权重: 10%)
   const pumpApplication = pump.application_type || pump.applicationType;
@@ -150,7 +155,7 @@ export async function POST(request: NextRequest) {
     // 计算每个水泵的匹配度
     const pumpsWithScore = dbPumps.map((pump: any) => {
       // 转换为前端期望的格式
-      const formattedPump = {
+      const formattedPump: any = {
         id: pump.id,
         model: pump.model,
         name: pump.name,
@@ -190,6 +195,7 @@ export async function POST(request: NextRequest) {
         image_url: pump.imageUrl || '',
         spec_sheet_url: '',
         manual_url: '',
+        match_score: 0,
       };
 
       // 计算匹配度

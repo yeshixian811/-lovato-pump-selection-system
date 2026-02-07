@@ -165,6 +165,7 @@ export default function AdminLoginPage() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   )

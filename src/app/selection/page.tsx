@@ -61,7 +61,6 @@ interface SelectionParams {
   application_type: string;
   fluid_type: string;
   pump_type: string;
-  preferred_power: number;
 }
 
 const APPLICATION_TYPES = [
@@ -107,7 +106,6 @@ export default function PumpSelectionPage() {
     application_type: '供水系统',
     fluid_type: '清水',
     pump_type: 'all',
-    preferred_power: 7.5,
   });
 
   // 处理表单输入
@@ -161,7 +159,6 @@ export default function PumpSelectionPage() {
       application_type: '供水系统',
       fluid_type: '清水',
       pump_type: 'all',
-      preferred_power: 7.5,
     });
     setShowResults(false);
     setResults([]);
@@ -339,39 +336,6 @@ export default function PumpSelectionPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* 功率偏好 - 支持键盘输入 */}
-                <div className="space-y-2">
-                  <Label htmlFor="preferred_power" className="text-sm md:text-base">预期功率 (kW)</Label>
-                  <div className="flex items-center gap-2 md:gap-4">
-                    <Input
-                      id="preferred_power_input"
-                      type="number"
-                      min="0.1"
-                      max="100"
-                      step="0.1"
-                      value={formData.preferred_power}
-                      onChange={(e) => handleNumberInput('preferred_power', e.target.value)}
-                      className="w-16 md:w-24 text-sm md:text-base"
-                    />
-                    <Slider
-                      id="preferred_power"
-                      min={0.1}
-                      max={100}
-                      step={0.1}
-                      value={[formData.preferred_power]}
-                      onValueChange={(value) =>
-                        handleInputChange('preferred_power', value[0])
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs md:text-sm text-gray-500 w-10 md:w-12 whitespace-nowrap">{formData.preferred_power}</span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>0.1 kW</span>
-                    <span>100 kW</span>
-                  </div>
                 </div>
 
                 {/* 按钮 */}
