@@ -207,68 +207,115 @@ export default function PumpSelectionPage() {
 
       <div className="container mx-auto px-4 py-6 md:py-8 overflow-hidden">
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 overflow-hidden">
-          {/* 左侧：参数输入 */}
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
-                <Search className="w-5 h-5 text-blue-600" />
-                参数输入
-              </CardTitle>
-              <CardDescription className="text-sm md:text-base">
-                请填写您的使用需求，系统将自动匹配最合适的水泵产品
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="overflow-hidden">
-              <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-                {/* 流量需求和扬程需求 - 并列显示 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="flow_rate" className="text-sm md:text-base">流量需求 (m³/h)</Label>
-                    <Input
-                      id="flow_rate_input"
-                      type="number"
-                      min="1"
-                      max="500"
-                      step="0.1"
-                      placeholder="请输入流量"
-                      value={formData.required_flow_rate}
-                      onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
-                      className="w-full text-sm md:text-base"
-                    />
+          {/* 左侧：参数输入 + 选型说明 */}
+          <div className="space-y-6">
+            {/* 参数输入 */}
+            <Card>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                  <Search className="w-5 h-5 text-blue-600" />
+                  参数输入
+                </CardTitle>
+                <CardDescription className="text-sm md:text-base">
+                  请填写您的使用需求，系统将自动匹配最合适的水泵产品
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="overflow-hidden">
+                <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                  {/* 流量需求和扬程需求 - 并列显示 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="flow_rate" className="text-sm md:text-base">流量需求 (m³/h)</Label>
+                      <Input
+                        id="flow_rate_input"
+                        type="number"
+                        min="1"
+                        max="500"
+                        step="0.1"
+                        placeholder="请输入流量"
+                        value={formData.required_flow_rate}
+                        onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
+                        className="w-full text-sm md:text-base"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="head" className="text-sm md:text-base">扬程需求 (m)</Label>
+                      <Input
+                        id="head_input"
+                        type="number"
+                        min="1"
+                        max="200"
+                        step="0.1"
+                        placeholder="请输入扬程"
+                        value={formData.required_head}
+                        onChange={(e) => handleNumberInput('required_head', e.target.value)}
+                        className="w-full text-sm md:text-base"
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="head" className="text-sm md:text-base">扬程需求 (m)</Label>
-                    <Input
-                      id="head_input"
-                      type="number"
-                      min="1"
-                      max="200"
-                      step="0.1"
-                      placeholder="请输入扬程"
-                      value={formData.required_head}
-                      onChange={(e) => handleNumberInput('required_head', e.target.value)}
-                      className="w-full text-sm md:text-base"
-                    />
-                  </div>
-                </div>
+                  {/* 应用类型和流体类型 - 并列显示 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* 应用类型 */}
+                    <div className="space-y-2">
+                      <Label htmlFor="application_type" className="text-sm md:text-base">应用类型</Label>
+                      <Select
+                        value={formData.application_type}
+                        onValueChange={(value) =>
+                          handleInputChange('application_type', value)
+                        }
+                      >
+                        <SelectTrigger id="application_type" className="text-sm md:text-base">
+                          <SelectValue placeholder="请选择应用类型" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {APPLICATION_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                {/* 应用类型和流体类型 - 并列显示 */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* 应用类型 */}
+                    {/* 流体类型 */}
+                    <div className="space-y-2">
+                      <Label htmlFor="fluid_type" className="text-sm md:text-base">流体类型</Label>
+                      <Select
+                        value={formData.fluid_type}
+                        onValueChange={(value) =>
+                          handleInputChange('fluid_type', value)
+                        }
+                      >
+                        <SelectTrigger id="fluid_type" className="text-sm md:text-base">
+                          <SelectValue placeholder="请选择流体类型" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {FLUID_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* 水泵类型 */}
                   <div className="space-y-2">
-                    <Label htmlFor="application_type" className="text-sm md:text-base">应用类型</Label>
+                    <Label htmlFor="pump_type" className="text-sm md:text-base">水泵类型（可选）</Label>
                     <Select
-                      value={formData.application_type}
+                      value={formData.pump_type}
                       onValueChange={(value) =>
-                        handleInputChange('application_type', value)
+                        handleInputChange('pump_type', value)
                       }
                     >
-                      <SelectTrigger id="application_type" className="text-sm md:text-base">
-                        <SelectValue placeholder="请选择应用类型" />
+                      <SelectTrigger id="pump_type" className="text-sm md:text-base">
+                        <SelectValue placeholder="请选择水泵类型" />
                       </SelectTrigger>
                       <SelectContent>
-                        {APPLICATION_TYPES.map((type) => (
+                        {PUMP_TYPES.map((type) => (
                           <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
                             {type.label}
                           </SelectItem>
@@ -277,86 +324,39 @@ export default function PumpSelectionPage() {
                     </Select>
                   </div>
 
-                  {/* 流体类型 */}
-                  <div className="space-y-2">
-                    <Label htmlFor="fluid_type" className="text-sm md:text-base">流体类型</Label>
-                    <Select
-                      value={formData.fluid_type}
-                      onValueChange={(value) =>
-                        handleInputChange('fluid_type', value)
-                      }
+                  {/* 按钮 */}
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-sm md:text-base h-10 md:h-11"
+                      disabled={isSearching}
                     >
-                      <SelectTrigger id="fluid_type" className="text-sm md:text-base">
-                        <SelectValue placeholder="请选择流体类型" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {FLUID_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      {isSearching ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          正在匹配...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4 mr-2" />
+                          开始选型
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleReset}
+                      disabled={isSearching}
+                      className="text-sm md:text-base h-10 md:h-11"
+                    >
+                      重置
+                    </Button>
                   </div>
-                </div>
+                </form>
+              </CardContent>
+            </Card>
 
-                {/* 水泵类型 */}
-                <div className="space-y-2">
-                  <Label htmlFor="pump_type" className="text-sm md:text-base">水泵类型（可选）</Label>
-                  <Select
-                    value={formData.pump_type}
-                    onValueChange={(value) =>
-                      handleInputChange('pump_type', value)
-                    }
-                  >
-                    <SelectTrigger id="pump_type" className="text-sm md:text-base">
-                      <SelectValue placeholder="请选择水泵类型" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PUMP_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* 按钮 */}
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-sm md:text-base h-10 md:h-11"
-                    disabled={isSearching}
-                  >
-                    {isSearching ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        正在匹配...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-4 h-4 mr-2" />
-                        开始选型
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleReset}
-                    disabled={isSearching}
-                    className="text-sm md:text-base h-10 md:h-11"
-                  >
-                    重置
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* 右侧：选型说明和结果 */}
-          <div className="space-y-6 overflow-hidden">
             {/* 选型说明 */}
             <Card>
               <CardHeader>
@@ -395,13 +395,10 @@ export default function PumpSelectionPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
 
-            {/* 选型结果列表 */}
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                选型结果
-              </h2>
-            </div>
+          {/* 右侧：选型结果 */}
+          <div className="overflow-hidden">
 
             {isSearching && (
               <Card>
