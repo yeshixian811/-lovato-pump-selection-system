@@ -25,7 +25,8 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceArea,
-  Legend
+  Legend,
+  Brush
 } from 'recharts';
 
 // 类型定义
@@ -205,68 +206,75 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 45, bottom: 15 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis
-          dataKey="flowRate"
-          type="number"
-          domain={[0, maxFlow]}
-          ticks={[0, maxFlow * 0.25, maxFlow * 0.5, maxFlow * 0.75, maxFlow].filter(t => t <= maxFlow && t >= 0)}
-          tick={{ fontSize: 10 }}
-          tickFormatter={(value: any) => {
-            const numValue = typeof value === 'number' ? value : parseFloat(value);
-            return isNaN(numValue) ? value : numValue.toFixed(1);
-          }}
-          label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
-        />
-        <YAxis
-          dataKey="head"
-          domain={[0, maxHead]}
-          ticks={[0, maxHead * 0.25, maxHead * 0.5, maxHead * 0.75, maxHead].filter(t => t <= maxHead && t >= 0)}
-          tick={{ fontSize: 10 }}
-          tickFormatter={(value: any) => {
-            const numValue = typeof value === 'number' ? value : parseFloat(value);
-            return isNaN(numValue) ? value : numValue.toFixed(1);
-          }}
-          label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
-        />
-        <RechartsTooltip
-          formatter={(value: any, name: string) => {
-            const numValue = typeof value === 'number' ? value : parseFloat(value);
-            return [isNaN(numValue) ? value : numValue.toFixed(1), name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)'];
-          }}
-          labelFormatter={(label) => {
-            const numValue = typeof label === 'number' ? label : parseFloat(label);
-            return `流量: ${isNaN(numValue) ? label : numValue.toFixed(1)} m³/h`;
-          }}
-        />
-        <Legend wrapperStyle={{ fontSize: '10px' }} />
-        <Line
-          type="monotone"
-          dataKey="head"
-          stroke="#2563eb"
-          strokeWidth={2}
-          dot={{ r: 2 }}
-          activeDot={{ r: 4 }}
-          name="性能曲线"
-        />
-        {/* 用户需求点 - 使用垂直和水平参考线 */}
-        <ReferenceLine
-          x={Number(requiredFlowRate)}
-          stroke="#ef4444"
-          strokeWidth={2}
-          strokeDasharray="3 3"
-          label={{ value: '需求点', position: 'topLeft', fill: '#ef4444', fontSize: 11, fontWeight: 600 }}
-        />
-        <ReferenceLine
-          y={Number(requiredHead)}
-          stroke="#ef4444"
-          strokeWidth={2}
-          strokeDasharray="3 3"
-        />
-      </LineChart>
-    </ResponsiveContainer>
+    <div style={{ width: '100%', height: '100%' }}>
+      <ResponsiveContainer width="100%" height="85%">
+        <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 45, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            dataKey="flowRate"
+            type="number"
+            domain={[0, maxFlow]}
+            ticks={[0, maxFlow * 0.25, maxFlow * 0.5, maxFlow * 0.75, maxFlow].filter(t => t <= maxFlow && t >= 0)}
+            tick={{ fontSize: 10 }}
+            tickFormatter={(value: any) => {
+              const numValue = typeof value === 'number' ? value : parseFloat(value);
+              return isNaN(numValue) ? value : numValue.toFixed(1);
+            }}
+            label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
+          />
+          <YAxis
+            dataKey="head"
+            domain={[0, maxHead]}
+            ticks={[0, maxHead * 0.25, maxHead * 0.5, maxHead * 0.75, maxHead].filter(t => t <= maxHead && t >= 0)}
+            tick={{ fontSize: 10 }}
+            tickFormatter={(value: any) => {
+              const numValue = typeof value === 'number' ? value : parseFloat(value);
+              return isNaN(numValue) ? value : numValue.toFixed(1);
+            }}
+            label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
+          />
+          <RechartsTooltip
+            formatter={(value: any, name: string) => {
+              const numValue = typeof value === 'number' ? value : parseFloat(value);
+              return [isNaN(numValue) ? value : numValue.toFixed(1), name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)'];
+            }}
+            labelFormatter={(label) => {
+              const numValue = typeof label === 'number' ? label : parseFloat(label);
+              return `流量: ${isNaN(numValue) ? label : numValue.toFixed(1)} m³/h`;
+            }}
+          />
+          <Legend wrapperStyle={{ fontSize: '10px' }} />
+          <Line
+            type="monotone"
+            dataKey="head"
+            stroke="#2563eb"
+            strokeWidth={2}
+            dot={{ r: 2 }}
+            activeDot={{ r: 4 }}
+            name="性能曲线"
+          />
+          {/* 用户需求点 - 使用实线参考线 */}
+          <ReferenceLine
+            x={Number(requiredFlowRate)}
+            stroke="#ef4444"
+            strokeWidth={2}
+            label={{ value: '需求点', position: 'topLeft', fill: '#ef4444', fontSize: 11, fontWeight: 600 }}
+          />
+          <ReferenceLine
+            y={Number(requiredHead)}
+            stroke="#ef4444"
+            strokeWidth={2}
+          />
+          <Brush
+            dataKey="flowRate"
+            height={40}
+            stroke="#2563eb"
+            fill="rgba(37, 99, 235, 0.1)"
+            travellerWidth={10}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
