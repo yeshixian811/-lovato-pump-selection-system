@@ -251,30 +251,19 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           activeDot={{ r: 4 }}
           name="性能曲线"
         />
-        {/* 用户需求流量参考线 */}
+        {/* 用户需求点 - 使用垂直和水平参考线 */}
         <ReferenceLine
-          x={requiredFlowRate}
+          x={Number(requiredFlowRate)}
           stroke="#ef4444"
-          strokeWidth={1.5}
-          strokeDasharray="5 5"
-          label={{ value: `需求流量: ${typeof requiredFlowRate === 'number' ? requiredFlowRate.toFixed(1) : requiredFlowRate}`, position: 'top', fill: '#ef4444', fontSize: 10 }}
+          strokeWidth={2}
+          strokeDasharray="3 3"
+          label={{ value: '需求点', position: 'topLeft', fill: '#ef4444', fontSize: 11, fontWeight: 600 }}
         />
-        {/* 用户需求扬程参考线 */}
         <ReferenceLine
-          y={requiredHead}
+          y={Number(requiredHead)}
           stroke="#ef4444"
-          strokeWidth={1.5}
-          strokeDasharray="5 5"
-          label={{ value: `需求扬程: ${typeof requiredHead === 'number' ? requiredHead.toFixed(1) : requiredHead}`, position: 'right', fill: '#ef4444', fontSize: 10 }}
-        />
-        {/* 标注需求点区域 */}
-        <ReferenceArea
-          x1={requiredFlowRate - 0.5}
-          x2={requiredFlowRate + 0.5}
-          y1={requiredHead - 0.5}
-          y2={requiredHead + 0.5}
-          fill="#ef4444"
-          fillOpacity={0.2}
+          strokeWidth={2}
+          strokeDasharray="3 3"
         />
       </LineChart>
     </ResponsiveContainer>
