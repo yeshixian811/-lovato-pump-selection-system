@@ -307,6 +307,14 @@ export default function ProductsPage() {
     setIsDialogOpen(true)
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // 在表单中按回车键，提交表单（除非是在 Textarea 中）
+    if (e.key === 'Enter' && !(e.target instanceof HTMLTextAreaElement)) {
+      e.preventDefault()
+      handleSave()
+    }
+  }
+
   const filteredPumps = pumps.filter(pump => {
     const matchSearch = pump.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                        pump.model.toLowerCase().includes(searchTerm.toLowerCase())
@@ -456,7 +464,8 @@ export default function ProductsPage() {
               {editingPump ? '修改产品信息' : '添加新的水泵产品'}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 py-4">
+          <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} onKeyDown={handleKeyDown}>
+            <div className="grid grid-cols-2 gap-4 py-4">
             {/* 必填字段优先 */}
             <div>
               <Label htmlFor="model">型号 *</Label>
@@ -666,10 +675,11 @@ export default function ProductsPage() {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               取消
             </Button>
-            <Button onClick={handleSave}>
+            <Button type="submit">
               保存
             </Button>
           </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
