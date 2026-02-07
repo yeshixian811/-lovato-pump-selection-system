@@ -361,7 +361,7 @@ export default function PumpSelectionPage() {
       <div className="container mx-auto px-4 py-6 md:py-8 overflow-hidden">
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 overflow-hidden">
           {/* 左侧：参数输入 + 选型说明 */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="md:col-span-1 space-y-6">
             {/* 参数输入 */}
             <Card>
               <CardHeader className="pb-4">
@@ -551,7 +551,7 @@ export default function PumpSelectionPage() {
           </div>
 
           {/* 右侧：选型结果 */}
-          <div className="md:col-span-1 overflow-hidden">
+          <div className="md:col-span-2 overflow-hidden">
 
             {isSearching && (
               <Card>
