@@ -10,7 +10,10 @@ export async function GET(
     const pump = await pumpManager.getPumpById(id);
 
     if (!pump) {
-      return NextResponse.json({ error: "Pump not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Pump not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(pump);
@@ -30,10 +33,45 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const pump = await pumpManager.updatePump(id, body);
+
+    // 转换表单数据为数据库格式
+    const updateData: any = {
+      name: body.name,
+      model: body.model,
+      brand: body.brand,
+      pumpType: body.pumpType,
+      material: body.material,
+      flowRate: parseFloat(body.flowRate) || 0,
+      head: parseFloat(body.head) || 0,
+      power: parseFloat(body.power) || 0,
+      applicationType: body.applicationType,
+      description: body.description || '',
+    };
+
+    // 可选字段
+    if (body.efficiency) {
+      updateData.efficiency = parseFloat(body.efficiency);
+    }
+    if (body.price) {
+      updateData.price = parseFloat(body.price);
+    }
+    if (body.imageUrl) {
+      updateData.imageUrl = body.imageUrl;
+    }
+    if (body.maxTemperature) {
+      updateData.maxTemperature = parseFloat(body.maxTemperature);
+    }
+    if (body.maxPressure) {
+      updateData.maxPressure = parseFloat(body.maxPressure);
+    }
+
+    const pump = await pumpManager.updatePump(id, updateData);
 
     if (!pump) {
-      return NextResponse.json({ error: "Pump not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Pump not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(pump);
@@ -55,7 +93,10 @@ export async function DELETE(
     const success = await pumpManager.deletePump(id);
 
     if (!success) {
-      return NextResponse.json({ error: "Pump not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Pump not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ success: true });

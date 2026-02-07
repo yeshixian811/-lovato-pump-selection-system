@@ -153,6 +153,12 @@ export default function ProductsPage() {
 
   const handleSave = async () => {
     try {
+      // 简单的验证
+      if (!formData.model || !formData.name || !formData.flowRate || !formData.head || !formData.power) {
+        alert('请填写必填字段：型号、名称、流量、扬程、功率')
+        return
+      }
+
       const url = editingPump ? `/api/pumps/${editingPump.id}` : '/api/pumps'
       const method = editingPump ? 'PUT' : 'POST'
 
@@ -188,9 +194,14 @@ export default function ProductsPage() {
           maxPressure: '',
         })
         setEditingPump(null)
+        alert(editingPump ? '产品更新成功' : '产品创建成功')
+      } else {
+        const errorData = await response.json().catch(() => ({ error: '未知错误' }))
+        alert(`保存失败：${errorData.error || '未知错误'}`)
       }
     } catch (error) {
       console.error('保存产品失败:', error)
+      alert(`保存失败：${error instanceof Error ? error.message : '未知错误'}`)
     }
   }
 
