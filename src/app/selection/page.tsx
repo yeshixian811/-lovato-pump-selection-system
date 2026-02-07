@@ -87,7 +87,7 @@ const FLUID_TYPES = [
 ];
 
 const PUMP_TYPES = [
-  { value: '', label: '全部类型' },
+  { value: 'all', label: '全部类型' },
   { value: 'centrifugal', label: '离心泵' },
   { value: 'vertical', label: '立式泵' },
   { value: 'submersible', label: '潜水泵' },
@@ -106,7 +106,7 @@ export default function PumpSelectionPage() {
     required_head: 30,
     application_type: 'water_supply',
     fluid_type: 'clean_water',
-    pump_type: '',
+    pump_type: 'all',
     preferred_power: 7.5,
   });
 
@@ -152,7 +152,7 @@ export default function PumpSelectionPage() {
       required_head: 30,
       application_type: 'water_supply',
       fluid_type: 'clean_water',
-      pump_type: '',
+      pump_type: 'all',
       preferred_power: 7.5,
     });
     setShowResults(false);

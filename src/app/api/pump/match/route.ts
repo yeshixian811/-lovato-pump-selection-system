@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
     `;
 
     // 添加类型筛选
-    if (params.pump_type) {
+    if (params.pump_type && params.pump_type !== 'all') {
       sql += ` AND type = '${params.pump_type}'`;
     }
 
