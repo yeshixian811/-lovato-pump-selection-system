@@ -27,11 +27,11 @@ interface Pump {
   brand: string
   pumpType: string
   material: string
-  flowRate: string
-  head: string
-  power: string
-  efficiency: string | null
-  price: string | null
+  flowRate: string | number
+  head: string | number
+  power: string | number
+  efficiency: string | number | null
+  price: string | number | null
   imageUrl: string | null
   applicationType: string
   description: string
@@ -162,12 +162,43 @@ export default function ProductsPage() {
       const url = editingPump ? `/api/pumps/${editingPump.id}` : '/api/pumps'
       const method = editingPump ? 'PUT' : 'POST'
 
+      // 只发送必要的字段，过滤掉废弃字段和空字符串
+      const submitData: any = {
+        model: formData.model,
+        name: formData.name,
+        brand: formData.brand,
+        pumpType: formData.pumpType,
+        material: formData.material,
+        flowRate: formData.flowRate,
+        head: formData.head,
+        power: formData.power,
+        applicationType: formData.applicationType,
+        description: formData.description,
+      }
+
+      // 添加可选字段（如果存在）
+      if (formData.efficiency) {
+        submitData.efficiency = formData.efficiency
+      }
+      if (formData.price) {
+        submitData.price = formData.price
+      }
+      if (formData.imageUrl) {
+        submitData.imageUrl = formData.imageUrl
+      }
+      if (formData.maxTemperature) {
+        submitData.maxTemperature = formData.maxTemperature
+      }
+      if (formData.maxPressure) {
+        submitData.maxPressure = formData.maxPressure
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       })
 
       if (response.ok) {
@@ -213,13 +244,13 @@ export default function ProductsPage() {
       brand: pump.brand,
       pumpType: pump.pumpType,
       material: pump.material,
-      flowRate: pump.flowRate,
-      head: pump.head,
+      flowRate: typeof pump.flowRate === 'number' ? pump.flowRate.toString() : pump.flowRate,
+      head: typeof pump.head === 'number' ? pump.head.toString() : pump.head,
       maxFlow: '',
       maxHead: '',
-      power: pump.power,
-      efficiency: pump.efficiency || '',
-      price: pump.price || '',
+      power: typeof pump.power === 'number' ? pump.power.toString() : pump.power,
+      efficiency: pump.efficiency ? (typeof pump.efficiency === 'number' ? pump.efficiency.toString() : pump.efficiency) : '',
+      price: pump.price ? (typeof pump.price === 'number' ? pump.price.toString() : pump.price) : '',
       applicationType: pump.applicationType,
       description: pump.description,
       imageUrl: pump.imageUrl || '',
@@ -380,7 +411,7 @@ export default function ProductsPage() {
                         <ProductCurvePreview pump={pump} />
                       </TableCell>
                       <TableCell>
-                        {pump.price ? `¥${parseFloat(pump.price).toLocaleString()}` : '-'}
+                        {pump.price ? `¥${parseFloat(typeof pump.price === 'number' ? pump.price.toString() : pump.price).toLocaleString()}` : '-'}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
