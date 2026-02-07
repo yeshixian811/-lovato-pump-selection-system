@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2, Info, Zap, Droplet, Gauge } from 'lucide-react';
 import Link from 'next/link';
 
 // 类型定义
@@ -115,6 +114,14 @@ export default function PumpSelectionPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  // 处理键盘输入
+  const handleNumberInput = (field: keyof SelectionParams, value: string) => {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      handleInputChange(field, numValue);
+    }
+  };
+
   // 提交选型
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +189,7 @@ export default function PumpSelectionPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* 选型表单 */}
+          {/* 左侧：参数输入 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -195,44 +202,66 @@ export default function PumpSelectionPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* 流量需求 */}
+                {/* 流量需求 - 支持键盘输入 */}
                 <div className="space-y-2">
-                  <Label htmlFor="flow_rate">
-                    流量需求: {formData.required_flow_rate} m³/h
-                  </Label>
-                  <Slider
-                    id="flow_rate"
-                    min={1}
-                    max={500}
-                    step={1}
-                    value={[formData.required_flow_rate]}
-                    onValueChange={(value) =>
-                      handleInputChange('required_flow_rate', value[0])
-                    }
-                    className="w-full"
-                  />
+                  <Label htmlFor="flow_rate">流量需求 (m³/h)</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="flow_rate_input"
+                      type="number"
+                      min="1"
+                      max="500"
+                      step="0.1"
+                      value={formData.required_flow_rate}
+                      onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
+                      className="w-24"
+                    />
+                    <Slider
+                      id="flow_rate"
+                      min={1}
+                      max={500}
+                      step={1}
+                      value={[formData.required_flow_rate]}
+                      onValueChange={(value) =>
+                        handleInputChange('required_flow_rate', value[0])
+                      }
+                      className="flex-1"
+                    />
+                    <span className="text-sm text-gray-500 w-12">{formData.required_flow_rate}</span>
+                  </div>
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>1 m³/h</span>
                     <span>500 m³/h</span>
                   </div>
                 </div>
 
-                {/* 扬程需求 */}
+                {/* 扬程需求 - 支持键盘输入 */}
                 <div className="space-y-2">
-                  <Label htmlFor="head">
-                    扬程需求: {formData.required_head} m
-                  </Label>
-                  <Slider
-                    id="head"
-                    min={1}
-                    max={200}
-                    step={1}
-                    value={[formData.required_head]}
-                    onValueChange={(value) =>
-                      handleInputChange('required_head', value[0])
-                    }
-                    className="w-full"
-                  />
+                  <Label htmlFor="head">扬程需求 (m)</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="head_input"
+                      type="number"
+                      min="1"
+                      max="200"
+                      step="0.1"
+                      value={formData.required_head}
+                      onChange={(e) => handleNumberInput('required_head', e.target.value)}
+                      className="w-24"
+                    />
+                    <Slider
+                      id="head"
+                      min={1}
+                      max={200}
+                      step={1}
+                      value={[formData.required_head]}
+                      onValueChange={(value) =>
+                        handleInputChange('required_head', value[0])
+                      }
+                      className="flex-1"
+                    />
+                    <span className="text-sm text-gray-500 w-12">{formData.required_head}</span>
+                  </div>
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>1 m</span>
                     <span>200 m</span>
@@ -305,22 +334,33 @@ export default function PumpSelectionPage() {
                   </Select>
                 </div>
 
-                {/* 功率偏好 */}
+                {/* 功率偏好 - 支持键盘输入 */}
                 <div className="space-y-2">
-                  <Label htmlFor="preferred_power">
-                    预期功率: {formData.preferred_power} kW
-                  </Label>
-                  <Slider
-                    id="preferred_power"
-                    min={0.1}
-                    max={100}
-                    step={0.1}
-                    value={[formData.preferred_power]}
-                    onValueChange={(value) =>
-                      handleInputChange('preferred_power', value[0])
-                    }
-                    className="w-full"
-                  />
+                  <Label htmlFor="preferred_power">预期功率 (kW)</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="preferred_power_input"
+                      type="number"
+                      min="0.1"
+                      max="100"
+                      step="0.1"
+                      value={formData.preferred_power}
+                      onChange={(e) => handleNumberInput('preferred_power', e.target.value)}
+                      className="w-24"
+                    />
+                    <Slider
+                      id="preferred_power"
+                      min={0.1}
+                      max={100}
+                      step={0.1}
+                      value={[formData.preferred_power]}
+                      onValueChange={(value) =>
+                        handleInputChange('preferred_power', value[0])
+                      }
+                      className="flex-1"
+                    />
+                    <span className="text-sm text-gray-500 w-12">{formData.preferred_power}</span>
+                  </div>
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>0.1 kW</span>
                     <span>100 kW</span>
@@ -359,8 +399,48 @@ export default function PumpSelectionPage() {
             </CardContent>
           </Card>
 
-          {/* 选型结果 */}
-          <div className="space-y-4">
+          {/* 右侧：选型说明和结果 */}
+          <div className="space-y-6">
+            {/* 选型说明 */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="w-5 h-5 text-blue-600" />
+                  选型说明
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-start gap-3">
+                    <Droplet className="w-5 h-5 text-blue-500 mt-0.5" />
+                    <div>
+                      <strong>流量需求</strong>
+                      <p className="mt-1">水泵每小时需要输送的液体体积，单位：m³/h。例如：50 m³/h 表示每小时输送50立方米液体。</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Gauge className="w-5 h-5 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>扬程需求</strong>
+                      <p className="mt-1">水泵能够提升液体的高度，单位：m。例如：30 m 表示可以将液体提升30米高。</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Zap className="w-5 h-5 text-yellow-500 mt-0.5" />
+                    <div>
+                      <strong>功率偏好</strong>
+                      <p className="mt-1">水泵的额定功率，单位：kW。功率越大，流量和扬程能力越强。</p>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <strong>💡 匹配度说明：</strong>
+                    <p className="mt-2">系统根据您的参数，综合考虑流量、扬程、功率等因素计算匹配度（0-100%），分数越高表示越适合您的需求。</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 选型结果 */}
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               选型结果
             </h2>
@@ -478,6 +558,24 @@ export default function PumpSelectionPage() {
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {pump.efficiency}%
                           </div>
+                        </div>
+                      </div>
+
+                      {/* 性能曲线示意图 */}
+                      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          性能匹配示意图
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-blue-200 dark:bg-blue-900 rounded-full h-3 relative">
+                            <div
+                              className="bg-blue-600 h-3 rounded-full"
+                              style={{ width: `${pump.match_score}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                            {pump.match_score}%
+                          </span>
                         </div>
                       </div>
 
