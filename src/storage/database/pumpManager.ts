@@ -2,6 +2,7 @@ import { eq, and, SQL, like, sql } from "drizzle-orm";
 import { getDb } from "coze-coding-dev-sdk";
 import { pumps, pumpPerformancePoints, insertPumpSchema, updatePumpSchema } from "./shared/schema";
 import type { Pump, InsertPump, UpdatePump } from "./shared/schema";
+import * as schema from "./shared/schema";
 
 export class PumpManager {
   /**
@@ -64,7 +65,7 @@ export class PumpManager {
   }
 
   async createPump(data: InsertPump): Promise<Pump> {
-    const db = await getDb();
+    const db = await getDb(schema);
     const validated = insertPumpSchema.parse(data);
     const [pump] = await db.insert(pumps).values(validated).returning();
 
@@ -101,7 +102,7 @@ export class PumpManager {
     };
   } = {}): Promise<Pump[]> {
     const { skip = 0, limit = 100, filters = {} } = options;
-    const db = await getDb();
+    const db = await getDb(schema);
 
     const conditions: SQL[] = [];
 
@@ -158,13 +159,13 @@ export class PumpManager {
   }
 
   async getPumpById(id: string): Promise<Pump | null> {
-    const db = await getDb();
+    const db = await getDb(schema);
     const [pump] = await db.select().from(pumps).where(eq(pumps.id, id));
     return pump || null;
   }
 
   async updatePump(id: string, data: UpdatePump): Promise<Pump | null> {
-    const db = await getDb();
+    const db = await getDb(schema);
     const validated = updatePumpSchema.parse(data);
     const [pump] = await db
       .update(pumps)
@@ -214,13 +215,13 @@ export class PumpManager {
   }
 
   async deletePump(id: string): Promise<boolean> {
-    const db = await getDb();
+    const db = await getDb(schema);
     const result = await db.delete(pumps).where(eq(pumps.id, id));
     return (result.rowCount ?? 0) > 0;
   }
 
   async getTotalCount(): Promise<number> {
-    const db = await getDb();
+    const db = await getDb(schema);
     const result = await db.select({ count: sql<number>`count(*)` }).from(pumps);
     return result[0].count;
   }
@@ -251,7 +252,7 @@ export class PumpManager {
     maxTemperature?: number;
     maxPressure?: number;
   }): Promise<Pump[]> {
-    const db = await getDb();
+    const db = await getDb(schema);
 
     // 查找性能曲线中能满足需求的水泵
     // 需要满足：流量 >= 需求流量，且在该流量点的扬程 >= 需求扬程

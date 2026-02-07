@@ -64,16 +64,16 @@ interface SelectionParams {
 }
 
 const APPLICATION_TYPES = [
-  { value: 'water_supply', label: '供水系统' },
-  { value: 'drainage', label: '排水系统' },
-  { value: 'irrigation', label: '农田灌溉' },
-  { value: 'industrial', label: '工业循环' },
-  { value: 'fire_protection', label: '消防系统' },
-  { value: 'hvac', label: '暖通空调' },
-  { value: 'sewage', label: '污水处理' },
-  { value: 'mining', label: '矿山排水' },
-  { value: 'marine', label: '船舶供水' },
-  { value: 'other', label: '其他应用' },
+  { value: '供水系统', label: '供水系统' },
+  { value: '排水系统', label: '排水系统' },
+  { value: '农田灌溉', label: '农田灌溉' },
+  { value: '工业循环', label: '工业循环' },
+  { value: '消防系统', label: '消防系统' },
+  { value: '暖通空调', label: '暖通空调' },
+  { value: '污水处理', label: '污水处理' },
+  { value: '矿山排水', label: '矿山排水' },
+  { value: '船舶供水', label: '船舶供水' },
+  { value: '其他应用', label: '其他应用' },
 ];
 
 const FLUID_TYPES = [
@@ -103,8 +103,8 @@ export default function PumpSelectionPage() {
   const [formData, setFormData] = useState<SelectionParams>({
     required_flow_rate: 50,
     required_head: 30,
-    application_type: 'water_supply',
-    fluid_type: 'clean_water',
+    application_type: '供水系统',
+    fluid_type: '清水',
     pump_type: 'all',
     preferred_power: 7.5,
   });
@@ -157,8 +157,8 @@ export default function PumpSelectionPage() {
     setFormData({
       required_flow_rate: 50,
       required_head: 30,
-      application_type: 'water_supply',
-      fluid_type: 'clean_water',
+      application_type: '供水系统',
+      fluid_type: '清水',
       pump_type: 'all',
       preferred_power: 7.5,
     });
