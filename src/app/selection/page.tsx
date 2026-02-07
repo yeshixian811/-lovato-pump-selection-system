@@ -23,7 +23,8 @@ import {
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  ReferenceDot,
+  ReferenceLine,
+  ReferenceArea,
   Legend
 } from 'recharts';
 
@@ -166,7 +167,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
         />
         <YAxis
           dataKey="head"
-          domain={['dataMin', 'dataMax']}
+          domain={[0, 'dataMax']}
           tick={{ fontSize: 10 }}
           label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
         />
@@ -184,13 +185,30 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           activeDot={{ r: 4 }}
           name="性能曲线"
         />
-        <ReferenceDot
+        {/* 用户需求流量参考线 */}
+        <ReferenceLine
           x={requiredFlowRate}
+          stroke="#ef4444"
+          strokeWidth={1.5}
+          strokeDasharray="5 5"
+          label={{ value: `需求流量: ${requiredFlowRate}`, position: 'top', fill: '#ef4444', fontSize: 10 }}
+        />
+        {/* 用户需求扬程参考线 */}
+        <ReferenceLine
           y={requiredHead}
-          r={5}
+          stroke="#ef4444"
+          strokeWidth={1.5}
+          strokeDasharray="5 5"
+          label={{ value: `需求扬程: ${requiredHead}`, position: 'right', fill: '#ef4444', fontSize: 10 }}
+        />
+        {/* 标注需求点区域 */}
+        <ReferenceArea
+          x1={requiredFlowRate - 0.5}
+          x2={requiredFlowRate + 0.5}
+          y1={requiredHead - 0.5}
+          y2={requiredHead + 0.5}
           fill="#ef4444"
-          stroke="none"
-          isFront={true}
+          fillOpacity={0.2}
         />
       </LineChart>
     </ResponsiveContainer>
