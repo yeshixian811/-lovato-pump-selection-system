@@ -139,6 +139,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead, maxFlowR
   // 处理鼠标滚轮缩放
   const handleWheel = (event: React.WheelEvent) => {
     event.preventDefault();
+    event.stopPropagation();
     
     const zoomFactor = 0.1;
     const direction = event.deltaY > 0 ? 1 : -1; // 向下滚放大，向上滚缩小
@@ -150,6 +151,16 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead, maxFlowR
     const scale = 1 / newZoomLevel;
     setDisplayMaxFlow(maxFlowRate * scale);
     setDisplayMaxHead(maxHead * scale);
+  };
+
+  // 鼠标进入图表区域，锁定页面滚动
+  const handleMouseEnter = () => {
+    document.body.style.overflow = 'hidden';
+  };
+
+  // 鼠标离开图表区域，解锁页面滚动
+  const handleMouseLeave = () => {
+    document.body.style.overflow = '';
   };
 
   // 重置缩放
@@ -190,7 +201,12 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead, maxFlowR
   }
 
   return (
-    <div className="relative w-full h-full" onWheel={handleWheel}>
+    <div 
+      className="relative w-full h-full" 
+      onWheel={handleWheel}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {/* 重置按钮 */}
       {zoomLevel !== 1 && (
         <button
@@ -807,14 +823,6 @@ export default function PumpSelectionPage() {
                           <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                             型号: {pump.model}
                           </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xl md:text-2xl font-bold text-blue-600">
-                            {pump.match_score}%
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            匹配度
-                          </div>
                         </div>
                       </div>
 
