@@ -253,48 +253,51 @@ export default function PumpSelectionPage() {
                   </div>
                 </div>
 
-                {/* 应用类型 */}
-                <div className="space-y-2">
-                  <Label htmlFor="application_type" className="text-sm md:text-base">应用类型</Label>
-                  <Select
-                    value={formData.application_type}
-                    onValueChange={(value) =>
-                      handleInputChange('application_type', value)
-                    }
-                  >
-                    <SelectTrigger id="application_type" className="text-sm md:text-base">
-                      <SelectValue placeholder="请选择应用类型" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {APPLICATION_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* 应用类型和流体类型 - 并列显示 */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* 应用类型 */}
+                  <div className="space-y-2">
+                    <Label htmlFor="application_type" className="text-sm md:text-base">应用类型</Label>
+                    <Select
+                      value={formData.application_type}
+                      onValueChange={(value) =>
+                        handleInputChange('application_type', value)
+                      }
+                    >
+                      <SelectTrigger id="application_type" className="text-sm md:text-base">
+                        <SelectValue placeholder="请选择应用类型" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {APPLICATION_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* 流体类型 */}
-                <div className="space-y-2">
-                  <Label htmlFor="fluid_type" className="text-sm md:text-base">流体类型</Label>
-                  <Select
-                    value={formData.fluid_type}
-                    onValueChange={(value) =>
-                      handleInputChange('fluid_type', value)
-                    }
-                  >
-                    <SelectTrigger id="fluid_type" className="text-sm md:text-base">
-                      <SelectValue placeholder="请选择流体类型" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {FLUID_TYPES.map((type) => (
-                        <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* 流体类型 */}
+                  <div className="space-y-2">
+                    <Label htmlFor="fluid_type" className="text-sm md:text-base">流体类型</Label>
+                    <Select
+                      value={formData.fluid_type}
+                      onValueChange={(value) =>
+                        handleInputChange('fluid_type', value)
+                      }
+                    >
+                      <SelectTrigger id="fluid_type" className="text-sm md:text-base">
+                        <SelectValue placeholder="请选择流体类型" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FLUID_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {/* 水泵类型 */}
