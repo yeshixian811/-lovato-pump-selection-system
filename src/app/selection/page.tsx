@@ -250,7 +250,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
       )}
       
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 45, bottom: 15 }}>
+        <LineChart data={performanceData} margin={{ top: 10, right: 10, left: 50, bottom: 30 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="flowRate"
@@ -262,7 +262,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
               const numValue = typeof value === 'number' ? value : parseFloat(value);
               return isNaN(numValue) ? value : numValue.toFixed(1);
             }}
-            label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
+            label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -8, fontSize: 10 }}
           />
           <YAxis
             dataKey="head"
@@ -273,7 +273,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
               const numValue = typeof value === 'number' ? value : parseFloat(value);
               return isNaN(numValue) ? value : numValue.toFixed(1);
             }}
-            label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
+            label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', offset: -5, fontSize: 10 }}
           />
           <RechartsTooltip
             formatter={(value: any, name: string) => {
