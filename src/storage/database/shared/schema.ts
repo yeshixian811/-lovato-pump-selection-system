@@ -12,7 +12,7 @@ import {
   uuid,
   pgEnum,
 } from "drizzle-orm/pg-core";
-import { createSchemaFactory } from "drizzle-zod";
+import { createSchemaFactory, createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // 用户角色枚举
@@ -348,3 +348,105 @@ export const updatePumpSchema = createCoercedInsertSchema(pumps)
 export type Pump = typeof pumps.$inferSelect;
 export type InsertPump = z.infer<typeof insertPumpSchema>;
 export type UpdatePump = z.infer<typeof updatePumpSchema>;
+
+// ========== 版本管理系统 ==========
+
+// 版本表
+export const versions = pgTable(
+  "versions",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    versionNumber: integer("version_number").notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    createdBy: varchar("created_by", { length: 255 }),
+    status: varchar("status", { length: 50 }).notNull().default('active'), // active, archived
+    isCurrent: boolean("is_current").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    versionNumIdx: index("versions_version_number_idx").on(table.versionNumber),
+    isCurrentIdx: index("versions_is_current_idx").on(table.isCurrent),
+  })
+);
+
+// 版本文件表（存储每个版本的文件快照）
+export const versionFiles = pgTable(
+  "version_files",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    versionId: uuid("version_id")
+      .notNull()
+      .references(() => versions.id, { onDelete: "cascade" }),
+    filePath: varchar("file_path", { length: 500 }).notNull(),
+    fileContent: text("file_content").notNull(),
+    fileType: varchar("file_type", { length: 50 }).notNull(), // ts, tsx, json, etc.
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    versionIdIdx: index("version_files_version_id_idx").on(table.versionId),
+    filePathIdx: index("version_files_file_path_idx").on(table.filePath),
+    uniqueVersionFile: index("version_files_unique_idx").on(table.versionId, table.filePath),
+  })
+);
+
+// 版本修改记录表
+export const versionChanges = pgTable(
+  "version_changes",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    versionId: uuid("version_id")
+      .notNull()
+      .references(() => versions.id, { onDelete: "cascade" }),
+    action: varchar("action", { length: 50 }).notNull(), // create, update, delete
+    targetPath: varchar("target_path", { length: 500 }).notNull(),
+    changeDescription: text("change_description"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    versionIdIdx: index("version_changes_version_id_idx").on(table.versionId),
+  })
+);
+
+// Zod schemas
+export const insertVersionSchema = createInsertSchema(versions).pick({
+  name: true,
+  description: true,
+  createdBy: true,
+  status: true,
+  isCurrent: true,
+});
+
+export const insertVersionFileSchema = createInsertSchema(versionFiles).pick({
+  versionId: true,
+  filePath: true,
+  fileContent: true,
+  fileType: true,
+});
+
+export const insertVersionChangeSchema = createInsertSchema(versionChanges).pick({
+  versionId: true,
+  action: true,
+  targetPath: true,
+  changeDescription: true,
+});
+
+// TypeScript types
+export type Version = typeof versions.$inferSelect;
+export type InsertVersion = z.infer<typeof insertVersionSchema>;
+export type VersionFile = typeof versionFiles.$inferSelect;
+export type InsertVersionFile = z.infer<typeof insertVersionFileSchema>;
+export type VersionChange = typeof versionChanges.$inferSelect;
+export type InsertVersionChange = z.infer<typeof insertVersionChangeSchema>;

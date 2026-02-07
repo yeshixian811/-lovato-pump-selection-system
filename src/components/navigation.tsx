@@ -21,7 +21,9 @@ import {
   LogOut,
   LayoutDashboard,
   ShoppingCart,
-  Layout
+  Layout,
+  GitBranch,
+  FileCode,
 } from 'lucide-react'
 import { isWechatMiniProgram } from '@/lib/wechat'
 
@@ -144,6 +146,18 @@ export default function Navigation() {
                           <Link href="/admin">
                             <LayoutDashboard className="mr-2 h-4 w-4" />
                             后台管理
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/versions">
+                            <GitBranch className="mr-2 h-4 w-4" />
+                            版本管理
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/editor">
+                            <FileCode className="mr-2 h-4 w-4" />
+                            在线编辑
                           </Link>
                         </DropdownMenuItem>
                       </>
