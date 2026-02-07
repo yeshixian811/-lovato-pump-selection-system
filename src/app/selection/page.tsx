@@ -273,12 +273,12 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
 }
 
 const APPLICATION_TYPES = [
+  { value: '暖通空调', label: '暖通空调' },
   { value: '供水系统', label: '供水系统' },
   { value: '排水系统', label: '排水系统' },
   { value: '农田灌溉', label: '农田灌溉' },
   { value: '工业循环', label: '工业循环' },
   { value: '消防系统', label: '消防系统' },
-  { value: '暖通空调', label: '暖通空调' },
   { value: '污水处理', label: '污水处理' },
   { value: '矿山排水', label: '矿山排水' },
   { value: '船舶供水', label: '船舶供水' },
@@ -328,7 +328,7 @@ export default function PumpSelectionPage() {
   const [formData, setFormData] = useState<SelectionParams>({
     required_flow_rate: 5,
     required_head: 10,
-    application_type: '供水系统',
+    application_type: '暖通空调',
     fluid_type: '清水',
     pump_type: 'all',
   });
