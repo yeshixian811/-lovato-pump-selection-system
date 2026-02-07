@@ -349,6 +349,16 @@ export type Pump = typeof pumps.$inferSelect;
 export type InsertPump = z.infer<typeof insertPumpSchema>;
 export type UpdatePump = z.infer<typeof updatePumpSchema>;
 
+// 水泵类型（带性能曲线）
+export interface PumpWithCurve extends Pump {
+  performance_curve?: Array<{
+    flowRate: number;
+    head: number;
+    power?: number;
+    efficiency?: number;
+  }>;
+}
+
 // ========== 版本管理系统 ==========
 
 // 版本表

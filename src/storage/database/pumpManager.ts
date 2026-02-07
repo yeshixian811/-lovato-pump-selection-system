@@ -1,7 +1,7 @@
 import { eq, and, SQL, like, sql } from "drizzle-orm";
 import { getDb } from "coze-coding-dev-sdk";
 import { pumps, pumpPerformancePoints, insertPumpSchema, updatePumpSchema } from "./shared/schema";
-import type { Pump, InsertPump, UpdatePump } from "./shared/schema";
+import type { Pump, InsertPump, UpdatePump, PumpWithCurve } from "./shared/schema";
 import * as schema from "./shared/schema";
 
 export class PumpManager {
@@ -81,20 +81,37 @@ export class PumpManager {
   }
 
   async createPump(data: InsertPump): Promise<Pump> {
-    const db = await getDb(schema);
-    const validated = insertPumpSchema.parse(data);
-    const [pump] = await db.insert(pumps).values(validated).returning();
+    try {
+      console.log('createPump 收到数据:', JSON.stringify(data, null, 2));
 
-    // 生成并插入性能曲线数据点
-    const performancePoints = this.generatePerformancePoints(data);
-    for (const point of performancePoints) {
-      await db.insert(pumpPerformancePoints).values({
-        pumpId: pump.id,
-        ...point,
-      });
+      const db = await getDb(schema);
+      const validated = insertPumpSchema.parse(data);
+      console.log('数据验证通过:', JSON.stringify(validated, null, 2));
+
+      const [pump] = await db.insert(pumps).values(validated as any).returning();
+      console.log('水泵插入成功:', pump);
+
+      // 生成并插入性能曲线数据点
+      const performancePoints = this.generatePerformancePoints(data);
+      console.log('生成性能曲线数据点数量:', performancePoints.length);
+
+      for (const point of performancePoints) {
+        await db.insert(pumpPerformancePoints).values({
+          pumpId: pump.id,
+          flowRate: point.flowRate.toString(),
+          head: point.head.toString(),
+          power: point.power?.toString(),
+          efficiency: point.efficiency?.toString(),
+        });
+      }
+      console.log('性能曲线数据插入完成');
+
+      return pump;
+    } catch (error) {
+      console.error('createPump 错误:', error);
+      console.error('错误详情:', JSON.stringify(error, null, 2));
+      throw error;
     }
-
-    return pump;
   }
 
   /**
@@ -196,24 +213,49 @@ export class PumpManager {
     return pumpsWithCurve;
   }
 
-  async getPumpById(id: string): Promise<Pump | null> {
+  async getPumpById(id: string): Promise<PumpWithCurve | null> {
     const db = await getDb(schema);
     const [pump] = await db.select().from(pumps).where(eq(pumps.id, id));
-    return pump || null;
+
+    if (!pump) {
+      return null;
+    }
+
+    // 关联查询性能曲线数据
+    const curveData = await db
+      .select()
+      .from(pumpPerformancePoints)
+      .where(eq(pumpPerformancePoints.pumpId, pump.id))
+      .orderBy(pumpPerformancePoints.flowRate);
+
+    return {
+      ...pump,
+      performance_curve: curveData.map((point) => ({
+        flowRate: parseFloat(point.flowRate),
+        head: parseFloat(point.head),
+      })),
+    };
   }
 
-  async updatePump(id: string, data: UpdatePump): Promise<Pump | null> {
+  async updatePump(id: string, data: UpdatePump): Promise<PumpWithCurve | null> {
     const db = await getDb(schema);
     const validated = updatePumpSchema.parse(data);
+
+    // 重新构建 updateData，确保类型正确
+    const updateData: any = {
+      ...validated,
+      updatedAt: new Date(),
+    };
+
     const [pump] = await db
       .update(pumps)
-      .set({ ...validated, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(pumps.id, id))
       .returning();
 
     if (pump) {
       // 如果更新了最大流量、最大扬程或功率，重新生成性能曲线数据
-      const shouldRegenerate = 
+      const shouldRegenerate =
         data.flowRate !== undefined ||
         data.head !== undefined ||
         data.maxFlow !== undefined ||
@@ -225,31 +267,33 @@ export class PumpManager {
         // 删除旧的性能曲线数据
         await db.delete(pumpPerformancePoints).where(eq(pumpPerformancePoints.pumpId, id));
 
-        // 获取更新后的水泵完整数据
-        const updatedPump = await this.getPumpById(id);
-        if (updatedPump) {
-          // 生成新的性能曲线数据
-          const performancePoints = this.generatePerformancePoints({
-            flowRate: updatedPump.flowRate,
-            head: updatedPump.head,
-            maxFlow: updatedPump.maxFlow,
-            maxHead: updatedPump.maxHead,
-            power: updatedPump.power,
-            efficiency: updatedPump.efficiency,
-          } as InsertPump);
+        // 生成新的性能曲线数据
+        const performancePoints = this.generatePerformancePoints({
+          flowRate: parseFloat(pump.flowRate.toString()),
+          head: parseFloat(pump.head.toString()),
+          maxFlow: pump.maxFlow ? parseFloat(pump.maxFlow.toString()) : undefined,
+          maxHead: pump.maxHead ? parseFloat(pump.maxHead.toString()) : undefined,
+          power: parseFloat(pump.power.toString()),
+          efficiency: pump.efficiency ? parseFloat(pump.efficiency.toString()) : undefined,
+        } as InsertPump);
 
-          // 插入新的性能曲线数据
-          for (const point of performancePoints) {
-            await db.insert(pumpPerformancePoints).values({
-              pumpId: id,
-              ...point,
-            });
-          }
+        // 插入新的性能曲线数据
+        for (const point of performancePoints) {
+          await db.insert(pumpPerformancePoints).values({
+            pumpId: id,
+            flowRate: point.flowRate.toString(),
+            head: point.head.toString(),
+            power: point.power?.toString(),
+            efficiency: point.efficiency?.toString(),
+          });
         }
       }
+
+      // 重新查询以返回包含性能曲线的完整数据
+      return await this.getPumpById(id);
     }
 
-    return pump || null;
+    return null;
   }
 
   async deletePump(id: string): Promise<boolean> {

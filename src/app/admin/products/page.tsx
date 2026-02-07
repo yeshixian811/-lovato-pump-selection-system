@@ -176,22 +176,24 @@ export default function ProductsPage() {
         description: formData.description,
       }
 
-      // 添加可选字段（如果存在）
-      if (formData.efficiency) {
+      // 添加可选字段（如果存在且不为空字符串）
+      if (formData.efficiency && formData.efficiency.trim() !== '') {
         submitData.efficiency = formData.efficiency
       }
-      if (formData.price) {
+      if (formData.price && formData.price.trim() !== '') {
         submitData.price = formData.price
       }
-      if (formData.imageUrl) {
+      if (formData.imageUrl && formData.imageUrl.trim() !== '') {
         submitData.imageUrl = formData.imageUrl
       }
-      if (formData.maxTemperature) {
+      if (formData.maxTemperature && formData.maxTemperature.trim() !== '') {
         submitData.maxTemperature = formData.maxTemperature
       }
-      if (formData.maxPressure) {
+      if (formData.maxPressure && formData.maxPressure.trim() !== '') {
         submitData.maxPressure = formData.maxPressure
       }
+
+      console.log('提交的数据:', submitData)
 
       const response = await fetch(url, {
         method,
@@ -200,6 +202,8 @@ export default function ProductsPage() {
         },
         body: JSON.stringify(submitData),
       })
+
+      console.log('响应状态:', response.status)
 
       if (response.ok) {
         setIsDialogOpen(false)
@@ -228,6 +232,7 @@ export default function ProductsPage() {
         alert(editingPump ? '产品更新成功' : '产品创建成功')
       } else {
         const errorData = await response.json().catch(() => ({ error: '未知错误' }))
+        console.error('保存失败:', errorData)
         alert(`保存失败：${errorData.error || '未知错误'}`)
       }
     } catch (error) {

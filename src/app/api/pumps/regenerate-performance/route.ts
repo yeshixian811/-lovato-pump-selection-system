@@ -93,8 +93,11 @@ export async function POST(request: NextRequest) {
     const db = await getDb();
     for (const point of points) {
       await db.insert(pumpPerformancePoints).values({
-        pumpId: pump.id,
-        ...point,
+        pumpId: pump.id as string,
+        flowRate: point.flowRate.toString(),
+        head: point.head.toString(),
+        power: point.power?.toString(),
+        efficiency: point.efficiency?.toString(),
       });
     }
 
