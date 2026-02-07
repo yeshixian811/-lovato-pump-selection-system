@@ -37,14 +37,12 @@ interface Pump {
   type: string;
   series: string;
   description: string;
-  max_flow_rate: number;
-  min_flow_rate: number;
-  max_head: number;
-  min_head: number;
-  rated_flow_rate: number;
-  rated_head: number;
-  rated_power: number;
-  rated_speed: number;
+  max_flow_rate: number; // 实际最大流量
+  min_flow_rate: number; // 最小流量（工作范围下限）
+  max_head: number; // 实际最大扬程
+  min_head: number; // 最小扬程（工作范围下限）
+  rated_power: number; // 额定功率
+  rated_speed: number; // 额定转速
   efficiency: number;
   voltage: string;
   frequency: number;
@@ -121,7 +119,7 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
       setLoading(false);
     } else {
       // 如果没有性能曲线数据，生成模拟数据
-      const mockData = generateMockPerformanceData(pump.rated_flow_rate, pump.rated_head);
+      const mockData = generateMockPerformanceData(pump.max_flow_rate, pump.max_head);
       setPerformanceData(mockData);
       setDisplayMaxFlow(pump.max_flow_rate);
       setDisplayMaxHead(pump.max_head);

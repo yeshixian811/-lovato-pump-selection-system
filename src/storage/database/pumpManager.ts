@@ -21,6 +21,9 @@ export class PumpManager {
     const maxHead = typeof pump.head === 'number' ? pump.head : parseFloat(pump.head || '0'); // 实际最大扬程
     const ratedPower = typeof pump.power === 'number' ? pump.power : parseFloat(pump.power || '0');
 
+    // 关断点扬程（流量为0时的扬程），通常为最大扬程的 1.25-1.3 倍
+    const shutOffHead = maxHead * 1.25;
+
     // 步长0.1 m³/h
     const step = 0.1;
     const numPoints = Math.floor(maxFlow / step);
@@ -28,34 +31,35 @@ export class PumpManager {
     for (let i = 0; i <= numPoints; i++) {
       const flow = parseFloat((i * step).toFixed(2));
 
-      // 简单的性能曲线模拟（实际应该从制造商获取）
-      // 流量越大，扬程越小（典型的离心泵特性）
-      let head: number;
-      let power: number;
-      let efficiency: number | undefined;
+      // 使用二次曲线模型：H = shutOffHead - k * Q^2
+      // 当 Q = maxFlow 时，H = 0
+      // 0 = shutOffHead - k * maxFlow^2
+      // k = shutOffHead / maxFlow^2
+      const k = shutOffHead / (maxFlow * maxFlow);
+      const head = shutOffHead - k * flow * flow;
 
+      // 确保扬程不为负
+      const adjustedHead = Math.max(0, head);
+
+      // 计算功率：功率随流量增加而增加
       const flowRatio = flow / maxFlow;
-      const pumpEfficiency = pump.efficiency ? parseFloat(typeof pump.efficiency === 'string' ? pump.efficiency : pump.efficiency.toString()) : undefined;
+      const power = ratedPower * (0.3 + 0.7 * flowRatio);
 
-      if (flow <= maxFlow * 0.6) {
-        // 在最大流量60%以下：扬程相对稳定，功率线性增长
-        head = maxHead * (1 - 0.15 * (flowRatio / 0.6)); // 流量每增加，扬程下降约15%
-        power = ratedPower * (0.3 + 0.7 * (flowRatio / 0.6)); // 功率从30%增长到100%
-        efficiency = pumpEfficiency ? pumpEfficiency * (0.5 + 0.5 * (flowRatio / 0.6)) : undefined;
-      } else if (flow <= maxFlow) {
-        // 在最大流量60%以上：扬程快速下降，功率继续增长
-        head = maxHead * (0.85 - 0.3 * ((flowRatio - 0.6) / 0.4)); // 扬程快速下降
-        power = ratedPower * (1.0 + 0.3 * ((flowRatio - 0.6) / 0.4)); // 功率继续增长
-        efficiency = pumpEfficiency ? pumpEfficiency * (1.0 - 0.2 * ((flowRatio - 0.6) / 0.4)) : undefined;
-      } else {
-        continue; // 超过最大流量，不生成数据点
+      // 计算效率：效率在 60% 流量处最高
+      const pumpEfficiency = pump.efficiency ? parseFloat(typeof pump.efficiency === 'string' ? pump.efficiency : pump.efficiency.toString()) : undefined;
+      let efficiency: number | undefined;
+      if (pumpEfficiency) {
+        if (flowRatio <= 0.6) {
+          efficiency = pumpEfficiency * (0.5 + 0.5 * (flowRatio / 0.6));
+        } else {
+          efficiency = pumpEfficiency * (1.0 - 0.2 * ((flowRatio - 0.6) / 0.4));
+        }
       }
 
-      // 确保扬程不低于0
-      if (head > 0) {
+      if (adjustedHead > 0) {
         points.push({
           flowRate: flow,
-          head: parseFloat(head.toFixed(2)),
+          head: parseFloat(adjustedHead.toFixed(2)),
           power: parseFloat(power.toFixed(2)),
           efficiency: efficiency ? parseFloat(efficiency.toFixed(2)) : undefined,
         });

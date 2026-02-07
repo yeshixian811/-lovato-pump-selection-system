@@ -33,68 +33,28 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
     const maxFlow = pumpFlowNum;
     const maxHead = pumpHeadNum;
 
-    // 估计关闭扬程（Q=0时的扬程）通常为最大扬程的 1.2-1.3 倍
+    // 估计关闭扬程（Q=0时的扬程）通常为最大扬程的 1.25 倍
     const shutOffHead = pumpMaxHeadNum || maxHead * 1.25;
 
     // 按照用户要求：流量以0.1 m³/h为单位分配，扬程以0.1米为单位分配
     const flowStep = 0.1; // 流量步长 0.1 m³/h
     const headStep = 0.1; // 扬程步长 0.1 m
 
-    // 使用二次函数生成曲线：H = a*x^2 + b*x + c
-    // 其中 x = Q / Q_max（相对流量）
-    // 条件：
-    // 1. Q=0 时，H = shutOffHead（关闭扬程）
-    // 2. Q=Q_max 时，H = maxHead（最大扬程点）
-    // 3. Q=maxFlow 时，H = 0（最大流量点，这里 maxFlow = Q_max）
-    const H_max = maxHead;
-    const Q_max_base = maxFlow;
-    const Q_max = maxFlow;
-    const H_0 = shutOffHead;
-
-    // 计算二次函数系数
-    // H = a*x^2 + b*x + c
-    // 其中 x = Q / Q_max
-    // 在 x=0 时：c = H_0
-    // 在 x=1 时：a + b + c = H_max
-    // 由于 Q_max = maxFlow，曲线在 Q=Q_max 时扬程为0，所以：
-    // a*1^2 + b*1 + c = 0
-    // a + b + c = 0
-
-    const c = H_0;
-
-    // 解方程组：
-    // a + b + c = H_max
-    // a + b + c = 0
-    // 这两个方程矛盾，所以我们需要调整条件
-    // 实际上，最大流量点（Q=Q_max）的扬程不应该为0，而应该是某个值
-    // 让我们假设最大流量点的扬程为 0（这是简化的假设）
-    // 那么我们有：
-    // a + b + c = H_max (在某个中间点，比如 Q=Q_max*0.6)
-    // a*(1)^2 + b*(1) + c = 0 (在 Q=Q_max)
-
-    // 让我们使用简化的三次函数或分段函数
-    // 这里使用分段线性近似：
-    // 在 0 <= Q <= Q_max*0.6: 扬程线性下降
-    // 在 Q_max*0.6 < Q <= Q_max: 扬程快速下降到0
+    // 使用二次曲线模型：H = shutOffHead - k * Q^2
+    // 当 Q = maxFlow 时，H = 0
+    // 0 = shutOffHead - k * maxFlow^2
+    // k = shutOffHead / maxFlow^2
+    const k = shutOffHead / (maxFlow * maxFlow);
 
     // 以流量为自变量，从0到最大流量，以0.1 m³/h为步长
     for (let flow = 0; flow <= maxFlow; flow += flowStep) {
-      const x = flow / maxFlow; // 相对流量
-      let head: number;
-
-      if (x <= 0.6) {
-        // 在最大流量60%以下：扬程线性下降
-        head = shutOffHead - (shutOffHead - maxHead) * (x / 0.6);
-      } else {
-        // 在最大流量60%以上：扬程快速下降到0
-        head = maxHead * (1 - (x - 0.6) / 0.4);
-      }
+      const head = shutOffHead - k * flow * flow;
 
       // 确保扬程不为负
-      head = Math.max(0, head);
+      const adjustedHead = Math.max(0, head);
 
       // 将扬程四舍五入到0.1米精度
-      const roundedHead = Math.round(head / headStep) * headStep;
+      const roundedHead = Math.round(adjustedHead / headStep) * headStep;
 
       data.push({
         flow: Number(flow.toFixed(1)),
