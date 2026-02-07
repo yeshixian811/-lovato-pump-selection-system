@@ -611,24 +611,23 @@ export default function PumpSelectionPage() {
                     className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-blue-300"
                   >
                     <CardContent className="p-4 md:p-6">
+                      {/* 产品名称和型号 */}
+                      <div className="mb-3">
+                        <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
+                          {pump.name}
+                        </h3>
+                        <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+                          型号: {pump.model}
+                        </p>
+                      </div>
+
                       {/* 匹配度显示 */}
-                      <div className="text-right mb-3">
+                      <div className="text-right mb-4">
                         <div className="text-xl md:text-2xl font-bold text-blue-600">
                           {pump.match_score}%
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           匹配度
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
-                            {pump.name}
-                          </h3>
-                          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                            型号: {pump.model}
-                          </p>
                         </div>
                       </div>
 
