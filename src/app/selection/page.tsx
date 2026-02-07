@@ -78,11 +78,26 @@ const APPLICATION_TYPES = [
 
 const FLUID_TYPES = [
   { value: 'clean_water', label: '清水' },
+  { value: 'drinking_water', label: '饮用水' },
+  { value: 'cooling_water', label: '冷却水' },
+  { value: 'hot_water', label: '热水' },
+  { value: 'soft_water', label: '软水' },
+  { value: 'hard_water', label: '硬水' },
+  { value: 'groundwater', label: '地下水' },
+  { value: 'rainwater', label: '雨水' },
   { value: 'sewage', label: '污水' },
+  { value: 'industrial_wastewater', label: '工业废水' },
   { value: 'sea_water', label: '海水' },
   { value: 'oil', label: '油类' },
+  { value: 'fuel_oil', label: '燃油' },
+  { value: 'lubricating_oil', label: '润滑油' },
   { value: 'chemical', label: '化学液体' },
+  { value: 'acid', label: '酸性液体' },
+  { value: 'alkali', label: '碱性液体' },
+  { value: 'corrosive', label: '腐蚀性液体' },
   { value: 'slurry', label: '泥浆' },
+  { value: 'viscous', label: '粘性液体' },
+  { value: 'gas_liquid_mixture', label: '气液混合物' },
 ];
 
 const PUMP_TYPES = [
