@@ -214,7 +214,10 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           domain={[0, maxFlow]}
           ticks={[0, maxFlow * 0.25, maxFlow * 0.5, maxFlow * 0.75, maxFlow].filter(t => t <= maxFlow && t >= 0)}
           tick={{ fontSize: 10 }}
-          tickFormatter={(value) => value.toFixed(1)}
+          tickFormatter={(value: any) => {
+            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            return isNaN(numValue) ? value : numValue.toFixed(1);
+          }}
           label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
         />
         <YAxis
@@ -222,11 +225,17 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           domain={[0, maxHead]}
           ticks={[0, maxHead * 0.25, maxHead * 0.5, maxHead * 0.75, maxHead].filter(t => t <= maxHead && t >= 0)}
           tick={{ fontSize: 10 }}
-          tickFormatter={(value) => value.toFixed(1)}
+          tickFormatter={(value: any) => {
+            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            return isNaN(numValue) ? value : numValue.toFixed(1);
+          }}
           label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
         />
         <RechartsTooltip
-          formatter={(value: number, name: string) => [value.toFixed(1), name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)']}
+          formatter={(value: any, name: string) => {
+            const numValue = typeof value === 'number' ? value : parseFloat(value);
+            return [isNaN(numValue) ? value : numValue.toFixed(1), name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)'];
+          }}
           labelFormatter={(label) => {
             const numValue = typeof label === 'number' ? label : parseFloat(label);
             return `流量: ${isNaN(numValue) ? label : numValue.toFixed(1)} m³/h`;
@@ -248,7 +257,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           stroke="#ef4444"
           strokeWidth={1.5}
           strokeDasharray="5 5"
-          label={{ value: `需求流量: ${requiredFlowRate.toFixed(1)}`, position: 'top', fill: '#ef4444', fontSize: 10 }}
+          label={{ value: `需求流量: ${typeof requiredFlowRate === 'number' ? requiredFlowRate.toFixed(1) : requiredFlowRate}`, position: 'top', fill: '#ef4444', fontSize: 10 }}
         />
         {/* 用户需求扬程参考线 */}
         <ReferenceLine
@@ -256,7 +265,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           stroke="#ef4444"
           strokeWidth={1.5}
           strokeDasharray="5 5"
-          label={{ value: `需求扬程: ${requiredHead.toFixed(1)}`, position: 'right', fill: '#ef4444', fontSize: 10 }}
+          label={{ value: `需求扬程: ${typeof requiredHead === 'number' ? requiredHead.toFixed(1) : requiredHead}`, position: 'right', fill: '#ef4444', fontSize: 10 }}
         />
         {/* 标注需求点区域 */}
         <ReferenceArea
