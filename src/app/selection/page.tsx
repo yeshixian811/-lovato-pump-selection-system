@@ -87,12 +87,12 @@ interface PumpPerformanceCurveProps {
   pumpId: string | number;
   requiredFlowRate: number;
   requiredHead: number;
+  maxFlowRate: number;
+  maxHead: number;
 }
 
-function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPerformanceCurveProps) {
+function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead, maxFlowRate, maxHead }: PumpPerformanceCurveProps) {
   const [performanceData, setPerformanceData] = useState<any[]>([]);
-  const [maxFlow, setMaxFlow] = useState<number>(0);
-  const [maxHead, setMaxHead] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [displayMaxFlow, setDisplayMaxFlow] = useState<number>(0);
@@ -106,69 +106,21 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           const data = await response.json();
           if (data.performancePoints && data.performancePoints.length > 0) {
             setPerformanceData(data.performancePoints);
-            
-            // 计算最大流量和最大扬程
-            const maxF = Math.max(
-              ...data.performancePoints.map((p: any) => p.flowRate),
-              requiredFlowRate
-            );
-            const maxH = Math.max(
-              ...data.performancePoints.map((p: any) => p.head),
-              requiredHead
-            );
-            setMaxFlow(maxF);
-            setMaxHead(maxH);
           } else {
             // 如果没有性能曲线数据，生成模拟数据
             const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
             setPerformanceData(mockData);
-            
-            // 计算模拟数据的最大值
-            const maxF = Math.max(
-              ...mockData.map(p => p.flowRate),
-              requiredFlowRate
-            );
-            const maxH = Math.max(
-              ...mockData.map(p => p.head),
-              requiredHead
-            );
-            setMaxFlow(maxF);
-            setMaxHead(maxH);
           }
         } else {
           // API 调用失败，生成模拟数据
           const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
           setPerformanceData(mockData);
-          
-          // 计算模拟数据的最大值
-          const maxF = Math.max(
-            ...mockData.map(p => p.flowRate),
-            requiredFlowRate
-          );
-          const maxH = Math.max(
-            ...mockData.map(p => p.head),
-            requiredHead
-          );
-          setMaxFlow(maxF);
-          setMaxHead(maxH);
         }
       } catch (error) {
         console.error('Failed to fetch performance data:', error);
         // 生成模拟数据
         const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
         setPerformanceData(mockData);
-        
-        // 计算模拟数据的最大值
-        const maxF = Math.max(
-          ...mockData.map(p => p.flowRate),
-          requiredFlowRate
-        );
-        const maxH = Math.max(
-          ...mockData.map(p => p.head),
-          requiredHead
-        );
-        setMaxFlow(maxF);
-        setMaxHead(maxH);
       } finally {
         setLoading(false);
       }
@@ -177,12 +129,12 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
     fetchPerformanceData();
   }, [pumpId, requiredFlowRate, requiredHead]);
 
-  // 当最大值改变时，同步更新显示范围
+  // 当产品最大值改变时，同步更新显示范围
   useEffect(() => {
-    setDisplayMaxFlow(maxFlow);
+    setDisplayMaxFlow(maxFlowRate);
     setDisplayMaxHead(maxHead);
     setZoomLevel(1);
-  }, [maxFlow, maxHead]);
+  }, [maxFlowRate, maxHead]);
 
   // 处理鼠标滚轮缩放
   const handleWheel = (event: React.WheelEvent) => {
@@ -196,14 +148,14 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
     
     // 根据缩放级别调整显示范围
     const scale = 1 / newZoomLevel;
-    setDisplayMaxFlow(maxFlow * scale);
+    setDisplayMaxFlow(maxFlowRate * scale);
     setDisplayMaxHead(maxHead * scale);
   };
 
   // 重置缩放
   const handleResetZoom = () => {
     setZoomLevel(1);
-    setDisplayMaxFlow(maxFlow);
+    setDisplayMaxFlow(maxFlowRate);
     setDisplayMaxHead(maxHead);
   };
 
@@ -947,6 +899,8 @@ export default function PumpSelectionPage() {
                             pumpId={pump.id}
                             requiredFlowRate={formData.required_flow_rate}
                             requiredHead={formData.required_head}
+                            maxFlowRate={pump.max_flow_rate}
+                            maxHead={pump.max_head}
                           />
                         </div>
                       </div>
