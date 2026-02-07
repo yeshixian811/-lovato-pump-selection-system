@@ -326,8 +326,8 @@ export default function PumpSelectionPage() {
 
   // 表单状态
   const [formData, setFormData] = useState<SelectionParams>({
-    required_flow_rate: 50,
-    required_head: 30,
+    required_flow_rate: 5,
+    required_head: 10,
     application_type: '供水系统',
     fluid_type: '清水',
     pump_type: 'all',
