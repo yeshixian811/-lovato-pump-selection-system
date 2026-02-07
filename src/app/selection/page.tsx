@@ -290,22 +290,23 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
             type="monotone"
             dataKey="head"
             stroke="#2563eb"
-            strokeWidth={2}
-            dot={{ r: 2 }}
-            activeDot={{ r: 4 }}
+            strokeWidth={1}
+            dot={{ r: 1 }}
+            activeDot={{ r: 3 }}
             name="性能曲线"
+            isAnimationActive={false}
           />
           {/* 用户需求点 - 使用实线参考线 */}
           <ReferenceLine
             x={Number(requiredFlowRate)}
             stroke="#ef4444"
-            strokeWidth={2}
+            strokeWidth={1}
             label={{ value: '需求点', position: 'topLeft', fill: '#ef4444', fontSize: 11, fontWeight: 600 }}
           />
           <ReferenceLine
             y={Number(requiredHead)}
             stroke="#ef4444"
-            strokeWidth={2}
+            strokeWidth={1}
           />
         </LineChart>
       </ResponsiveContainer>
