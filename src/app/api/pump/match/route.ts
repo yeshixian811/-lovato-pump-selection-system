@@ -75,7 +75,7 @@ function calculateHeadAtFlow(pump: any, flowRate: number): number {
   return Math.max(0, head);
 }
 
-// 匹配度计算函数 - 基于性能曲线
+// 匹配度计算函数 - 基于三线交叉点选型，遵循选大不选小原则
 function calculateMatchScore(
   pump: any,
   params: SelectionParams
@@ -91,60 +91,70 @@ function calculateMatchScore(
   const maxHead = parseFloat(pump.max_head);
   const minHead = parseFloat(pump.min_head || maxHead * 0.6);
 
-  // 1. 检查需求点是否在工作范围内 (权重: 60%)
-  // 工作范围：流量在 [minFlow, maxFlow] 之间
+  // 三线交叉点选型原则：
+  // 1. 流量参考线：用户需求流量
+  // 2. 扬程参考线：用户需求扬程
+  // 3. 性能曲线：水泵的H-Q性能曲线
+  // 选型要求：在需求流量处，性能曲线扬程 >= 需求扬程（选大不选小）
+
+  // 1. 检查需求流量是否在工作范围内 (权重: 40%)
   const inFlowRange = requiredFlow >= minFlow && requiredFlow <= maxFlow;
   
-  if (inFlowRange) {
-    // 流量在范围内，检查扬程
-    const curveHead = calculateHeadAtFlow(pump, requiredFlow);
-    
-    // 允许一定的误差范围（±15%）
-    const headError = Math.abs(curveHead - requiredHead) / requiredHead;
-    
-    if (headError <= 0.15) {
-      // 在性能曲线的允许误差范围内
-      const flowScore = 60 * (1 - headError / 0.15);
-      score += flowScore;
-    } else if (headError <= 0.3) {
-      // 稍微超出允许误差
-      score += 30;
-    } else {
-      // 严重偏离性能曲线
-      score += 10;
-    }
+  if (!inFlowRange) {
+    // 流量超出工作范围，直接返回0分
+    return 0;
+  }
+  
+  // 流量在范围内，给40分
+  score += 40;
+
+  // 2. 计算需求流量处的性能曲线扬程 (权重: 60%)
+  const curveHead = calculateHeadAtFlow(pump, requiredFlow);
+  
+  // 遵循选大不选小原则
+  // 曲线扬程必须 >= 需求扬程
+  if (curveHead < requiredHead) {
+    // 曲线扬程小于需求扬程，无法满足要求，返回0分
+    return 0;
+  }
+  
+  // 曲线扬程 >= 需求扬程，计算超出程度
+  const headRatio = curveHead / requiredHead;
+  
+  // 理想情况：曲线扬程 = 需求扬程 (100%)
+  // 允许范围：曲线扬程在需求扬程的100%-150%之间
+  if (headRatio <= 1.05) {
+    // 曲线扬程非常接近需求扬程（±5%），最佳选择
+    score += 60;
+  } else if (headRatio <= 1.15) {
+    // 曲线扬程略微超出（5%-15%），优秀
+    score += 55;
+  } else if (headRatio <= 1.30) {
+    // 曲线扬程超出（15%-30%），良好
+    score += 45;
+  } else if (headRatio <= 1.50) {
+    // 曲线扬程较大超出（30%-50%），可用但效率可能降低
+    score += 30;
   } else {
-    // 流量超出工作范围
-    if (requiredFlow < minFlow) {
-      // 流量太小，可能导致过载
-      const flowRatio = requiredFlow / minFlow;
-      score += Math.max(0, 60 * flowRatio);
-    } else {
-      // 流量太大，超过水泵能力
-      const flowExcess = (requiredFlow - maxFlow) / maxFlow;
-      score += Math.max(0, 60 * (1 - flowExcess * 2));
-    }
+    // 曲线扬程严重超出（>50%），可用但不推荐
+    score += 15;
   }
 
-  // 2. 应用场景匹配 (权重: 25%)
+  // 3. 应用场景匹配 (额外加分: +5分)
   const pumpApplications = pump.applications || [];
   const pumpApplication = pump.application_type || pump.applicationType;
   
   if (pumpApplications.includes(params.application_type) || 
       pumpApplication === params.application_type) {
-    score += 25;
-  } else {
-    score += 10;
+    score += 5;
   }
 
-  // 3. 流体类型匹配 (权重: 15%)
+  // 4. 流体类型匹配 (额外加分: +3分)
   const pumpFluidTypes = pump.fluid_types || [];
   
   if (pumpFluidTypes.includes(params.fluid_type) ||
       pumpFluidTypes.includes('清水') && params.fluid_type.includes('水')) {
-    score += 15;
-  } else {
-    score += 5;
+    score += 3;
   }
 
   return Math.min(Math.round(score * 10) / 10, maxScore);
@@ -248,8 +258,8 @@ export async function POST(request: NextRequest) {
     // 按匹配度排序
     pumpsWithScore.sort((a: any, b: any) => b.match_score - a.match_score);
 
-    // 只返回匹配度 > 50 的结果
-    const filteredPumps = pumpsWithScore.filter((p: any) => p.match_score > 50);
+    // 返回所有匹配的水泵（match_score > 0 表示符合选型要求）
+    const filteredPumps = pumpsWithScore.filter((p: any) => p.match_score > 0);
 
     return NextResponse.json({
       pumps: filteredPumps,
