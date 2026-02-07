@@ -620,15 +620,14 @@ export default function ProductsPage() {
                 导出
               </Button>
 
-              {selectedIds.size > 0 && (
-                <Button
-                  onClick={handleBatchDelete}
-                  variant="destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  批量删除 ({selectedIds.size})
-                </Button>
-              )}
+              <Button
+                onClick={handleBatchDelete}
+                variant={selectedIds.size > 0 ? "destructive" : "outline"}
+                disabled={selectedIds.size === 0}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                批量删除 {selectedIds.size > 0 && `(${selectedIds.size})`}
+              </Button>
 
               <div>
                 <input
