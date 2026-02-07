@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next';
 import path from 'path';
-import withPWA from 'next-pwa';
+// import withPWA from 'next-pwa';
 
 const nextConfig: NextConfig = {
   // outputFileTracingRoot: path.resolve(__dirname, '../../'),
@@ -17,11 +17,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-const pwaConfig = withPWA({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-});
+// Temporarily disable PWA to avoid Turbopack conflicts
+// const pwaConfig = withPWA({
+//   dest: 'public',
+//   register: true,
+//   skipWaiting: true,
+//   disable: true, // Disable PWA in all environments
+// });
 
-export default pwaConfig(nextConfig);
+export default nextConfig; // pwaConfig(nextConfig);

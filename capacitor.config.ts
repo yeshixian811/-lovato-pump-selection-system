@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     iosScheme: 'https',
-    androidCleartext: true,
+    cleartext: true,
   },
   android: {
     buildOptions: {
