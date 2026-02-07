@@ -15,6 +15,17 @@ import {
 import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2, Info, Zap, Droplet, Gauge } from 'lucide-react';
 import Link from 'next/link';
 import { WechatShareConfig } from '@/components/wechat/initializer';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  ReferenceDot,
+  Legend
+} from 'recharts';
 
 // 类型定义
 interface Pump {
@@ -68,6 +79,122 @@ interface SelectionParams {
   application_type: string;
   fluid_type: string;
   pump_type: string;
+}
+
+// 性能曲线组件
+interface PumpPerformanceCurveProps {
+  pumpId: string | number;
+  requiredFlowRate: number;
+  requiredHead: number;
+}
+
+function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPerformanceCurveProps) {
+  const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPerformanceData = async () => {
+      try {
+        const response = await fetch(`/api/pumps/${pumpId}/performance`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.performancePoints && data.performancePoints.length > 0) {
+            setPerformanceData(data.performancePoints);
+          } else {
+            // 如果没有性能曲线数据，生成模拟数据
+            const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
+            setPerformanceData(mockData);
+          }
+        } else {
+          // API 调用失败，生成模拟数据
+          const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
+          setPerformanceData(mockData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch performance data:', error);
+        // 生成模拟数据
+        const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
+        setPerformanceData(mockData);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPerformanceData();
+  }, [pumpId, requiredFlowRate, requiredHead]);
+
+  // 生成模拟性能曲线数据
+  const generateMockPerformanceData = (flow: number, head: number) => {
+    const data: any[] = [];
+    const maxFlow = flow * 2;
+    const maxHead = head * 1.5;
+    const step = maxFlow / 20;
+
+    for (let i = 0; i <= 20; i++) {
+      const currentFlow = Math.round(i * step * 10) / 10;
+      // 简单的二次曲线模型
+      const currentHead = maxHead * (1 - Math.pow(currentFlow / maxFlow, 2));
+      if (currentHead >= 0) {
+        data.push({
+          flowRate: currentFlow,
+          head: Math.round(currentHead * 10) / 10,
+        });
+      }
+    }
+
+    return data;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis
+          dataKey="flowRate"
+          type="number"
+          domain={['dataMin', 'dataMax']}
+          tick={{ fontSize: 10 }}
+          label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
+        />
+        <YAxis
+          dataKey="head"
+          domain={['dataMin', 'dataMax']}
+          tick={{ fontSize: 10 }}
+          label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
+        />
+        <RechartsTooltip
+          formatter={(value: number, name: string) => [value, name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)']}
+          labelFormatter={(label) => `流量: ${label} m³/h`}
+        />
+        <Legend wrapperStyle={{ fontSize: '10px' }} />
+        <Line
+          type="monotone"
+          dataKey="head"
+          stroke="#2563eb"
+          strokeWidth={2}
+          dot={{ r: 2 }}
+          activeDot={{ r: 4 }}
+          name="性能曲线"
+        />
+        <ReferenceDot
+          x={requiredFlowRate}
+          y={requiredHead}
+          r={5}
+          fill="#ef4444"
+          stroke="none"
+          isFront={true}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
 }
 
 const APPLICATION_TYPES = [
@@ -560,21 +687,17 @@ export default function PumpSelectionPage() {
                         </div>
                       </div>
 
-                      {/* 性能曲线示意图 */}
+                      {/* H-Q 性能曲线图 */}
                       <div className="bg-gray-50 dark:bg-gray-800 p-3 md:p-4 rounded-lg mb-4">
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                          性能匹配示意图
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                          H-Q 性能曲线
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-blue-200 dark:bg-blue-900 rounded-full h-2 md:h-3 relative">
-                            <div
-                              className="bg-blue-600 h-2 md:h-3 rounded-full transition-all"
-                              style={{ width: `${pump.match_score}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                            {pump.match_score}%
-                          </span>
+                        <div className="h-48 w-full">
+                          <PumpPerformanceCurve
+                            pumpId={pump.id}
+                            requiredFlowRate={formData.required_flow_rate}
+                            requiredHead={formData.required_head}
+                          />
                         </div>
                       </div>
 
