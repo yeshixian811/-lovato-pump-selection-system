@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Combobox } from "@/components/ui/combobox";
 import { PasswordProtect } from "@/components/password-protect";
-import { Plus, Upload, Download, Edit, Trash2, Search, Droplets, TrendingUp } from "lucide-react";
+import { Plus, Upload, Download, Edit, Trash2, Search, Droplets, TrendingUp, CheckSquare, Square } from "lucide-react";
 import PumpCurveChart from "@/components/pump-curve-chart";
 
 interface Pump {
@@ -50,6 +50,7 @@ export default function ProductsPage() {
   const [pumps, setPumps] = useState<Pump[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPump, setEditingPump] = useState<Pump | null>(null);
   const [isPerformanceOpen, setIsPerformanceOpen] = useState(false);
@@ -175,6 +176,47 @@ export default function ProductsPage() {
       fetchPumps();
     } catch (error) {
       console.error("Error deleting pump:", error);
+    }
+  };
+
+  const handleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.size === pumps.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(pumps.map(p => p.id)));
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.size === 0) {
+      alert("请先选择要删除的产品");
+      return;
+    }
+
+    if (!confirm(`确定要删除选中的 ${selectedIds.size} 个产品吗？`)) return;
+
+    try {
+      await fetch("/api/pumps/batch-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds) }),
+      });
+      setSelectedIds(new Set());
+      fetchPumps();
+      alert("批量删除成功");
+    } catch (error) {
+      console.error("Error batch deleting pumps:", error);
+      alert("批量删除失败");
     }
   };
 
@@ -578,6 +620,16 @@ export default function ProductsPage() {
                 导出
               </Button>
 
+              {selectedIds.size > 0 && (
+                <Button
+                  onClick={handleBatchDelete}
+                  variant="destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  批量删除 ({selectedIds.size})
+                </Button>
+              )}
+
               <div>
                 <input
                   type="file"
@@ -611,6 +663,20 @@ export default function ProductsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="w-10 whitespace-nowrap">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSelectAll}
+                            className="h-8 w-8 p-0"
+                          >
+                            {selectedIds.size === pumps.length ? (
+                              <CheckSquare className="h-4 w-4" />
+                            ) : (
+                              <Square className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </TableHead>
                         <TableHead className="whitespace-nowrap">产品名称</TableHead>
                         <TableHead className="whitespace-nowrap">型号</TableHead>
                         <TableHead className="whitespace-nowrap">品牌</TableHead>
@@ -627,13 +693,27 @@ export default function ProductsPage() {
                     <TableBody>
                       {pumps.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={11} className="text-center py-8">
+                          <TableCell colSpan={12} className="text-center py-8">
                             暂无产品数据，请添加产品或导入数据
                           </TableCell>
                         </TableRow>
                       ) : (
                         pumps.map((pump) => (
                           <TableRow key={pump.id}>
+                            <TableCell className="w-10">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleSelect(pump.id)}
+                                className="h-8 w-8 p-0"
+                              >
+                                {selectedIds.has(pump.id) ? (
+                                  <CheckSquare className="h-4 w-4" />
+                                ) : (
+                                  <Square className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TableCell>
                             <TableCell className="font-medium whitespace-nowrap">{pump.name}</TableCell>
                             <TableCell className="whitespace-nowrap">{pump.model}</TableCell>
                             <TableCell className="whitespace-nowrap">{pump.brand}</TableCell>
