@@ -206,10 +206,10 @@ export default function PumpSelectionPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 overflow-hidden">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 overflow-hidden">
           {/* 左侧：参数输入 */}
-          <Card>
+          <Card className="overflow-hidden">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                 <Search className="w-5 h-5 text-blue-600" />
@@ -219,7 +219,7 @@ export default function PumpSelectionPage() {
                 请填写您的使用需求，系统将自动匹配最合适的水泵产品
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-hidden">
               <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
                 {/* 流量需求 - 支持键盘输入 */}
                 <div className="space-y-2">
@@ -387,7 +387,7 @@ export default function PumpSelectionPage() {
           </Card>
 
           {/* 右侧：选型说明和结果 */}
-          <div className="space-y-6">
+          <div className="space-y-6 overflow-hidden">
             {/* 选型说明 */}
             <Card>
               <CardHeader>
@@ -396,7 +396,7 @@ export default function PumpSelectionPage() {
                   选型说明
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="overflow-hidden">
                 <div className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
                   <div className="flex items-start gap-3">
                     <Droplet className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
