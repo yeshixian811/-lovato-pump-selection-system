@@ -175,7 +175,10 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
         />
         <RechartsTooltip
           formatter={(value: number, name: string) => [value.toFixed(1), name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)']}
-          labelFormatter={(label) => `流量: ${label.toFixed(1)} m³/h`}
+          labelFormatter={(label) => {
+            const numValue = typeof label === 'number' ? label : parseFloat(label);
+            return `流量: ${isNaN(numValue) ? label : numValue.toFixed(1)} m³/h`;
+          }}
         />
         <Legend wrapperStyle={{ fontSize: '10px' }} />
         <Line
