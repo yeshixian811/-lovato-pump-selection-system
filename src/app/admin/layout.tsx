@@ -1,95 +1,34 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
-  LayoutDashboard, 
-  FileText, 
-  Image, 
-  Palette, 
-  Navigation as NavIcon, 
-  Settings,
+  LayoutDashboard,
+  Package,
+  FileText,
   Users,
-  ChevronRight,
-  ChevronDown,
+  Settings,
+  Palette,
+  Layers,
+  ChevronLeft,
+  Menu,
+  X,
   LogOut,
-  User
+  ShoppingCart,
+  Globe,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { useState } from 'react'
 
-interface MenuItem {
-  icon: any
-  label: string
-  href: string
-  badge?: string
-  children?: MenuItem[]
-}
-
-const menuItems: MenuItem[] = [
-  {
-    icon: LayoutDashboard,
-    label: '仪表盘',
-    href: '/admin'
-  },
-  {
-    icon: Users,
-    label: '用户管理',
-    href: '/admin/dashboard',
-    badge: '会员'
-  },
-  {
-    icon: FileText,
-    label: '内容管理',
-    href: '/admin/content',
-    children: [
-      {
-        icon: FileText,
-        label: '页面内容',
-        href: '/admin/content/pages'
-      },
-      {
-        icon: Image,
-        label: '图片管理',
-        href: '/admin/content/images'
-      },
-      {
-        icon: FileText,
-        label: '文本管理',
-        href: '/admin/content/text'
-      }
-    ]
-  },
-  {
-    icon: LayoutDashboard,
-    label: '页面管理',
-    href: '/admin/pages',
-  },
-  {
-    icon: Palette,
-    label: '设计配置',
-    href: '/admin/design',
-  },
-  {
-    icon: NavIcon,
-    label: '导航管理',
-    href: '/admin/navigation',
-  },
-  {
-    icon: Settings,
-    label: '系统设置',
-    href: '/admin/settings',
-  },
+const navigation = [
+  { name: '仪表盘', href: '/admin', icon: LayoutDashboard },
+  { name: '产品管理', href: '/admin/products', icon: Package },
+  { name: '选型系统', href: '/admin/selection', icon: FileText },
+  { name: '模板中心', href: '/admin/templates', icon: Palette },
+  { name: '页面管理', href: '/admin/pages', icon: Layers },
+  { name: '订单管理', href: '/admin/orders', icon: ShoppingCart },
+  { name: '用户管理', href: '/admin/users', icon: Users },
+  { name: '系统设置', href: '/admin/settings', icon: Settings },
 ]
 
 export default function AdminLayout({
@@ -97,226 +36,112 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
   const pathname = usePathname()
-  const [expandedItems, setExpandedItems] = useState<string[]>(['content'])
-  const [user, setUser] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async (retryCount = 0) => {
-    setIsLoading(true)
-    try {
-      // 尝试从sessionStorage获取token
-      const sessionToken = typeof window !== 'undefined' ? sessionStorage.getItem('admin_token') : null
-      
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-      }
-      
-      // 如果sessionStorage中有token，添加到Authorization header
-      if (sessionToken) {
-        headers['Authorization'] = `Bearer ${sessionToken}`
-      }
-
-      const response = await fetch('/api/user/me', {
-        headers
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        
-        if (data.user?.role === 'admin') {
-          setUser(data.user)
-          setIsAuthenticated(true)
-        } else {
-          setIsAuthenticated(false)
-          setTimeout(() => {
-            window.location.href = '/admin-login'
-          }, 100)
-        }
-      } else {
-        // 如果是第一次失败且是401错误，可能是Cookie还没设置好，重试一次
-        if (response.status === 401 && retryCount === 0) {
-          console.log('第一次认证失败，1秒后重试...')
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          return checkAuth(retryCount + 1)
-        }
-        
-        setIsAuthenticated(false)
-        setTimeout(() => {
-          window.location.href = '/admin-login'
-        }, 100)
-      }
-    } catch (error) {
-      console.error('认证检查失败:', error)
-      // 如果是第一次失败，重试一次
-      if (retryCount === 0) {
-        console.log('第一次认证失败，1秒后重试...')
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        return checkAuth(retryCount + 1)
-      }
-      
-      setIsAuthenticated(false)
-      setTimeout(() => {
-        window.location.href = '/admin-login'
-      }, 100)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      setUser(null)
-      setIsAuthenticated(false)
-      // 清除sessionStorage中的token
-      sessionStorage.removeItem('admin_token')
-      window.location.href = '/admin-login'
-    } catch (error) {
-      console.error('登出失败:', error)
-      sessionStorage.removeItem('admin_token')
-      window.location.href = '/admin-login'
-    }
-  }
-
-  const toggleExpand = (label: string) => {
-    setExpandedItems(prev => 
-      prev.includes(label) 
-        ? prev.filter(item => item !== label)
-        : [...prev, label]
-    )
-  }
-
-  const renderMenuItem = (item: MenuItem, level: number = 0) => {
-    const hasChildren = item.children && item.children.length > 0
-    const isExpanded = expandedItems.includes(item.label)
-    const isActive = pathname === item.href || (hasChildren && pathname.startsWith(item.href))
-
-    return (
-      <div key={item.href}>
-        <Link
-          href={item.href}
-          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-            isActive
-              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-          }`}
-          style={{ paddingLeft: `${level * 16 + 16}px` }}
-          onClick={(e) => {
-            if (hasChildren) {
-              e.preventDefault()
-              toggleExpand(item.label)
-            }
-          }}
-        >
-          <item.icon className="h-5 w-5 flex-shrink-0" />
-          <span className="flex-1">{item.label}</span>
-          {item.badge && (
-            <Badge variant="secondary" className="text-xs">
-              {item.badge}
-            </Badge>
-          )}
-          {hasChildren && (
-            <div className="flex-shrink-0">
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </div>
-          )}
-        </Link>
-        {hasChildren && isExpanded && (
-          <div className="mt-1">
-            {item.children?.map(child => renderMenuItem(child, level + 1))}
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">加载中...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) {
-    return null // 将由重定向处理
-  }
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto z-50">
-        <div className="p-6">
-          <Link href="/" className="flex items-center gap-2 mb-8">
-            <img
-              src="/luwatto-logo.png"
-              alt="LOGO"
-              className="h-8 w-auto"
-            />
-            <span className="font-bold text-gray-900 dark:text-white">
-              后台管理
-            </span>
-          </Link>
-
-          <nav className="space-y-1">
-            {menuItems.map(item => renderMenuItem(item))}
-          </nav>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="ml-64">
-        {/* Header */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
-          <div className="flex items-center justify-between px-8 py-4">
-            <div className="flex items-center gap-2">
-              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600">
-                管理员
-              </Badge>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {user?.email || 'admin@lovato.com'}
-              </span>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span>个人中心</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  个人信息
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  退出登录
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <div className="flex h-full flex-col">
+          {/* Logo */}
+          <div className="flex h-16 items-center justify-between px-6 border-b">
+            <Link href="/admin" className="flex items-center gap-2">
+              <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <LayoutDashboard className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-lg font-bold">洛瓦托</span>
+            </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
-        </header>
 
-        <div className="p-8">
-          {children}
+          {/* Navigation */}
+          <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+            {navigation.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <item.icon className={`h-5 w-5 ${isActive ? '' : 'text-gray-400'}`} />
+                  {item.name}
+                </Link>
+              )
+            })}
+          </nav>
+
+          {/* Footer */}
+          <div className="border-t p-4">
+            <Link
+              href="/"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              返回前台
+            </Link>
+            <Button
+              variant="ghost"
+              className="w-full mt-2 justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="h-5 w-5 mr-3" />
+              退出登录
+            </Button>
+          </div>
         </div>
-      </main>
+      </div>
+
+      {/* Main content */}
+      <div className="lg:pl-64">
+        {/* Top bar */}
+        <div className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white dark:bg-gray-900 px-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <div className="flex-1" />
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              管理员
+            </div>
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+              A
+            </div>
+          </div>
+        </div>
+
+        {/* Page content */}
+        <main className="p-6">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }

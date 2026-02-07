@@ -1,249 +1,198 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { 
-  Users, 
-  FileText, 
-  Image, 
-  LayoutDashboard,
+  Package,
+  Users,
+  FileText,
   TrendingUp,
-  Activity,
   Clock,
-  Settings
+  Palette,
+  Layers,
+  ArrowRight,
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function AdminDashboardPage() {
-  const stats = [
-    {
-      title: '总用户数',
-      value: '1,234',
-      change: '+12%',
-      icon: Users,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/20',
-    },
-    {
-      title: '页面数量',
-      value: '24',
-      change: '+2',
-      icon: FileText,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100 dark:bg-green-900/20',
-    },
-    {
-      title: '图片资源',
-      value: '156',
-      change: '+15',
-      icon: Image,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-    },
-    {
-      title: '今日访问',
-      value: '8,432',
-      change: '+23%',
-      icon: TrendingUp,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/20',
-    },
-  ]
-
-  const quickActions = [
-    {
-      title: '新建页面',
-      description: '创建新的网站页面',
-      icon: FileText,
-      href: '/admin/pages/create',
-      color: 'bg-blue-600',
-    },
-    {
-      title: '上传图片',
-      description: '上传新的图片资源',
-      icon: Image,
-      href: '/admin/content/images/upload',
-      color: 'bg-purple-600',
-    },
-    {
-      title: '主题配置',
-      description: '调整网站设计风格',
-      icon: LayoutDashboard,
-      href: '/admin/design',
-      color: 'bg-green-600',
-    },
-    {
-      title: '系统设置',
-      description: '配置系统参数',
-      icon: Settings,
-      href: '/admin/settings',
-      color: 'bg-gray-600',
-    },
-  ]
-
-  const recentActivity = [
-    {
-      action: '创建页面',
-      target: '产品详情页',
-      time: '5分钟前',
-      user: '管理员',
-    },
-    {
-      action: '更新内容',
-      target: '首页横幅',
-      time: '15分钟前',
-      user: '编辑',
-    },
-    {
-      action: '上传图片',
-      target: 'banner.jpg',
-      time: '1小时前',
-      user: '设计师',
-    },
-    {
-      action: '修改主题',
-      target: '颜色方案',
-      time: '2小时前',
-      user: '管理员',
-    },
-    {
-      action: '添加用户',
-      target: '新用户注册',
-      time: '3小时前',
-      user: '系统',
-    },
-  ]
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          网站管理后台
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          管理网站内容、页面设计和系统配置
-        </p>
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
+        <h1 className="text-2xl font-bold mb-2">欢迎回来，管理员</h1>
+        <p className="text-white/80">今天也是充满活力的一天！</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stat.value}
-              </div>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                较昨日 <span className="text-green-600 font-medium">{stat.change}</span>
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">产品总数</CardTitle>
+            <Package className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">156</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+12</span> 本月新增
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">用户总数</CardTitle>
+            <Users className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">2,456</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+86</span> 本月新增
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">选型次数</CardTitle>
+            <FileText className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">1,234</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+28</span> 较上周
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">访问量</CardTitle>
+            <TrendingUp className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">8,542</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+156</span> 较上周
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {quickActions.map((action) => (
-          <Card 
-            key={action.title}
-            className="hover:shadow-lg transition-shadow cursor-pointer group"
-          >
-            <CardContent className="p-6">
-              <div className={`w-12 h-12 rounded-lg ${action.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                <action.icon className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                {action.title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {action.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Recent Activity & System Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="group hover:shadow-lg transition-all cursor-pointer">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              最近活动
-            </CardTitle>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <Palette className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <CardTitle className="text-lg">模板中心</CardTitle>
+            </div>
             <CardDescription>
-              查看最近的操作记录
+              浏览精美模板，快速搭建页面
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900 dark:text-white">
-                      <span className="font-medium">{activity.user}</span> {activity.action} - {activity.target}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {activity.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              从 10+ 预设模板中选择，包括企业官网、产品展示、营销活动等多种类型
+            </p>
+            <Link href="/admin/templates">
+              <Button className="w-full gap-2">
+                选择模板
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 
-        {/* System Status */}
-        <Card>
+        <Card className="group hover:shadow-lg transition-all cursor-pointer">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              系统状态
-            </CardTitle>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <Layers className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <CardTitle className="text-lg">页面编辑器</CardTitle>
+            </div>
             <CardDescription>
-              服务器运行状态
+              积木式拖拽，自由设计页面
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">服务器状态</span>
-                <Badge className="bg-green-600">运行中</Badge>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              使用积木组件自由组合，快速创建专业页面
+            </p>
+            <Link href="/admin/builder">
+              <Button className="w-full gap-2" variant="outline">
+                开始编辑
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="group hover:shadow-lg transition-all cursor-pointer">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">数据库</span>
-                <Badge className="bg-green-600">正常</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">存储空间</span>
-                <span className="text-sm text-gray-900 dark:text-white">45GB / 100GB</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">CPU使用率</span>
-                <span className="text-sm text-gray-900 dark:text-white">32%</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">内存使用率</span>
-                <span className="text-sm text-gray-900 dark:text-white">58%</span>
-              </div>
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <Clock className="h-4 w-4" />
-                  <span>上次更新：2分钟前</span>
-                </div>
-              </div>
+              <CardTitle className="text-lg">产品管理</CardTitle>
             </div>
+            <CardDescription>
+              管理产品信息与库存
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              添加、编辑、删除产品，管理产品分类和规格
+            </p>
+            <Link href="/admin/products">
+              <Button className="w-full gap-2" variant="outline">
+                管理产品
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>最近活动</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">用户张三完成了水泵选型</p>
+                <p className="text-sm text-gray-500">2分钟前</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">新增产品"LS系列水泵"</p>
+                <p className="text-sm text-gray-500">15分钟前</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">新用户"李四"注册账号</p>
+                <p className="text-sm text-gray-500">1小时前</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
