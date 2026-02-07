@@ -156,24 +156,26 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+      <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 45, bottom: 15 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="flowRate"
           type="number"
           domain={['dataMin', 'dataMax']}
           tick={{ fontSize: 10 }}
+          tickFormatter={(value) => value.toFixed(1)}
           label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
         />
         <YAxis
           dataKey="head"
           domain={[0, 'dataMax']}
           tick={{ fontSize: 10 }}
+          tickFormatter={(value) => value.toFixed(1)}
           label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
         />
         <RechartsTooltip
-          formatter={(value: number, name: string) => [value, name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)']}
-          labelFormatter={(label) => `流量: ${label} m³/h`}
+          formatter={(value: number, name: string) => [value.toFixed(1), name === 'flowRate' ? '流量 (m³/h)' : '扬程 (m)']}
+          labelFormatter={(label) => `流量: ${label.toFixed(1)} m³/h`}
         />
         <Legend wrapperStyle={{ fontSize: '10px' }} />
         <Line
@@ -191,7 +193,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           stroke="#ef4444"
           strokeWidth={1.5}
           strokeDasharray="5 5"
-          label={{ value: `需求流量: ${requiredFlowRate}`, position: 'top', fill: '#ef4444', fontSize: 10 }}
+          label={{ value: `需求流量: ${requiredFlowRate.toFixed(1)}`, position: 'top', fill: '#ef4444', fontSize: 10 }}
         />
         {/* 用户需求扬程参考线 */}
         <ReferenceLine
@@ -199,7 +201,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           stroke="#ef4444"
           strokeWidth={1.5}
           strokeDasharray="5 5"
-          label={{ value: `需求扬程: ${requiredHead}`, position: 'right', fill: '#ef4444', fontSize: 10 }}
+          label={{ value: `需求扬程: ${requiredHead.toFixed(1)}`, position: 'right', fill: '#ef4444', fontSize: 10 }}
         />
         {/* 标注需求点区域 */}
         <ReferenceArea
