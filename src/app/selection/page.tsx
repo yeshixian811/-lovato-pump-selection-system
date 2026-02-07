@@ -777,7 +777,7 @@ export default function PumpSelectionPage() {
                                 额定功率
                               </div>
                               <div className="text-xs font-medium text-gray-900 dark:text-white">
-                                {typeof pump.rated_power === 'number' ? pump.rated_power.toFixed(1) : pump.rated_power} kW
+                                {typeof pump.rated_power === 'number' ? pump.rated_power.toFixed(2) : pump.rated_power} kW
                               </div>
                             </div>
                             <div>
@@ -894,7 +894,7 @@ export default function PumpSelectionPage() {
                             额定功率
                           </div>
                           <div className="text-xs font-medium text-gray-900 dark:text-white">
-                            {typeof pump.rated_power === 'number' ? pump.rated_power.toFixed(1) : pump.rated_power} kW
+                            {typeof pump.rated_power === 'number' ? pump.rated_power.toFixed(2) : pump.rated_power} kW
                           </div>
                         </div>
                         <div>
