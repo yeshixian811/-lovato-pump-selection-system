@@ -1,470 +1,437 @@
-# 🚀 本地服务器部署指南
+# 洛瓦托水泵选型系统 - 部署指南
 
-## 📋 概述
-
-本指南帮助您部署洛瓦托水泵选型系统的本地服务器，并创建 HTTPS 隧道供微信小程序访问。
-
-## 🎯 部署方案
-
-### 方案 A：本地开发 + HTTPS 隧道（推荐用于测试）
-- ✅ 快速测试
-- ✅ 免费使用
-- ⚠️ URL 会变化
-- ⚠️ 适合开发阶段
-
-### 方案 B：部署到 Vercel（推荐用于生产）
-- ✅ 永久 HTTPS 域名
-- ✅ 自动部署
-- ✅ 免费额度
-- ✅ 适合生产环境
+## 📋 目录
+- [服务器配置](#服务器配置)
+- [快速部署](#快速部署)
+- [微信小程序配置](#微信小程序配置)
+- [内网穿透方案](#内网穿透方案)
+- [常见问题](#常见问题)
 
 ---
 
-## 方案 A：本地开发 + HTTPS 隧道
+## 🖥️ 服务器配置
 
-### 步骤 1：确认项目运行
+### 当前服务器状态
+- **内网IP**: `9.128.67.37`
+- **服务端口**: `5000`
+- **服务状态**: ✅ 运行中
+- **进程管理**: PM2
+- **访问地址**: 
+  - 内网: `http://9.128.67.37:5000`
+  - 本地: `http://localhost:5000`
 
-```bash
-# 检查服务是否在 5000 端口运行
-ss -lptn 'sport = :5000'
+### 环境要求
+- Node.js 24+
+- PostgreSQL 数据库
+- PM2 进程管理器
+- 内网穿透工具（ngrok/cloudflared）
 
-# 如果没有运行，启动服务
-coze dev > /app/work/logs/bypass/dev.log 2>&1 &
-```
+---
 
-### 步骤 2：安装 ngrok
+## 🚀 快速部署
 
-#### macOS
-```bash
-brew install ngrok
-```
-
-#### Linux
-```bash
-# 下载 ngrok
-curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-sudo apt update && sudo apt install ngrok -y
-```
-
-#### Windows
-1. 访问 https://ngrok.com/download
-2. 下载 Windows 版本
-3. 解压到任意目录
-4. 将 ngrok.exe 所在目录添加到 PATH
-
-### 步骤 3：配置 ngrok（可选）
+### 方式一：一键启动脚本
 
 ```bash
-# 注册账号并获取 authtoken
-# 访问：https://dashboard.ngrok.com/signup
-# 登录后获取 authtoken
+# 进入项目目录
+cd /workspace/projects
 
-# 配置 authtoken
-ngrok config add-authtoken YOUR_AUTH_TOKEN
+# 启动所有服务
+./scripts/start-all.sh
+
+# 查看服务状态
+./scripts/status.sh
+
+# 停止所有服务
+./scripts/stop-all.sh
 ```
 
-### 步骤 4：启动 HTTPS 隧道
+### 方式二：手动启动
 
+#### 1. 安装依赖
 ```bash
-# 启动隧道，指向本地 5000 端口
-ngrok http 5000
-
-# 您将看到类似输出：
-# Forwarding  https://abc123.ngrok.io -> http://localhost:5000
-# Forwarding  https://abc123.ngrok-free.app -> http://localhost:5000
+pnpm install
 ```
 
-### 步骤 5：记录 HTTPS URL
+#### 2. 配置环境变量
 
-复制 ngrok 生成的 HTTPS URL，例如：
+编辑 `.env` 文件（如果不存在则创建）：
+```env
+# 数据库配置
+DATABASE_URL="postgresql://user:password@localhost:5432/luowato_pump"
+
+# 服务端口
+PORT=5000
+
+# 微信小程序配置
+WECHAT_APP_ID="your_app_id"
+WECHAT_APP_SECRET="your_app_secret"
 ```
-https://abc123.ngrok-free.app
+
+#### 3. 启动开发服务器
+```bash
+coze dev
 ```
 
-### 步骤 6：配置小程序
+#### 4. 使用 PM2 管理进程（生产环境推荐）
+```bash
+# 启动服务
+pm2 start ecosystem.config.js
 
-修改小程序配置文件：
+# 查看日志
+pm2 logs
 
-#### 1. `wechat-miniprogram/project.private.config.json`
+# 停止服务
+pm2 stop luowato-pump
+
+# 重启服务
+pm2 restart luowato-pump
+```
+
+---
+
+## 📱 微信小程序配置
+
+由于微信小程序的 WebView 组件**必须使用 HTTPS**，你需要配置内网穿透。
+
+### 配置步骤
+
+#### 1. 配置内网穿透（参考下方【内网穿透方案】）
+
+#### 2. 修改小程序配置文件
+
+**修改 `wechat-miniprogram/app.js`：**
+```javascript
+App({
+  globalData: {
+    systemInfo: null,
+    baseUrl: 'https://your-ngrok-url.ngrok-free.app'  // 替换为你的 HTTPS URL
+  },
+
+  onLaunch() {
+    // 初始化系统信息
+    const systemInfo = wx.getSystemInfoSync();
+    this.globalData.systemInfo = systemInfo;
+  }
+});
+```
+
+**修改 `wechat-miniprogram/pages/index/index.js`：**
+```javascript
+Page({
+  data: {
+    webviewUrl: 'https://your-ngrok-url.ngrok-free.app'  // 替换为你的 HTTPS URL
+  },
+
+  onLoad() {
+    console.log('WebView URL:', this.data.webviewUrl);
+  }
+});
+```
+
+**修改 `wechat-miniprogram/project.private.config.json`：**
 ```json
 {
+  "description": "洛瓦托水泵选型系统",
+  "packOptions": {
+    "ignore": []
+  },
   "setting": {
     "urlCheck": false  // 开发阶段关闭域名校验
   }
 }
 ```
 
-#### 2. `wechat-miniprogram/app.js`
-```javascript
-globalData: {
-  systemInfo: null,
-  baseUrl: 'https://abc123.ngrok-free.app'  // 替换为 ngrok URL
-}
-```
-
-#### 3. `wechat-miniprogram/pages/index/index.js`
-```javascript
-data: {
-  webviewUrl: 'https://abc123.ngrok-free.app'  // 替换为 ngrok URL
-}
-```
-
-### 步骤 7：测试小程序
+#### 3. 测试小程序
 
 1. 打开微信开发者工具
 2. 导入 `wechat-miniprogram` 项目
 3. 点击「编译」
 4. 在模拟器中查看效果
 
----
+#### 4. 提交审核发布
 
-## 方案 B：部署到 Vercel（推荐）
-
-### 步骤 1：安装 Vercel CLI
-
-```bash
-# 使用 pnpm 安装
-pnpm add -g vercel
-
-# 或使用 npm
-npm install -g vercel
-```
-
-### 步骤 2：登录 Vercel
-
-```bash
-vercel login
-```
-
-按提示登录：
-1. 选择邮箱登录
-2. 检查邮箱验证链接
-3. 完成登录
-
-### 步骤 3：部署项目
-
-```bash
-# 在项目根目录执行
-cd /workspace/projects
-
-# 初次部署
-vercel
-
-# 按提示操作：
-# ? Set up and deploy “~/projects”? [Y/n] Y
-# ? Which scope do you want to deploy to? (选择您的账号)
-# ? Link to existing project? [y/N] N
-# ? What's your project's name? luowato-pump-selection
-# ? In which directory is your code located? ./
-# ? Want to override the settings? [y/N] N
-```
-
-### 步骤 4：记录部署 URL
-
-部署成功后，Vercel 会提供一个 HTTPS URL，例如：
-```
-https://luowato-pump-selection.vercel.app
-```
-
-### 步骤 5：配置生产环境域名
-
-#### 选项 1：使用 Vercel 提供的域名
-直接使用 Vercel 提供的免费域名（如：`*.vercel.app`）
-
-#### 选项 2：使用自定义域名
-1. 登录 https://vercel.com/dashboard
-2. 选择项目
-3. 进入 Settings → Domains
-4. 添加您的域名
-5. 按提示配置 DNS
-
-### 步骤 6：配置小程序
-
-修改小程序配置文件：
-
-#### 1. `wechat-miniprogram/app.js`
-```javascript
-globalData: {
-  systemInfo: null,
-  baseUrl: 'https://luowato-pump-selection.vercel.app'  // 替换为 Vercel URL
-}
-```
-
-#### 2. `wechat-miniprogram/pages/index/index.js`
-```javascript
-data: {
-  webviewUrl: 'https://luowato-pump-selection.vercel.app'  // 替换为 Vercel URL
-}
-```
-
-#### 3. `wechat-miniprogram/project.private.config.json`
-```bash
-{
-  "setting": {
-    "urlCheck": true  # 生产环境开启域名校验
-  }
-}
-```
-
-### 步骤 7：配置微信小程序业务域名
-
-1. 登录微信公众平台
-2. 进入：开发 → 开发管理 → 开发设置 → 业务域名
-3. 添加 Vercel 域名（如：`luowato-pump-selection.vercel.app`）
-4. 下载验证文件
-5. 部署验证文件到 Vercel
-
-#### 上传验证文件到 Vercel
-
-创建验证文件：
-```bash
-# 创建 public 目录（如果不存在）
-mkdir -p public
-
-# 创建验证文件（文件名为下载的文件名，如：MP_verify_xxxxx.txt）
-# 内容为下载文件中的内容
-echo "your-verification-code" > public/MP_verify_xxxxx.txt
-```
-
-重新部署：
-```bash
-vercel --prod
-```
-
-### 步骤 8：测试小程序
-
-1. 打开微信开发者工具
-2. 导入 `wechat-miniprogram` 项目
-3. 点击「编译」
-4. 在模拟器中查看效果
+1. 登录 [微信公众平台](https://mp.weixin.qq.com/)
+2. 进入「版本管理」→「开发版本」
+3. 提交审核，填写审核信息：
+   - 类目：工具
+   - 功能描述：洛瓦托水泵选型系统，帮助用户快速选择合适的水泵产品
+4. 等待审核通过后发布
 
 ---
 
-## 🔄 自动部署
+## 🌐 内网穿透方案
 
-### 使用 Git + Vercel 自动部署
+### 方案 A：ngrok（推荐用于开发测试）
 
-#### 步骤 1：初始化 Git 仓库
+#### 优点
+- ✅ 最简单的方案
+- ✅ 免费 HTTPS
+- ✅ 自动生成域名
+- ✅ 无需额外配置
 
-```bash
-cd /workspace/projects
+#### 缺点
+- ❌ 域名会变化（每次重启）
+- ❌ 连接不稳定（免费版）
+- ❌ 不适合生产环境
 
-# 初始化 Git 仓库
-git init
+#### 配置步骤
 
-# 添加所有文件
-git add .
+1. **下载 ngrok**
+   - 访问：https://ngrok.com/download
+   - 下载适合你系统的版本
+   - 解压后进入目录
 
-# 提交
-git commit -m "Initial commit"
-```
+2. **启动隧道**
+   ```bash
+   # Linux/Mac
+   ./ngrok http 5000
 
-#### 步骤 2：推送到 GitHub
+   # Windows
+   ngrok.exe http 5000
+   ```
 
-```bash
-# 添加远程仓库
-git remote add origin https://github.com/your-username/your-repo.git
+3. **获取 HTTPS URL**
+   
+   你会看到类似输出：
+   ```
+   Forwarding                    https://abc123.ngrok-free.app -> http://localhost:5000
+   Forwarding                    https://abc123.ngrok-free.app -> http://localhost:5000
+   ```
+   
+   复制 `https://abc123.ngrok-free.app` 并更新小程序配置。
 
-# 推送代码
-git push -u origin main
-```
-
-#### 步骤 3：在 Vercel 中连接 GitHub
-
-1. 访问 https://vercel.com/dashboard
-2. 点击 "Add New Project"
-3. 选择 "Import Git Repository"
-4. 选择您的 GitHub 仓库
-5. 配置项目设置
-6. 点击 "Deploy"
-
-#### 步骤 4：自动部署
-
-现在，每次您推送代码到 GitHub，Vercel 会自动部署：
-
-```bash
-# 修改代码后
-git add .
-git commit -m "Update feature"
-git push
-
-# Vercel 会自动部署新版本
-```
+4. **使用自动化脚本**
+   
+   项目提供了自动化脚本：
+   ```bash
+   ./scripts/ngrok-start.sh
+   ```
 
 ---
 
-## 📊 方案对比
+### 方案 B：Cloudflare Tunnel（推荐用于长期使用）
 
-| 特性 | 本地 + ngrok | Vercel 部署 |
-|------|-------------|-------------|
-| **HTTPS** | ✅ 支持 | ✅ 原生支持 |
-| **域名** | ⚠️ 随机变化 | ✅ 稳定 |
-| **速度** | ✅ 本地速度快 | ⚠️ 取决于服务器 |
-| **成本** | ✅ 免费 | ✅ 免费额度 |
-| **可靠性** | ⚠️ 本地网络限制 | ✅ 99.99% 在线率 |
-| **适用场景** | 开发测试 | 生产环境 |
+#### 优点
+- ✅ 完全免费
+- ✅ 域名固定
+- ✅ 连接稳定
+- ✅ 全球 CDN 加速
+- ✅ 自动 HTTPS
 
----
+#### 缺点
+- ❌ 需要注册 Cloudflare 账号
+- ❌ 需要配置域名
 
-## 🔍 验证部署
+#### 配置步骤
 
-### 检查本地服务
+1. **注册 Cloudflare**
+   - 访问：https://dash.cloudflare.com/sign-up
+   - 注册并登录账号
 
-```bash
-# 检查 5000 端口
-ss -lptn 'sport = :5000'
+2. **下载 cloudflared**
+   
+   ```bash
+   # Linux
+   wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+   dpkg -i cloudflared-linux-amd64.deb
+   
+   # Mac
+   brew install cloudflared
+   ```
 
-# 测试 HTTP 响应
-curl http://localhost:5000
+3. **登录 Cloudflare**
+   ```bash
+   cloudflared tunnel login
+   ```
 
-# 查看日志
-tail -f /app/work/logs/bypass/dev.log
-```
+4. **创建隧道**
+   ```bash
+   cloudflared tunnel create luowato-pump
+   ```
 
-### 检查 ngrok 隧道
+5. **配置隧道**
+   
+   创建配置文件 `~/.cloudflared/config.yml`：
+   ```yaml
+   tunnel: <tunnel-id>
+   credentials-file: ~/.cloudflared/<tunnel-id>.json
 
-```bash
-# 访问 ngrok 控制面板
-# 浏览器打开：http://localhost:4040
+   ingress:
+     - hostname: luowato.yourdomain.com
+       service: http://localhost:5000
+     - service: http_status:404
+   ```
 
-# 查看 HTTPS URL
-# 在控制面板中查看当前的 Forwarding URL
-```
+6. **配置 DNS**
+   ```bash
+   cloudflared tunnel route dns luowato-pump luowato.yourdomain.com
+   ```
 
-### 检查 Vercel 部署
+7. **启动隧道**
+   ```bash
+   # 前台运行
+   cloudflared tunnel run luowato-pump
+   
+   # 后台运行
+   nohup cloudflared tunnel run luowato-pump > /tmp/cloudflared.log 2>&1 &
+   ```
 
-```bash
-# 测试 HTTPS 响应
-curl https://luowato-pump-selection.vercel.app
-
-# 查看部署日志
-# 访问：https://vercel.com/dashboard → 选择项目 → Deployments
-```
-
----
-
-## 🛠️ 常见问题
-
-### Q1: ngrok URL 经常变化怎么办？
-**A:**
-- 注册 ngrok 账号（免费）
-- 配置 authtoken
-- 使用静态域名（需要付费计划）
-- 或使用 Vercel 获取稳定域名
-
-### Q2: Vercel 部署后 404 错误？
-**A:**
-- 确认 `package.json` 中有 `build` 脚本
-- 检查 `next.config.js` 配置
-- 查看部署日志
-- 运行 `vercel logs` 查看实时日志
-
-### Q3: 微信小程序提示「不在合法域名列表中」？
-**A:**
-- 登录微信公众平台
-- 配置「业务域名」
-- 上传验证文件
-- 确认域名是 HTTPS
-
-### Q4: 本地服务无法访问？
-**A:**
-```bash
-# 检查服务状态
-ss -lptn 'sport = :5000'
-
-# 重启服务
-pkill -f "next-server"
-coze dev > /app/work/logs/bypass/dev.log 2>&1 &
-
-# 检查防火墙
-# 确保 5000 端口未被防火墙阻止
-```
-
-### Q5: 如何设置环境变量？
-**A:**
-
-#### Vercel
-1. 访问 Vercel Dashboard
-2. 选择项目 → Settings → Environment Variables
-3. 添加环境变量
-4. 重新部署
-
-#### 本地
-```bash
-# 创建 .env.local 文件
-echo "DATABASE_URL=your-database-url" > .env.local
-
-# 在代码中访问
-process.env.DATABASE_URL
-```
+8. **使用自动化脚本**
+   
+   项目提供了自动化脚本：
+   ```bash
+   ./scripts/cloudflare-start.sh
+   ```
 
 ---
 
-## 📝 部署清单
+### 方案 C：frp（生产环境推荐）
 
-### ngrok 方案
-- [ ] 项目正在运行（5000 端口）
-- [ ] 已安装 ngrok
-- [ ] ngrok 隧道已启动
-- [ ] 已记录 HTTPS URL
-- [ ] 小程序配置已更新
-- [ ] 小程序测试通过
+#### 优点
+- ✅ 最稳定可靠
+- ✅ 完全控制
+- ✅ 适合生产环境
+- ✅ 支持多种协议
 
-### Vercel 方案
-- [ ] 已安装 Vercel CLI
-- [ ] 已登录 Vercel
-- [ ] 项目已部署到 Vercel
-- [ ] 已记录 HTTPS URL
-- [ ] 业务域名已配置
-- [ ] 验证文件已上传
-- [ ] 小程序配置已更新
-- [ ] 小程序测试通过
+#### 缺点
+- ❌ 需要公网服务器
+- ❌ 配置较复杂
+
+#### 配置步骤
+
+1. **下载 frp**
+   - 访问：https://github.com/fatedier/frp/releases
+   - 下载适合你系统的版本
+
+2. **配置 frps（服务器端）**
+   
+   编辑 `frps.ini`：
+   ```ini
+   [common]
+   bind_port = 7000
+   vhost_http_port = 80
+   vhost_https_port = 443
+   ```
+
+3. **配置 frpc（客户端）**
+   
+   编辑 `frpc.ini`：
+   ```ini
+   [common]
+   server_addr = your-public-server-ip
+   server_port = 7000
+
+   [web]
+   type = http
+   local_ip = 127.0.0.1
+   local_port = 5000
+   custom_domains = luowato.yourdomain.com
+   ```
+
+4. **启动 frpc**
+   ```bash
+   ./frpc -c frpc.ini
+   ```
+
+5. **配置 HTTPS**
+   
+   使用 Let's Encrypt 获取免费 SSL 证书：
+   ```bash
+   apt install certbot
+   certbot certonly --standalone -d luowato.yourdomain.com
+   ```
 
 ---
 
-## 🚀 快速启动命令
+## ❓ 常见问题
 
+### 1. 服务无法启动
+
+**问题**：执行 `coze dev` 后报错
+
+**解决方案**：
 ```bash
-# 本地开发
+# 检查端口占用
+netstat -tuln | grep 5000
+
+# 如果端口被占用，杀死进程
+kill -9 <pid>
+
+# 重新启动
 coze dev
+```
 
-# 使用 ngrok
-ngrok http 5000
+### 2. 数据库连接失败
 
-# Vercel 部署
-vercel
+**问题**：无法连接到数据库
 
-# Vercel 生产部署
-vercel --prod
+**解决方案**：
+```bash
+# 检查数据库状态
+systemctl status postgresql
 
-# 查看日志
-vercel logs
+# 启动数据库
+systemctl start postgresql
 
-# 查看部署历史
-vercel list
+# 检查环境变量
+cat .env | grep DATABASE_URL
+```
+
+### 3. ngrok URL 不稳定
+
+**问题**：每次重启 ngrok URL 都会变化
+
+**解决方案**：
+- 使用 ngrok 付费版
+- 或者改用 Cloudflare Tunnel（免费且域名固定）
+
+### 4. 微信小程序白屏
+
+**问题**：小程序打开后白屏
+
+**解决方案**：
+1. 检查 URL 是否为 HTTPS
+2. 检查 `project.private.config.json` 中的 `urlCheck` 设置
+3. 查看小程序控制台的错误日志
+4. 确认后端服务正在运行
+
+### 5. 内网无法访问
+
+**问题**：内网其他机器无法访问 `9.128.67.37:5000`
+
+**解决方案**：
+```bash
+# 检查防火墙
+ufw status
+
+# 允许端口 5000
+ufw allow 5000
+
+# 或者临时关闭防火墙
+ufw disable
 ```
 
 ---
 
-## 📞 需要帮助？
+## 📚 相关文档
 
-- Vercel 文档：https://vercel.com/docs
-- ngrok 文档：https://ngrok.com/docs
-- Next.js 部署：https://nextjs.org/docs/deployment
-- 项目 README：查看项目文档
+- [项目主页](./README.md)
+- [数据库配置](./DATABASE_SETUP.md)
+- [API 文档](./API_DOCUMENTATION.md)
+- [贡献指南](./CONTRIBUTING.md)
 
 ---
 
-## 🎯 推荐方案
+## 🆘 获取帮助
 
-**开发阶段**：使用 ngrok
-- 快速测试
-- 无需配置域名
+如果你遇到问题：
 
-**生产环境**：使用 Vercel
-- 稳定域名
-- 自动部署
-- 免费额度
+1. 查看日志：`./scripts/logs.sh`
+2. 检查服务状态：`./scripts/status.sh`
+3. 查看 PM2 日志：`pm2 logs`
+4. 提交 Issue
 
-**开始部署吧！** 🚀
+---
+
+**祝部署顺利！🎉**
