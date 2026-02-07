@@ -316,7 +316,7 @@ export default function ProductsPage() {
               <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
             </div>
           ) : (
-            <div className="overflow-auto max-h-[calc(100vh-300px)] custom-scrollbar relative">
+            <div className="overflow-auto max-h-[calc(100vh-300px)] custom-scrollbar relative z-50">
               <Table>
                 <TableHeader>
                   <TableRow>
