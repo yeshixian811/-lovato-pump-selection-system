@@ -25,8 +25,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceArea,
-  Legend,
-  Brush
+  Legend
 } from 'recharts';
 
 // 类型定义
@@ -95,6 +94,9 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
   const [maxFlow, setMaxFlow] = useState<number>(0);
   const [maxHead, setMaxHead] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [displayMaxFlow, setDisplayMaxFlow] = useState<number>(0);
+  const [displayMaxHead, setDisplayMaxHead] = useState<number>(0);
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
@@ -175,6 +177,36 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
     fetchPerformanceData();
   }, [pumpId, requiredFlowRate, requiredHead]);
 
+  // 当最大值改变时，同步更新显示范围
+  useEffect(() => {
+    setDisplayMaxFlow(maxFlow);
+    setDisplayMaxHead(maxHead);
+    setZoomLevel(1);
+  }, [maxFlow, maxHead]);
+
+  // 处理鼠标滚轮缩放
+  const handleWheel = (event: React.WheelEvent) => {
+    event.preventDefault();
+    
+    const zoomFactor = 0.1;
+    const direction = event.deltaY > 0 ? 1 : -1; // 向下滚放大，向上滚缩小
+    
+    const newZoomLevel = Math.max(0.5, Math.min(5, zoomLevel + direction * zoomFactor));
+    setZoomLevel(newZoomLevel);
+    
+    // 根据缩放级别调整显示范围
+    const scale = 1 / newZoomLevel;
+    setDisplayMaxFlow(maxFlow * scale);
+    setDisplayMaxHead(maxHead * scale);
+  };
+
+  // 重置缩放
+  const handleResetZoom = () => {
+    setZoomLevel(1);
+    setDisplayMaxFlow(maxFlow);
+    setDisplayMaxHead(maxHead);
+  };
+
   // 生成模拟性能曲线数据
   const generateMockPerformanceData = (flow: number, head: number) => {
     const data: any[] = [];
@@ -206,15 +238,25 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
   }
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <ResponsiveContainer width="100%" height="85%">
-        <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 45, bottom: 5 }}>
+    <div className="relative w-full h-full" onWheel={handleWheel}>
+      {/* 重置按钮 */}
+      {zoomLevel !== 1 && (
+        <button
+          onClick={handleResetZoom}
+          className="absolute top-2 right-2 z-10 px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        >
+          重置缩放 ({(zoomLevel * 100).toFixed(0)}%)
+        </button>
+      )}
+      
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={performanceData} margin={{ top: 5, right: 30, left: 45, bottom: 15 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="flowRate"
             type="number"
-            domain={[0, maxFlow]}
-            ticks={[0, maxFlow * 0.25, maxFlow * 0.5, maxFlow * 0.75, maxFlow].filter(t => t <= maxFlow && t >= 0)}
+            domain={[0, displayMaxFlow]}
+            ticks={[0, displayMaxFlow * 0.25, displayMaxFlow * 0.5, displayMaxFlow * 0.75, displayMaxFlow].filter(t => t <= displayMaxFlow && t >= 0)}
             tick={{ fontSize: 10 }}
             tickFormatter={(value: any) => {
               const numValue = typeof value === 'number' ? value : parseFloat(value);
@@ -224,8 +266,8 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           />
           <YAxis
             dataKey="head"
-            domain={[0, maxHead]}
-            ticks={[0, maxHead * 0.25, maxHead * 0.5, maxHead * 0.75, maxHead].filter(t => t <= maxHead && t >= 0)}
+            domain={[0, displayMaxHead]}
+            ticks={[0, displayMaxHead * 0.25, displayMaxHead * 0.5, displayMaxHead * 0.75, displayMaxHead].filter(t => t <= displayMaxHead && t >= 0)}
             tick={{ fontSize: 10 }}
             tickFormatter={(value: any) => {
               const numValue = typeof value === 'number' ? value : parseFloat(value);
@@ -264,13 +306,6 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
             y={Number(requiredHead)}
             stroke="#ef4444"
             strokeWidth={2}
-          />
-          <Brush
-            dataKey="flowRate"
-            height={40}
-            stroke="#2563eb"
-            fill="rgba(37, 99, 235, 0.1)"
-            travellerWidth={10}
           />
         </LineChart>
       </ResponsiveContainer>
