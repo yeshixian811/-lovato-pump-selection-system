@@ -21,8 +21,8 @@ export class PumpManager {
     const maxHead = typeof pump.head === 'number' ? pump.head : parseFloat(pump.head || '0'); // 实际最大扬程
     const ratedPower = typeof pump.power === 'number' ? pump.power : parseFloat(pump.power || '0');
 
-    // 关断点扬程（流量为0时的扬程），通常为最大扬程的 1.25-1.3 倍
-    const shutOffHead = maxHead * 1.25;
+    // 关断点扬程（流量为0时的扬程）= 实际最大扬程
+    const shutOffHead = maxHead;
 
     // 步长0.1 m³/h
     const step = 0.1;

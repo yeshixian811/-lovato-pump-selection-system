@@ -34,8 +34,8 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
     const maxFlow = pumpFlowNum;
     const maxHead = pumpHeadNum;
 
-    // 关断点扬程（Q=0时的扬程），通常为最大扬程的 1.25 倍（性能曲线数学模型参数）
-    const shutOffHead = pumpMaxHeadNum || maxHead * 1.25;
+    // 关断点扬程（Q=0时的扬程）= 实际最大扬程
+    const shutOffHead = pumpMaxHeadNum || maxHead;
 
     // 按照用户要求：流量以0.1 m³/h为单位分配，扬程以0.1米为单位分配
     const flowStep = 0.1; // 流量步长 0.1 m³/h

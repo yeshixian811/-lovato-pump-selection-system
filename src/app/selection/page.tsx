@@ -169,7 +169,7 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
   const generateMockPerformanceData = (flow: number, head: number) => {
     const data: any[] = [];
     const maxFlow = flow; // 严格对应实际最大流量
-    const maxHead = head * 1.25; // 关断点扬程为最大扬程的1.25倍（二次曲线模型）
+    const maxHead = head; // 严格对应实际最大扬程
     const step = maxFlow / 20;
 
     for (let i = 0; i <= 20; i++) {
