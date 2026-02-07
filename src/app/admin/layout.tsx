@@ -16,6 +16,11 @@ import {
   LogOut,
   ShoppingCart,
   Globe,
+  Warehouse,
+  Receipt,
+  TrendingUp,
+  UserCheck,
+  Building2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
@@ -26,7 +31,12 @@ const navigation = [
   { name: '选型系统', href: '/admin/selection', icon: FileText },
   { name: '模板中心', href: '/admin/templates', icon: Palette },
   { name: '页面管理', href: '/admin/pages', icon: Layers },
-  { name: '订单管理', href: '/admin/orders', icon: ShoppingCart },
+  { name: '库存管理', href: '/admin/inventory', icon: Warehouse },
+  { name: '供应商', href: '/admin/inventory/suppliers', icon: Building2 },
+  { name: '客户管理', href: '/admin/inventory/customers', icon: UserCheck },
+  { name: '采购管理', href: '/admin/inventory/purchase', icon: ShoppingCart },
+  { name: '销售管理', href: '/admin/inventory/sales', icon: TrendingUp },
+  { name: '订单管理', href: '/admin/orders', icon: Receipt },
   { name: '用户管理', href: '/admin/users', icon: Users },
   { name: '系统设置', href: '/admin/settings', icon: Settings },
 ]
