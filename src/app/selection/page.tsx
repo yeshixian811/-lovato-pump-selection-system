@@ -738,38 +738,38 @@ export default function PumpSelectionPage() {
                             </div>
                             <div>
                               <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                                额定流量
+                                最大流量
                                 <TooltipProvider delayDuration={0}>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p className="text-xs">性能参数图形的参考点</p>
+                                      <p className="text-xs">水泵的最大流量能力</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
                               </div>
                               <div className="text-xs font-medium text-gray-900 dark:text-white">
-                                {typeof pump.rated_flow_rate === 'number' ? pump.rated_flow_rate.toFixed(1) : pump.rated_flow_rate} m³/h
+                                {typeof pump.max_flow_rate === 'number' ? pump.max_flow_rate.toFixed(1) : pump.max_flow_rate} m³/h
                               </div>
                             </div>
                             <div>
                               <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                                额定扬程
+                                最大扬程
                                 <TooltipProvider delayDuration={0}>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p className="text-xs">性能参数图形的参考点</p>
+                                      <p className="text-xs">水泵的最大扬程能力</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
                               </div>
                               <div className="text-xs font-medium text-gray-900 dark:text-white">
-                                {typeof pump.rated_head === 'number' ? pump.rated_head.toFixed(1) : pump.rated_head} m
+                                {typeof pump.max_head === 'number' ? pump.max_head.toFixed(1) : pump.max_head} m
                               </div>
                             </div>
                             <div>
@@ -855,38 +855,38 @@ export default function PumpSelectionPage() {
                         </div>
                         <div>
                           <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                            额定流量
+                            最大流量
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="text-xs">性能参数图形的参考点</p>
+                                    <p className="text-xs">水泵的最大流量能力</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
                           <div className="text-xs font-medium text-gray-900 dark:text-white">
-                            {typeof pump.rated_flow_rate === 'number' ? pump.rated_flow_rate.toFixed(1) : pump.rated_flow_rate} m³/h
+                            {typeof pump.max_flow_rate === 'number' ? pump.max_flow_rate.toFixed(1) : pump.max_flow_rate} m³/h
                           </div>
                         </div>
                         <div>
                           <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                            额定扬程
+                            最大扬程
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Info className="w-3 h-3 ml-1 text-gray-400 cursor-help" />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="text-xs">性能参数图形的参考点</p>
+                                    <p className="text-xs">水泵的最大流量能力</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
                           <div className="text-xs font-medium text-gray-900 dark:text-white">
-                            {typeof pump.rated_head === 'number' ? pump.rated_head.toFixed(1) : pump.rated_head} m
+                            {typeof pump.max_head === 'number' ? pump.max_head.toFixed(1) : pump.max_head} m
                           </div>
                         </div>
                         <div>

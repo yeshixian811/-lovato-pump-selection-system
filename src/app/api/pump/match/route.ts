@@ -97,7 +97,7 @@ function calculateMatchScore(
   // 格兰富选型算法原则：
   // 1. 连续运行范围：工作点必须在[minFlow, maxFlow]范围内
   // 2. 性能曲线匹配：在需求流量处，曲线扬程 >= 需求扬程
-  // 3. 最佳效率区间（BEP）：优先选择在额定流量60%-120%范围内运行的水泵
+  // 3. 最佳效率区间（BEP）：优先选择在最大流量60%-120%范围内运行的水泵
   // 4. 效率优先：在满足需求的前提下，优先选择效率高的水泵
   // 5. 合理余量：扬程余量控制在5%-20%之间
 
@@ -143,7 +143,7 @@ function calculateMatchScore(
   }
 
   // 步骤5：评估工作点是否在最佳效率区间（权重: 35%）
-  // 格兰富最佳效率区间（BEP）：额定流量的60%-120%
+  // 格兰富最佳效率区间（BEP）：最大流量的60%-120%
   if (ratedFlow > 0) {
     const flowRatio = requiredFlow / ratedFlow;
     
@@ -161,7 +161,7 @@ function calculateMatchScore(
       score += 8;
     }
   } else {
-    // 无额定流量数据，默认给中等分数
+    // 无最大流量数据，默认给中等分数
     score += 20;
   }
 
@@ -230,9 +230,9 @@ export async function POST(request: NextRequest) {
         const baseHead = parseFloat(pump.head);
         
         // 基于性能曲线定义工作范围
-        // 最大流量：通常为额定流量的1.5-2倍
+        // 最大流量：通常为最大流量的1.5-2倍
         const maxFlow = baseFlowRate * 1.8;
-        // 最小流量：通常为额定流量的0.3-0.5倍
+        // 最小流量：通常为最大流量的0.3-0.5倍
         const minFlow = baseFlowRate * 0.4;
         
         // 最大扬程：关断点扬程（流量为0时）
@@ -258,10 +258,6 @@ export async function POST(request: NextRequest) {
           min_flow_rate: minFlow,
           max_head: maxHead,
           min_head: minHead,
-          
-          // 额定参数（仅作为性能参数图形的参考）
-          rated_flow_rate: baseFlowRate,
-          rated_head: baseHead,
           
           // 真实性能曲线数据
           performance_curve: performancePoints,

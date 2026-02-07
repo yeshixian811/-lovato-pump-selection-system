@@ -3,10 +3,10 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot } from "recharts";
 
 interface PumpCurveChartProps {
-  pumpFlow: string; // 水泵额定流量 m³/h
-  pumpHead: string; // 水泵额定扬程 m
-  pumpMaxFlow?: string | null; // 水泵最大流量 m³/h（可选）
-  pumpMaxHead?: string | null; // 水泵最大扬程 m（可选）
+  pumpFlow: string; // 水泵最大流量 m³/h
+  pumpHead: string; // 水泵最大扬程 m
+  pumpMaxFlow?: string | null; // 水泵最大流量 m³/h（可选）- 已废弃
+  pumpMaxHead?: string | null; // 水泵最大扬程 m（可选）- 已废弃
   userFlow: string; // 用户需求流量 m³/h
   userHead: string; // 用户需求扬程 m
 }
@@ -23,17 +23,17 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
   const pumpMaxHeadNum = pumpMaxHead ? parseFloat(pumpMaxHead) : null;
 
   // 生成模拟的 Q-H 曲线数据
-  // 基于额定点生成性能曲线
-  // 关闭扬程（Q=0）约为额定点扬程的 1.3 倍
+  // 基于最大点生成性能曲线
+  // 关闭扬程（Q=0）约为最大扬程的 1.3 倍
   // 如果有最大流量和最大扬程参数，则使用它们；否则使用默认估计值
   const generateCurveData = () => {
     const data = [];
 
-    // 确定最大流量（优先使用提供的参数，否则估计为 1.5 倍额定流量）
+    // 确定最大流量（优先使用提供的参数，否则估计为 1.5 倍最大流量）
     const maxFlow = pumpMaxFlowNum || pumpFlowNum * 1.5;
 
     // 确定关闭扬程（Q=0）
-    // 如果有最大扬程参数，使用它；否则估计为 1.3 倍额定扬程
+    // 如果有最大扬程参数，使用它；否则估计为 1.3 倍最大扬程
     const shutOffHead = pumpMaxHeadNum || pumpHeadNum * 1.3;
 
     // 按照用户要求：流量以0.1 m³/h为单位分配，扬程以0.1米为单位分配
@@ -41,13 +41,13 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
     const headStep = 0.1; // 扬程步长 0.1 m
 
     // 使用二次函数生成曲线：H = a*x^2 + b*x + c
-    // 其中 x = Q / Q_rated（相对流量）
+    // 其中 x = Q / Q_max（相对流量）
     // 条件：
     // 1. Q=0 时，H = shutOffHead（关闭扬程）
-    // 2. Q=Q_rated 时，H = H_rated（额定点）
+    // 2. Q=Q_max 时，H = H_max（最大点）
     // 3. Q=maxFlow 时，H = 0（最大流量点）
-    const H_rated = pumpHeadNum;
-    const Q_rated = pumpFlowNum;
+    const H_max = pumpHeadNum;
+    const Q_max_base = pumpFlowNum;
     const Q_max = maxFlow;
     const H_0 = shutOffHead;
 
@@ -67,16 +67,16 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
 
     // 从第一个方程：b = H_rated - a - c
     // 代入第二个方程：a*x_max^2 + (H_rated - a - c)*x_max + c = 0
-    // a*x_max^2 - a*x_max + H_rated*x_max - c*x_max + c = 0
-    // a*(x_max^2 - x_max) = c*x_max - H_rated*x_max - c
-    // a = (c*x_max - H_rated*x_max - c) / (x_max^2 - x_max)
+    // a*x_max^2 - a*x_max + H_max*x_max - c*x_max + c = 0
+    // a*(x_max^2 - x_max) = c*x_max - H_max*x_max - c
+    // a = (c*x_max - H_max*x_max - c) / (x_max^2 - x_max)
 
-    const a = (c * x_max - H_rated * x_max - c) / (x_max * x_max - x_max);
-    const b = H_rated - a - c;
+    const a = (c * x_max - H_max * x_max - c) / (x_max * x_max - x_max);
+    const b = H_max - a - c;
 
     // 以流量为自变量，从0到最大流量，以0.1 m³/h为步长
     for (let flow = 0; flow <= maxFlow; flow += flowStep) {
-      const x = flow / Q_rated; // 相对流量
+      const x = flow / Q_max_base; // 相对流量
       let head = a * x * x + b * x + c;
 
       // 确保扬程不为负
@@ -133,7 +133,7 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
             name="性能曲线"
           />
 
-          {/* 水泵额定点（最佳工作点） */}
+          {/* 水泵最大点（最大流量点） */}
           <ReferenceDot
             x={pumpFlowNum}
             y={pumpHeadNum}
@@ -141,7 +141,7 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
             fill="#16a34a"
             stroke="white"
             strokeWidth={1}
-            label={{ value: "额定点", position: "top", offset: 5, fontSize: 12, fill: "#16a34a" }}
+            label={{ value: "最大点", position: "top", offset: 5, fontSize: 12, fill: "#16a34a" }}
             isFront={true}
           />
 

@@ -475,7 +475,7 @@ export default function ProductsPage() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="flowRate">额定流量 (m³/h) *</Label>
+                        <Label htmlFor="flowRate">最大流量 (m³/h) *</Label>
                         <Input
                           id="flowRate"
                           type="number"
@@ -486,7 +486,7 @@ export default function ProductsPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="head">额定扬程 (m) *</Label>
+                        <Label htmlFor="head">最大扬程 (m) *</Label>
                         <Input
                           id="head"
                           type="number"
@@ -494,28 +494,6 @@ export default function ProductsPage() {
                           value={formData.head}
                           onChange={(e) => setFormData({ ...formData, head: e.target.value })}
                           required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="maxFlow">最大流量 (m³/h)</Label>
-                        <Input
-                          id="maxFlow"
-                          type="number"
-                          step="0.01"
-                          value={formData.maxFlow}
-                          onChange={(e) => setFormData({ ...formData, maxFlow: e.target.value })}
-                          placeholder="可选"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="maxHead">最大扬程 (m)</Label>
-                        <Input
-                          id="maxHead"
-                          type="number"
-                          step="0.01"
-                          value={formData.maxHead}
-                          onChange={(e) => setFormData({ ...formData, maxHead: e.target.value })}
-                          placeholder="可选"
                         />
                       </div>
                       <div>
@@ -681,8 +659,8 @@ export default function ProductsPage() {
                         <TableHead className="whitespace-nowrap">品牌</TableHead>
                         <TableHead className="whitespace-nowrap">泵类型</TableHead>
                         <TableHead className="whitespace-nowrap">材质</TableHead>
-                        <TableHead className="whitespace-nowrap">额定流量 (m³/h)</TableHead>
-                        <TableHead className="whitespace-nowrap">额定扬程 (m)</TableHead>
+                        <TableHead className="whitespace-nowrap">最大流量 (m³/h)</TableHead>
+                        <TableHead className="whitespace-nowrap">最大扬程 (m)</TableHead>
                         <TableHead className="whitespace-nowrap">功率 (kW)</TableHead>
                         <TableHead className="whitespace-nowrap">应用场景</TableHead>
                         <TableHead className="whitespace-nowrap">价格</TableHead>
@@ -784,11 +762,11 @@ export default function ProductsPage() {
                 <div className="font-semibold">{performanceData.pump.model}</div>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">额定流量</Label>
+                <Label className="text-xs text-muted-foreground">最大流量</Label>
                 <div className="font-semibold">{performanceData.pump.flowRate} m³/h</div>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">额定扬程</Label>
+                <Label className="text-xs text-muted-foreground">最大扬程</Label>
                 <div className="font-semibold">{performanceData.pump.head} m</div>
               </div>
               <div>

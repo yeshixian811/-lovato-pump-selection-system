@@ -7,7 +7,7 @@ import * as schema from "./shared/schema";
 export class PumpManager {
   /**
    * 生成水泵性能曲线数据点
-   * 基于额定流量和扬程，生成从0到最大流量的性能曲线
+   * 基于最大流量和扬程，生成从0到最大流量的性能曲线
    */
   private generatePerformancePoints(pump: InsertPump) {
     const points: Array<{
@@ -17,11 +17,11 @@ export class PumpManager {
       efficiency?: number;
     }> = [];
 
-    const ratedFlow = pump.flowRate;
-    const ratedHead = pump.head;
+    const maxFlowRated = pump.flowRate;
+    const maxHeadRated = pump.head;
     const ratedPower = pump.power;
-    const maxFlow = pump.maxFlow || ratedFlow * 1.5; // 如果没有maxFlow，默认为额定流量的1.5倍
-    const maxHead = pump.maxHead || ratedHead * 1.3; // 如果没有maxHead，默认为额定扬程的1.3倍
+    const maxFlow = pump.maxFlow || maxFlowRated * 1.5; // 如果没有maxFlow，默认为最大流量的1.5倍
+    const maxHead = pump.maxHead || maxHeadRated * 1.3; // 如果没有maxHead，默认为最大扬程的1.3倍
 
     // 步长0.1 m³/h
     const step = 0.1;
@@ -36,16 +36,16 @@ export class PumpManager {
       let power: number;
       let efficiency: number;
 
-      if (flow <= ratedFlow) {
-        // 在额定流量以下：扬程相对稳定，功率线性增长
-        const flowRatio = flow / ratedFlow;
-        head = ratedHead * (1 - 0.1 * flowRatio); // 流量每增加，扬程下降约10%
+      if (flow <= maxFlowRated) {
+        // 在最大流量以下：扬程相对稳定，功率线性增长
+        const flowRatio = flow / maxFlowRated;
+        head = maxHeadRated * (1 - 0.1 * flowRatio); // 流量每增加，扬程下降约10%
         power = ratedPower * (0.3 + 0.7 * flowRatio); // 功率从30%增长到100%
         efficiency = pump.efficiency ? pump.efficiency * (0.5 + 0.5 * flowRatio) : undefined;
       } else {
-        // 在额定流量以上：扬程快速下降，功率继续增长
-        const flowRatio = (flow - ratedFlow) / (maxFlow - ratedFlow);
-        head = ratedHead * (0.9 - 0.4 * flowRatio); // 扬程快速下降
+        // 在最大流量以上：扬程快速下降，功率继续增长
+        const flowRatio = (flow - maxFlowRated) / (maxFlow - maxFlowRated);
+        head = maxHeadRated * (0.9 - 0.4 * flowRatio); // 扬程快速下降
         power = ratedPower * (1.0 + 0.3 * flowRatio); // 功率继续增长
         efficiency = pump.efficiency ? pump.efficiency * (1.0 - 0.2 * flowRatio) : undefined;
       }
@@ -174,7 +174,7 @@ export class PumpManager {
       .returning();
 
     if (pump) {
-      // 如果更新了额定流量、额定扬程、最大流量、最大扬程或功率，重新生成性能曲线数据
+      // 如果更新了最大流量、最大扬程或功率，重新生成性能曲线数据
       const shouldRegenerate = 
         data.flowRate !== undefined ||
         data.head !== undefined ||
@@ -412,7 +412,7 @@ export class PumpManager {
     }
 
     // 5. BEP（最佳效率点）匹配度评分（权重：20%）
-    // BEP通常在额定流量附近，最佳匹配范围：80%-120%额定流量
+    // BEP通常在最大流量附近，最佳匹配范围：80%-120%最大流量
     const flowRatio = operatingFlow / ratedFlow;
     let bepMatchScore: number;
     if (flowRatio >= 0.8 && flowRatio <= 1.2) {

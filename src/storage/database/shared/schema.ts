@@ -221,10 +221,10 @@ export const pumps = pgTable(
     material: varchar("material", { length: 100 }), // 材质（铸铁、不锈钢、塑料等）
     installationType: varchar("installation_type", { length: 100 }), // 安装方式
     motorType: varchar("motor_type", { length: 100 }), // 电机类型
-    flowRate: decimal("flow_rate", { precision: 10, scale: 2 }).notNull(), // 额定流量 (m³/h)
-    head: decimal("head", { precision: 10, scale: 2 }).notNull(), // 额定扬程 (m)
-    maxFlow: decimal("max_flow", { precision: 10, scale: 2 }), // 最大流量 (m³/h)
-    maxHead: decimal("max_head", { precision: 10, scale: 2 }), // 最大扬程 (m)
+    flowRate: decimal("flow_rate", { precision: 10, scale: 2 }).notNull(), // 最大流量 (m³/h)
+    head: decimal("head", { precision: 10, scale: 2 }).notNull(), // 最大扬程 (m)
+    maxFlow: decimal("max_flow", { precision: 10, scale: 2 }), // 备用字段：最大流量 (m³/h) - 已废弃
+    maxHead: decimal("max_head", { precision: 10, scale: 2 }), // 备用字段：最大扬程 (m) - 已废弃
     power: decimal("power", { precision: 10, scale: 2 }).notNull(), // 功率 (kW)
     efficiency: decimal("efficiency", { precision: 5, scale: 2 }), // 效率 (%)
     speed: integer("speed"), // 转速 (rpm)
