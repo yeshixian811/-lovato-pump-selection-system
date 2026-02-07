@@ -250,7 +250,7 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
       )}
       
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={performanceData} margin={{ top: 10, right: 10, left: 50, bottom: 30 }}>
+        <LineChart data={performanceData} margin={{ top: 0, right: 0, left: 40, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="flowRate"
