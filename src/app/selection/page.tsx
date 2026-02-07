@@ -605,10 +605,6 @@ export default function PumpSelectionPage() {
 
             {showResults && !isSearching && results.length > 0 && (
               <div className="space-y-3 md:space-y-4">
-                <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                  找到 {results.length} 个匹配结果，按匹配度排序
-                </div>
-
                 {results.map((pump, index) => (
                   <Card
                     key={pump.id}
