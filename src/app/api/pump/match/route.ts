@@ -75,7 +75,7 @@ function calculateHeadAtFlow(pump: any, flowRate: number): number {
   return Math.max(0, head);
 }
 
-// 匹配度计算函数 - 基于三线交叉点选型，遵循选大不选小原则
+// 匹配度计算函数 - 参考格兰富选型算法
 function calculateMatchScore(
   pump: any,
   params: SelectionParams
@@ -90,57 +90,98 @@ function calculateMatchScore(
   const minFlow = parseFloat(pump.min_flow_rate || maxFlow * 0.3);
   const maxHead = parseFloat(pump.max_head);
   const minHead = parseFloat(pump.min_head || maxHead * 0.6);
+  const ratedFlow = parseFloat(pump.rated_flow_rate);
+  const ratedHead = parseFloat(pump.rated_head);
+  const efficiency = parseFloat(pump.efficiency);
 
-  // 三线交叉点选型原则：
-  // 1. 流量参考线：用户需求流量
-  // 2. 扬程参考线：用户需求扬程
-  // 3. 性能曲线：水泵的H-Q性能曲线
-  // 选型要求：在需求流量处，性能曲线扬程 >= 需求扬程（选大不选小）
+  // 格兰富选型算法原则：
+  // 1. 连续运行范围：工作点必须在[minFlow, maxFlow]范围内
+  // 2. 性能曲线匹配：在需求流量处，曲线扬程 >= 需求扬程
+  // 3. 最佳效率区间（BEP）：优先选择在额定流量60%-120%范围内运行的水泵
+  // 4. 效率优先：在满足需求的前提下，优先选择效率高的水泵
+  // 5. 合理余量：扬程余量控制在5%-20%之间
 
-  // 1. 检查需求流量是否在工作范围内 (权重: 40%)
-  const inFlowRange = requiredFlow >= minFlow && requiredFlow <= maxFlow;
-  
-  if (!inFlowRange) {
-    // 流量超出工作范围，直接返回0分
+  // 步骤1：检查需求点是否在连续运行范围内
+  if (requiredFlow < minFlow || requiredFlow > maxFlow) {
+    // 超出连续运行范围，直接返回0分
     return 0;
   }
-  
-  // 流量在范围内，给40分
-  score += 40;
+  // 满足连续运行范围，给20分基础分
+  score += 20;
 
-  // 2. 计算需求流量处的性能曲线扬程 (权重: 60%)
+  // 步骤2：计算需求流量处的性能曲线扬程
   const curveHead = calculateHeadAtFlow(pump, requiredFlow);
   
-  // 遵循选大不选小原则
-  // 曲线扬程必须 >= 需求扬程
+  // 步骤3：性能曲线必须满足扬程要求
   if (curveHead < requiredHead) {
     // 曲线扬程小于需求扬程，无法满足要求，返回0分
     return 0;
   }
   
-  // 曲线扬程 >= 需求扬程，计算超出程度
+  // 步骤4：评估扬程匹配度（权重: 35%）
+  // 格兰富推荐：扬程余量5%-20%为最佳选择
   const headRatio = curveHead / requiredHead;
   
-  // 理想情况：曲线扬程 = 需求扬程 (100%)
-  // 允许范围：曲线扬程在需求扬程的100%-150%之间
   if (headRatio <= 1.05) {
-    // 曲线扬程非常接近需求扬程（±5%），最佳选择
-    score += 60;
-  } else if (headRatio <= 1.15) {
-    // 曲线扬程略微超出（5%-15%），优秀
-    score += 55;
-  } else if (headRatio <= 1.30) {
-    // 曲线扬程超出（15%-30%），良好
-    score += 45;
-  } else if (headRatio <= 1.50) {
-    // 曲线扬程较大超出（30%-50%），可用但效率可能降低
+    // 扬程余量0-5%，非常接近需求，最佳选择
+    score += 35;
+  } else if (headRatio <= 1.10) {
+    // 扬程余量5-10%，优秀选择
+    score += 33;
+  } else if (headRatio <= 1.20) {
+    // 扬程余量10-20%，良好选择（格兰富推荐范围）
     score += 30;
+  } else if (headRatio <= 1.30) {
+    // 扬程余量20-30%，可用但略高
+    score += 22;
+  } else if (headRatio <= 1.50) {
+    // 扬程余量30-50%，可用但不推荐
+    score += 12;
   } else {
-    // 曲线扬程严重超出（>50%），可用但不推荐
-    score += 15;
+    // 扬程余量>50%，过大，勉强可用
+    score += 5;
   }
 
-  // 3. 应用场景匹配 (额外加分: +5分)
+  // 步骤5：评估工作点是否在最佳效率区间（权重: 35%）
+  // 格兰富最佳效率区间（BEP）：额定流量的60%-120%
+  if (ratedFlow > 0) {
+    const flowRatio = requiredFlow / ratedFlow;
+    
+    if (flowRatio >= 0.6 && flowRatio <= 1.2) {
+      // 工作点在最佳效率区间内，最佳选择
+      score += 35;
+    } else if (flowRatio >= 0.5 && flowRatio <= 1.3) {
+      // 工作点在允许运行区间内，良好选择
+      score += 28;
+    } else if (flowRatio >= 0.4 && flowRatio <= 1.4) {
+      // 工作点在边缘运行区间，可用
+      score += 18;
+    } else {
+      // 工作点超出推荐范围，勉强可用
+      score += 8;
+    }
+  } else {
+    // 无额定流量数据，默认给中等分数
+    score += 20;
+  }
+
+  // 步骤6：效率值评分（权重: 10%）
+  // 优先选择效率高的水泵
+  if (efficiency >= 80) {
+    // 效率极高，优秀
+    score += 10;
+  } else if (efficiency >= 75) {
+    // 效率高，良好
+    score += 8;
+  } else if (efficiency >= 65) {
+    // 效率中等，可用
+    score += 5;
+  } else {
+    // 效率偏低，勉强可用
+    score += 2;
+  }
+
+  // 步骤7：应用场景匹配（额外加分: +5分）
   const pumpApplications = pump.applications || [];
   const pumpApplication = pump.application_type || pump.applicationType;
   
@@ -149,7 +190,7 @@ function calculateMatchScore(
     score += 5;
   }
 
-  // 4. 流体类型匹配 (额外加分: +3分)
+  // 步骤8：流体类型匹配（额外加分: +3分）
   const pumpFluidTypes = pump.fluid_types || [];
   
   if (pumpFluidTypes.includes(params.fluid_type) ||
