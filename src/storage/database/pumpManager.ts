@@ -8,6 +8,7 @@ export class PumpManager {
   /**
    * 生成水泵性能曲线数据点
    * 基于最大流量和扬程，生成从0到最大流量的性能曲线
+   * 严格确保起点（Q=0）的扬程等于最大扬程
    */
   private generatePerformancePoints(pump: InsertPump) {
     const points: Array<{
@@ -28,7 +29,16 @@ export class PumpManager {
     const step = 0.1;
     const numPoints = Math.floor(maxFlow / step);
 
-    for (let i = 0; i <= numPoints; i++) {
+    // 首先添加起点（Q=0, H=maxHead）
+    points.push({
+      flowRate: 0,
+      head: parseFloat(shutOffHead.toFixed(2)),
+      power: parseFloat((ratedPower * 0.3).toFixed(2)), // 起点功率约为额定功率的30%
+      efficiency: parseFloat((pump.efficiency ? parseFloat(typeof pump.efficiency === 'string' ? pump.efficiency : pump.efficiency.toString()) * 0.5 : 0).toFixed(2)),
+    });
+
+    // 然后生成其他点
+    for (let i = 1; i <= numPoints; i++) {
       const flow = parseFloat((i * step).toFixed(2));
 
       // 使用二次曲线模型：H = shutOffHead - k * Q^2
@@ -56,6 +66,7 @@ export class PumpManager {
         }
       }
 
+      // 只添加扬程大于0的点
       if (adjustedHead > 0) {
         points.push({
           flowRate: flow,

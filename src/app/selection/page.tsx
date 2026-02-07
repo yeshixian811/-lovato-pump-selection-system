@@ -172,13 +172,20 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
     const maxHead = head; // 严格对应实际最大扬程
     const step = maxFlow / 20;
 
-    for (let i = 0; i <= 20; i++) {
+    // 首先添加起点（Q=0, H=maxHead）
+    data.push({
+      flowRate: 0,
+      head: parseFloat(maxHead.toFixed(1)),
+    });
+
+    // 然后生成其他点
+    for (let i = 1; i <= 20; i++) {
       const currentFlow = Math.round(i * step * 10) / 10;
       // 使用二次曲线模型：H = shutOffHead - k * Q^2
       // 当 Q = maxFlow 时，H = 0
       const k = maxHead / (maxFlow * maxFlow);
       const currentHead = maxHead - k * currentFlow * currentFlow;
-      if (currentHead >= 0) {
+      if (currentHead > 0) {
         data.push({
           flowRate: currentFlow,
           head: Math.round(currentHead * 10) / 10,

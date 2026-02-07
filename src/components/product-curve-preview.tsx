@@ -46,14 +46,14 @@ export default function ProductCurvePreview({ pump }: ProductCurvePreviewProps) 
       const maxFlow = Math.max(...formattedData.map(d => d.flowRate))
       const maxHead = Math.max(...formattedData.map(d => d.head))
       setDisplayMaxFlow(maxFlow)
-      setDisplayMaxHead(maxHead)
+      setDisplayMaxHead(maxHead) // 使用实际数据中的最大扬程
       setLoading(false)
     } else {
       // 如果没有性能曲线数据，生成模拟数据
       const mockData = generateMockPerformanceData(maxFlowRate, maxHead)
       setPerformanceData(mockData)
       setDisplayMaxFlow(maxFlowRate)
-      setDisplayMaxHead(maxHead)
+      setDisplayMaxHead(maxHead) // 使用实际的最大扬程
       setLoading(false)
     }
   }, [pump, maxFlowRate, maxHead])
@@ -65,14 +65,21 @@ export default function ProductCurvePreview({ pump }: ProductCurvePreviewProps) 
     const maxHead = head
     const step = maxFlow / 20
 
-    for (let i = 0; i <= 20; i++) {
+    // 首先添加起点（Q=0, H=maxHead）
+    data.push({
+      flowRate: 0,
+      head: parseFloat(maxHead.toFixed(1)),
+    })
+
+    // 然后生成其他点
+    for (let i = 1; i <= 20; i++) {
       const currentFlow = Math.round(i * step * 10) / 10
       const k = maxHead / (maxFlow * maxFlow)
       const currentHead = maxHead - k * currentFlow * currentFlow
-      if (currentHead >= 0) {
+      if (currentHead > 0) {
         data.push({
           flowRate: currentFlow,
-          head: Math.round(currentHead * 10) / 10,
+          head: parseFloat(currentHead.toFixed(1)),
         })
       }
     }
