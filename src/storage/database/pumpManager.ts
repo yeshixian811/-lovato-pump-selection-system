@@ -17,11 +17,9 @@ export class PumpManager {
       efficiency?: number;
     }> = [];
 
-    const maxFlowRated = pump.flowRate;
-    const maxHeadRated = pump.head;
-    const ratedPower = pump.power;
-    const maxFlow = pump.maxFlow || maxFlowRated * 1.5; // 如果没有maxFlow，默认为最大流量的1.5倍
-    const maxHead = pump.maxHead || maxHeadRated * 1.3; // 如果没有maxHead，默认为最大扬程的1.3倍
+    const maxFlow = typeof pump.flowRate === 'number' ? pump.flowRate : parseFloat(pump.flowRate || '0'); // 实际最大流量
+    const maxHead = typeof pump.head === 'number' ? pump.head : parseFloat(pump.head || '0'); // 实际最大扬程
+    const ratedPower = typeof pump.power === 'number' ? pump.power : parseFloat(pump.power || '0');
 
     // 步长0.1 m³/h
     const step = 0.1;
@@ -34,20 +32,23 @@ export class PumpManager {
       // 流量越大，扬程越小（典型的离心泵特性）
       let head: number;
       let power: number;
-      let efficiency: number;
+      let efficiency: number | undefined;
 
-      if (flow <= maxFlowRated) {
-        // 在最大流量以下：扬程相对稳定，功率线性增长
-        const flowRatio = flow / maxFlowRated;
-        head = maxHeadRated * (1 - 0.1 * flowRatio); // 流量每增加，扬程下降约10%
-        power = ratedPower * (0.3 + 0.7 * flowRatio); // 功率从30%增长到100%
-        efficiency = pump.efficiency ? pump.efficiency * (0.5 + 0.5 * flowRatio) : undefined;
+      const flowRatio = flow / maxFlow;
+      const pumpEfficiency = pump.efficiency ? parseFloat(typeof pump.efficiency === 'string' ? pump.efficiency : pump.efficiency.toString()) : undefined;
+
+      if (flow <= maxFlow * 0.6) {
+        // 在最大流量60%以下：扬程相对稳定，功率线性增长
+        head = maxHead * (1 - 0.15 * (flowRatio / 0.6)); // 流量每增加，扬程下降约15%
+        power = ratedPower * (0.3 + 0.7 * (flowRatio / 0.6)); // 功率从30%增长到100%
+        efficiency = pumpEfficiency ? pumpEfficiency * (0.5 + 0.5 * (flowRatio / 0.6)) : undefined;
+      } else if (flow <= maxFlow) {
+        // 在最大流量60%以上：扬程快速下降，功率继续增长
+        head = maxHead * (0.85 - 0.3 * ((flowRatio - 0.6) / 0.4)); // 扬程快速下降
+        power = ratedPower * (1.0 + 0.3 * ((flowRatio - 0.6) / 0.4)); // 功率继续增长
+        efficiency = pumpEfficiency ? pumpEfficiency * (1.0 - 0.2 * ((flowRatio - 0.6) / 0.4)) : undefined;
       } else {
-        // 在最大流量以上：扬程快速下降，功率继续增长
-        const flowRatio = (flow - maxFlowRated) / (maxFlow - maxFlowRated);
-        head = maxHeadRated * (0.9 - 0.4 * flowRatio); // 扬程快速下降
-        power = ratedPower * (1.0 + 0.3 * flowRatio); // 功率继续增长
-        efficiency = pump.efficiency ? pump.efficiency * (1.0 - 0.2 * flowRatio) : undefined;
+        continue; // 超过最大流量，不生成数据点
       }
 
       // 确保扬程不低于0
@@ -352,8 +353,8 @@ export class PumpManager {
   ) {
     const requiredFlow = options.flowRate;
     const requiredHead = options.head;
-    const ratedFlow = parseFloat(pump.flowRate);
-    const ratedHead = parseFloat(pump.head);
+    const maxFlow = parseFloat(pump.flowRate); // 实际最大流量
+    const maxHead = parseFloat(pump.head); // 实际最大扬程
     const ratedPower = parseFloat(pump.power);
 
     // 1. 计算余量
@@ -413,7 +414,7 @@ export class PumpManager {
 
     // 5. BEP（最佳效率点）匹配度评分（权重：20%）
     // BEP通常在最大流量附近，最佳匹配范围：80%-120%最大流量
-    const flowRatio = operatingFlow / ratedFlow;
+    const flowRatio = operatingFlow / maxFlow;
     let bepMatchScore: number;
     if (flowRatio >= 0.8 && flowRatio <= 1.2) {
       // 最佳匹配：90-100分，flowRatio越接近1，评分越高

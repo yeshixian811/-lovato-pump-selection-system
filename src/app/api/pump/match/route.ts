@@ -54,24 +54,26 @@ interface Pump {
 }
 
 // 计算水泵性能曲线上的扬程
-// 使用二次曲线模型：H = H_max - k * Q^2
+// 使用二次曲线模型：H = shutOffHead - k * Q^2
+// 其中 shutOffHead 是流量为0时的扬程，maxFlow 是最大流量
 function calculateHeadAtFlow(pump: any, flowRate: number): number {
   const maxHead = parseFloat(pump.max_head);
   const maxFlow = parseFloat(pump.max_flow_rate);
   const minFlow = parseFloat(pump.min_flow_rate || 0);
-  
+
   // 关断点扬程（流量为0时的扬程），通常是最大扬程的1.2-1.3倍
   const shutOffHead = maxHead * 1.25;
-  
+
   // 计算曲线系数
-  // 当 Q = maxFlow 时，H = minHead
-  // minHead = shutOffHead - k * maxFlow^2
-  // k = (shutOffHead - minHead) / maxFlow^2
-  const k = (shutOffHead - maxHead) / Math.pow(maxFlow, 2);
-  
+  // 当 Q = maxFlow 时，H = 0（简化假设）
+  // 0 = shutOffHead - k * maxFlow^2
+  // k = shutOffHead / maxFlow^2
+  const k = shutOffHead / Math.pow(maxFlow, 2);
+
   // 计算指定流量下的扬程
   const head = shutOffHead - k * Math.pow(flowRate, 2);
-  
+
+  // 确保扬程不为负
   return Math.max(0, head);
 }
 
@@ -90,8 +92,6 @@ function calculateMatchScore(
   const minFlow = parseFloat(pump.min_flow_rate || maxFlow * 0.3);
   const maxHead = parseFloat(pump.max_head);
   const minHead = parseFloat(pump.min_head || maxHead * 0.6);
-  const ratedFlow = parseFloat(pump.rated_flow_rate);
-  const ratedHead = parseFloat(pump.rated_head);
   const efficiency = parseFloat(pump.efficiency);
 
   // 格兰富选型算法原则：
@@ -144,8 +144,8 @@ function calculateMatchScore(
 
   // 步骤5：评估工作点是否在最佳效率区间（权重: 35%）
   // 格兰富最佳效率区间（BEP）：最大流量的60%-120%
-  if (ratedFlow > 0) {
-    const flowRatio = requiredFlow / ratedFlow;
+  if (maxFlow > 0) {
+    const flowRatio = requiredFlow / maxFlow;
     
     if (flowRatio >= 0.6 && flowRatio <= 1.2) {
       // 工作点在最佳效率区间内，最佳选择
@@ -230,15 +230,12 @@ export async function POST(request: NextRequest) {
         const baseHead = parseFloat(pump.head);
         
         // 基于性能曲线定义工作范围
-        // 最大流量：通常为最大流量的1.5-2倍
-        const maxFlow = baseFlowRate * 1.8;
-        // 最小流量：通常为最大流量的0.3-0.5倍
-        const minFlow = baseFlowRate * 0.4;
+        // baseFlowRate 和 baseHead 是实际的最大流量和最大扬程
+        const maxFlow = baseFlowRate; // 实际最大流量
+        const minFlow = baseFlowRate * 0.3; // 最小流量，通常为最大流量的30%
         
-        // 最大扬程：关断点扬程（流量为0时）
-        const maxHead = baseHead * 1.25;
-        // 最小扬程：最大流量点的扬程
-        const minHead = baseHead * 0.65;
+        const maxHead = baseHead; // 实际最大扬程
+        const minHead = baseHead * 0.6; // 最小扬程，通常为最大扬程的60%
         
         // 获取真实的性能曲线数据
         const performancePoints = await pumpManager.getPumpPerformancePoints(pump.id);
