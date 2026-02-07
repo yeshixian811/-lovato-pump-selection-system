@@ -220,36 +220,37 @@ export default function PumpSelectionPage() {
             </CardHeader>
             <CardContent className="overflow-hidden">
               <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
-                {/* 流量需求 - 支持键盘输入 */}
-                <div className="space-y-2">
-                  <Label htmlFor="flow_rate" className="text-sm md:text-base">流量需求 (m³/h)</Label>
-                  <Input
-                    id="flow_rate_input"
-                    type="number"
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    placeholder="请输入流量需求"
-                    value={formData.required_flow_rate}
-                    onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
-                    className="w-full text-sm md:text-base"
-                  />
-                </div>
+                {/* 流量需求和扬程需求 - 并列显示 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="flow_rate" className="text-sm md:text-base">流量需求 (m³/h)</Label>
+                    <Input
+                      id="flow_rate_input"
+                      type="number"
+                      min="1"
+                      max="500"
+                      step="0.1"
+                      placeholder="请输入流量"
+                      value={formData.required_flow_rate}
+                      onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
+                      className="w-full text-sm md:text-base"
+                    />
+                  </div>
 
-                {/* 扬程需求 - 支持键盘输入 */}
-                <div className="space-y-2">
-                  <Label htmlFor="head" className="text-sm md:text-base">扬程需求 (m)</Label>
-                  <Input
-                    id="head_input"
-                    type="number"
-                    min="1"
-                    max="200"
-                    step="0.1"
-                    placeholder="请输入扬程需求"
-                    value={formData.required_head}
-                    onChange={(e) => handleNumberInput('required_head', e.target.value)}
-                    className="w-full text-sm md:text-base"
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="head" className="text-sm md:text-base">扬程需求 (m)</Label>
+                    <Input
+                      id="head_input"
+                      type="number"
+                      min="1"
+                      max="200"
+                      step="0.1"
+                      placeholder="请输入扬程"
+                      value={formData.required_head}
+                      onChange={(e) => handleNumberInput('required_head', e.target.value)}
+                      className="w-full text-sm md:text-base"
+                    />
+                  </div>
                 </div>
 
                 {/* 应用类型 */}
