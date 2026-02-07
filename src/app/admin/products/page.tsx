@@ -452,6 +452,146 @@ export default function ProductsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-4">
+            {/* 必填字段优先 */}
+            <div>
+              <Label htmlFor="model">型号 *</Label>
+              <Input
+                id="model"
+                value={formData.model}
+                onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
+                placeholder="例如: AMT750"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="name">产品名称 *</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="例如: 自适应变频屏蔽泵"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="brand">品牌</Label>
+              <Input
+                id="brand"
+                value={formData.brand}
+                onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="pumpType">泵类型</Label>
+              <Select
+                value={formData.pumpType}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, pumpType: value }))}
+              >
+                <SelectTrigger id="pumpType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="离心泵">离心泵</SelectItem>
+                  <SelectItem value="屏蔽泵">屏蔽泵</SelectItem>
+                  <SelectItem value="管道泵">管道泵</SelectItem>
+                  <SelectItem value="变频泵">变频泵</SelectItem>
+                  <SelectItem value="排污泵">排污泵</SelectItem>
+                  <SelectItem value="潜水泵">潜水泵</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="flowRate">流量 (m³/h) *</Label>
+              <Input
+                id="flowRate"
+                type="number"
+                step="0.1"
+                value={formData.flowRate}
+                onChange={(e) => setFormData(prev => ({ ...prev, flowRate: e.target.value }))}
+                placeholder="例如: 7.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="head">扬程 (m) *</Label>
+              <Input
+                id="head"
+                type="number"
+                step="0.1"
+                value={formData.head}
+                onChange={(e) => setFormData(prev => ({ ...prev, head: e.target.value }))}
+                placeholder="例如: 14.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="power">功率 (kW) *</Label>
+              <Input
+                id="power"
+                type="number"
+                step="0.01"
+                value={formData.power}
+                onChange={(e) => setFormData(prev => ({ ...prev, power: e.target.value }))}
+                placeholder="例如: 0.25"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="applicationType">应用场景 *</Label>
+              <Select
+                value={formData.applicationType}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, applicationType: value }))}
+              >
+                <SelectTrigger id="applicationType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="供水系统">供水系统</SelectItem>
+                  <SelectItem value="暖通空调">暖通空调</SelectItem>
+                  <SelectItem value="污水处理">污水处理</SelectItem>
+                  <SelectItem value="工业循环">工业循环</SelectItem>
+                  <SelectItem value="消防供水">消防供水</SelectItem>
+                  <SelectItem value="农田灌溉">农田灌溉</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 可选字段 */}
+            <div>
+              <Label htmlFor="material">材质</Label>
+              <Input
+                id="material"
+                value={formData.material}
+                onChange={(e) => setFormData(prev => ({ ...prev, material: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="efficiency">效率 (%)</Label>
+              <Input
+                id="efficiency"
+                type="number"
+                step="0.1"
+                value={formData.efficiency}
+                onChange={(e) => setFormData(prev => ({ ...prev, efficiency: e.target.value }))}
+                placeholder="例如: 75"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="price">价格 (元)</Label>
+              <Input
+                id="price"
+                type="number"
+                step="100"
+                value={formData.price}
+                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                placeholder="例如: 2500"
+              />
+            </div>
+
             {/* 产品图片 */}
             <div className="col-span-2">
               <Label htmlFor="image">产品图片</Label>
@@ -504,161 +644,6 @@ export default function ProductsPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            <div>
-              <Label htmlFor="model">型号 *</Label>
-              <Input
-                id="model"
-                value={formData.model}
-                onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
-                placeholder="例如: AMT750"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="name">产品名称 *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="例如: 自适应变频屏蔽泵"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="brand">品牌</Label>
-              <Input
-                id="brand"
-                value={formData.brand}
-                onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="pumpType">泵类型</Label>
-              <Select
-                value={formData.pumpType}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, pumpType: value }))}
-              >
-                <SelectTrigger id="pumpType">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="离心泵">离心泵</SelectItem>
-                  <SelectItem value="屏蔽泵">屏蔽泵</SelectItem>
-                  <SelectItem value="管道泵">管道泵</SelectItem>
-                  <SelectItem value="变频泵">变频泵</SelectItem>
-                  <SelectItem value="排污泵">排污泵</SelectItem>
-                  <SelectItem value="潜水泵">潜水泵</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="material">材质</Label>
-              <Input
-                id="material"
-                value={formData.material}
-                onChange={(e) => setFormData(prev => ({ ...prev, material: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="flowRate">流量 (m³/h) *</Label>
-              <Input
-                id="flowRate"
-                type="number"
-                step="0.1"
-                value={formData.flowRate}
-                onChange={(e) => setFormData(prev => ({ ...prev, flowRate: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="head">扬程 (m) *</Label>
-              <Input
-                id="head"
-                type="number"
-                step="0.1"
-                value={formData.head}
-                onChange={(e) => setFormData(prev => ({ ...prev, head: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="power">功率 (kW) *</Label>
-              <Input
-                id="power"
-                type="number"
-                step="0.1"
-                value={formData.power}
-                onChange={(e) => setFormData(prev => ({ ...prev, power: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="maxFlow">最大流量 (m³/h)</Label>
-              <Input
-                id="maxFlow"
-                type="number"
-                step="0.1"
-                value={formData.maxFlow}
-                onChange={(e) => setFormData(prev => ({ ...prev, maxFlow: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="maxHead">最大扬程 (m)</Label>
-              <Input
-                id="maxHead"
-                type="number"
-                step="0.1"
-                value={formData.maxHead}
-                onChange={(e) => setFormData(prev => ({ ...prev, maxHead: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="efficiency">效率 (%)</Label>
-              <Input
-                id="efficiency"
-                type="number"
-                step="0.1"
-                value={formData.efficiency}
-                onChange={(e) => setFormData(prev => ({ ...prev, efficiency: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="price">价格 (元)</Label>
-              <Input
-                id="price"
-                type="number"
-                step="100"
-                value={formData.price}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="applicationType">应用场景</Label>
-              <Select
-                value={formData.applicationType}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, applicationType: value }))}
-              >
-                <SelectTrigger id="applicationType">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="供水系统">供水系统</SelectItem>
-                  <SelectItem value="暖通空调">暖通空调</SelectItem>
-                  <SelectItem value="污水处理">污水处理</SelectItem>
-                  <SelectItem value="工业循环">工业循环</SelectItem>
-                  <SelectItem value="消防供水">消防供水</SelectItem>
-                  <SelectItem value="农田灌溉">农田灌溉</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="col-span-2">
