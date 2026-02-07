@@ -282,7 +282,7 @@ export default function PumpSelectionPage() {
                     }
                   >
                     <SelectTrigger id="application_type" className="text-sm md:text-base">
-                      <SelectValue />
+                      <SelectValue placeholder="请选择应用类型" />
                     </SelectTrigger>
                     <SelectContent>
                       {APPLICATION_TYPES.map((type) => (
@@ -304,7 +304,7 @@ export default function PumpSelectionPage() {
                     }
                   >
                     <SelectTrigger id="fluid_type" className="text-sm md:text-base">
-                      <SelectValue />
+                      <SelectValue placeholder="请选择流体类型" />
                     </SelectTrigger>
                     <SelectContent>
                       {FLUID_TYPES.map((type) => (
@@ -326,7 +326,7 @@ export default function PumpSelectionPage() {
                     }
                   >
                     <SelectTrigger id="pump_type" className="text-sm md:text-base">
-                      <SelectValue />
+                      <SelectValue placeholder="请选择水泵类型" />
                     </SelectTrigger>
                     <SelectContent>
                       {PUMP_TYPES.map((type) => (
