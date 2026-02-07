@@ -195,7 +195,7 @@ export default function PumpSelectionPage() {
       </div>
 
       <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
           {/* 左侧：参数输入 */}
           <Card>
             <CardHeader className="pb-4">
