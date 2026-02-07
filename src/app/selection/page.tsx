@@ -399,51 +399,39 @@ export default function PumpSelectionPage() {
             </CardContent>
           </Card>
 
-          {/* 右侧：选型说明和结果 */}
+          {/* 右侧：选型结果 */}
           <div className="space-y-6">
-            {/* 选型说明 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Info className="w-5 h-5 text-blue-600" />
-                  选型说明
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
-                  <div className="flex items-start gap-3">
-                    <Droplet className="w-5 h-5 text-blue-500 mt-0.5" />
-                    <div>
-                      <strong>流量需求</strong>
-                      <p className="mt-1">水泵每小时需要输送的液体体积，单位：m³/h。例如：50 m³/h 表示每小时输送50立方米液体。</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Gauge className="w-5 h-5 text-green-500 mt-0.5" />
-                    <div>
-                      <strong>扬程需求</strong>
-                      <p className="mt-1">水泵能够提升液体的高度，单位：m。例如：30 m 表示可以将液体提升30米高。</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Zap className="w-5 h-5 text-yellow-500 mt-0.5" />
-                    <div>
-                      <strong>功率偏好</strong>
-                      <p className="mt-1">水泵的额定功率，单位：kW。功率越大，流量和扬程能力越强。</p>
-                    </div>
-                  </div>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                    <strong>💡 匹配度说明：</strong>
-                    <p className="mt-2">系统根据您的参数，综合考虑流量、扬程、功率等因素计算匹配度（0-100%），分数越高表示越适合您的需求。</p>
-                  </div>
+            {/* 选型说明 - 在顶部 */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <Info className="w-4 h-4 text-blue-600" />
+                参数说明
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex items-start gap-2">
+                  <Droplet className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <span>流量：每小时输送液体体积 (m³/h)</span>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-2">
+                  <Gauge className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>扬程：提升液体高度 (m)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Zap className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                  <span>功率：额定功率 (kW)</span>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800 text-xs text-gray-600 dark:text-gray-400">
+                💡 匹配度：系统综合流量、扬程、功率计算 (0-100%)
+              </div>
+            </div>
 
-            {/* 选型结果 */}
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              选型结果
-            </h2>
+            {/* 选型结果列表 */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                选型结果
+              </h2>
+            </div>
 
             {isSearching && (
               <Card>
