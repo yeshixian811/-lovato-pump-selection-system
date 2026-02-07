@@ -707,7 +707,7 @@ export default function PumpSelectionPage() {
                         <div className="text-xs text-gray-600 dark:text-gray-400 mb-3">
                           H-Q 性能曲线
                         </div>
-                        <div className="h-48 w-full">
+                        <div className="h-72 w-full">
                           <PumpPerformanceCurve
                             pumpId={pump.id}
                             requiredFlowRate={formData.required_flow_rate}
