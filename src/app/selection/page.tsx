@@ -91,6 +91,8 @@ interface PumpPerformanceCurveProps {
 
 function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPerformanceCurveProps) {
   const [performanceData, setPerformanceData] = useState<any[]>([]);
+  const [maxFlow, setMaxFlow] = useState<number>(0);
+  const [maxHead, setMaxHead] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -101,21 +103,69 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
           const data = await response.json();
           if (data.performancePoints && data.performancePoints.length > 0) {
             setPerformanceData(data.performancePoints);
+            
+            // 计算最大流量和最大扬程
+            const maxF = Math.max(
+              ...data.performancePoints.map((p: any) => p.flowRate),
+              requiredFlowRate
+            );
+            const maxH = Math.max(
+              ...data.performancePoints.map((p: any) => p.head),
+              requiredHead
+            );
+            setMaxFlow(maxF);
+            setMaxHead(maxH);
           } else {
             // 如果没有性能曲线数据，生成模拟数据
             const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
             setPerformanceData(mockData);
+            
+            // 计算模拟数据的最大值
+            const maxF = Math.max(
+              ...mockData.map(p => p.flowRate),
+              requiredFlowRate
+            );
+            const maxH = Math.max(
+              ...mockData.map(p => p.head),
+              requiredHead
+            );
+            setMaxFlow(maxF);
+            setMaxHead(maxH);
           }
         } else {
           // API 调用失败，生成模拟数据
           const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
           setPerformanceData(mockData);
+          
+          // 计算模拟数据的最大值
+          const maxF = Math.max(
+            ...mockData.map(p => p.flowRate),
+            requiredFlowRate
+          );
+          const maxH = Math.max(
+            ...mockData.map(p => p.head),
+            requiredHead
+          );
+          setMaxFlow(maxF);
+          setMaxHead(maxH);
         }
       } catch (error) {
         console.error('Failed to fetch performance data:', error);
         // 生成模拟数据
         const mockData = generateMockPerformanceData(requiredFlowRate, requiredHead);
         setPerformanceData(mockData);
+        
+        // 计算模拟数据的最大值
+        const maxF = Math.max(
+          ...mockData.map(p => p.flowRate),
+          requiredFlowRate
+        );
+        const maxH = Math.max(
+          ...mockData.map(p => p.head),
+          requiredHead
+        );
+        setMaxFlow(maxF);
+        setMaxHead(maxH);
       } finally {
         setLoading(false);
       }
@@ -161,14 +211,16 @@ function PumpPerformanceCurve({ pumpId, requiredFlowRate, requiredHead }: PumpPe
         <XAxis
           dataKey="flowRate"
           type="number"
-          domain={['dataMin', 'dataMax']}
+          domain={[0, maxFlow]}
+          ticks={[0, maxFlow * 0.25, maxFlow * 0.5, maxFlow * 0.75, maxFlow].filter(t => t <= maxFlow && t >= 0)}
           tick={{ fontSize: 10 }}
           tickFormatter={(value) => value.toFixed(1)}
           label={{ value: '流量 (m³/h)', position: 'insideBottom', offset: -5, fontSize: 10 }}
         />
         <YAxis
           dataKey="head"
-          domain={[0, 'dataMax']}
+          domain={[0, maxHead]}
+          ticks={[0, maxHead * 0.25, maxHead * 0.5, maxHead * 0.75, maxHead].filter(t => t <= maxHead && t >= 0)}
           tick={{ fontSize: 10 }}
           tickFormatter={(value) => value.toFixed(1)}
           label={{ value: '扬程 (m)', angle: -90, position: 'insideLeft', fontSize: 10 }}
