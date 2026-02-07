@@ -273,6 +273,19 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
             stroke="#ef4444"
             strokeWidth={1}
           />
+          {/* 产品最高扬程和最大流量 - 蓝色参考线 */}
+          <ReferenceLine
+            x={Number(pump.max_flow_rate)}
+            stroke="#2563eb"
+            strokeWidth={1}
+            label="最大流量"
+          />
+          <ReferenceLine
+            y={Number(pump.max_head)}
+            stroke="#2563eb"
+            strokeWidth={1}
+            label="最高扬程"
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
