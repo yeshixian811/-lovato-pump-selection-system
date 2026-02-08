@@ -353,8 +353,8 @@ export default function PumpSelectionPage() {
 
   // 表单状态
   const [formData, setFormData] = useState<SelectionParams>({
-    required_flow_rate: 5,
-    required_head: 10,
+    required_flow_rate: 0,
+    required_head: 0,
     application_type: '暖通空调',
     fluid_type: '清水',
     pump_type: 'all',
@@ -367,6 +367,12 @@ export default function PumpSelectionPage() {
 
   // 处理键盘输入
   const handleNumberInput = (field: keyof SelectionParams, value: string) => {
+    // 允许空值
+    if (value === '') {
+      handleInputChange(field, 0);
+      return;
+    }
+
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
       handleInputChange(field, numValue);
@@ -422,8 +428,8 @@ export default function PumpSelectionPage() {
   // 重置表单
   const handleReset = () => {
     setFormData({
-      required_flow_rate: 50,
-      required_head: 30,
+      required_flow_rate: 0,
+      required_head: 0,
       application_type: '供水系统',
       fluid_type: '清水',
       pump_type: 'all',
@@ -488,7 +494,7 @@ export default function PumpSelectionPage() {
                         max="500"
                         step="0.1"
                         placeholder="请输入流量"
-                        value={formData.required_flow_rate}
+                        value={formData.required_flow_rate === 0 ? '' : formData.required_flow_rate}
                         onChange={(e) => handleNumberInput('required_flow_rate', e.target.value)}
                         className="w-full text-sm md:text-base"
                       />
@@ -503,7 +509,7 @@ export default function PumpSelectionPage() {
                         max="200"
                         step="0.1"
                         placeholder="请输入扬程"
-                        value={formData.required_head}
+                        value={formData.required_head === 0 ? '' : formData.required_head}
                         onChange={(e) => handleNumberInput('required_head', e.target.value)}
                         className="w-full text-sm md:text-base"
                       />
