@@ -1,29 +1,132 @@
-# projects
+# 洛瓦托水泵选型系统
 
 这是一个基于 [Next.js 16](https://nextjs.org) + [shadcn/ui](https://ui.shadcn.com) 的全栈应用项目，由扣子编程 CLI 创建。
 
+**主要功能：**
+- 水泵选型工具（基于性能曲线匹配）
+- 版本管理系统
+- 进销存管理
+- 用户认证与授权
+- 微信小程序支持
+
 ## 快速开始
 
-### 启动开发服务器
+### 前置要求
+
+- Node.js 24+
+- PostgreSQL 14+
+- pnpm（推荐）或 npm
+- Windows 操作系统（本地部署）
+
+### 1. 环境变量配置
+
+在启动应用之前，必须先配置环境变量：
 
 ```bash
+# 1. 复制环境变量模板
+cp .env.example .env
+
+# 2. 编辑 .env 文件，填写实际配置
+# Windows: notepad .env
+# Linux/Mac: nano .env
+
+# 3. 必须配置的变量：
+#    - JWT_SECRET（强随机密钥，至少 32 字符）
+#    - ENCRYPTION_KEY（强随机密钥，至少 32 字符）
+#    - DATABASE_URL（PostgreSQL 连接字符串）
+```
+
+**生成密钥（推荐使用 OpenSSL）：**
+
+```bash
+# 生成 JWT_SECRET
+openssl rand -base64 32
+
+# 生成 ENCRYPTION_KEY
+openssl rand -base64 32
+```
+
+**验证环境变量配置：**
+
+```bash
+# Windows
+node scripts/validate-env.js
+
+# Linux/Mac
+node scripts/validate-env.js
+```
+
+### 2. 数据库初始化
+
+确保 PostgreSQL 服务已启动，然后创建数据库：
+
+```bash
+# 使用 psql 连接数据库
+psql -U postgres
+
+# 创建数据库
+CREATE DATABASE lovato_pump;
+
+# 退出 psql
+\q
+```
+
+**迁移数据库数据到 J 盘（可选）：**
+
+```bash
+# Windows
+migrate-to-j-drive.bat
+```
+
+### 3. 安装依赖
+
+```bash
+pnpm install
+```
+
+### 4. 启动开发服务器
+
+```bash
+# 使用 Coze CLI 启动
 coze dev
+
+# 或使用 pnpm
+pnpm run dev
 ```
 
 启动后，在浏览器中打开 [http://localhost:5000](http://localhost:5000) 查看应用。
 
 开发服务器支持热更新，修改代码后页面会自动刷新。
 
-### 构建生产版本
+### 5. 测试安全功能
 
 ```bash
-coze build
+# Windows
+run-security-tests.bat
+
+# Linux/Mac
+node scripts/test-encryption.js
+node scripts/test-security.js
 ```
 
-### 启动生产服务器
+### 6. 构建和部署
 
 ```bash
+# 构建生产版本
+coze build
+
+# 启动生产服务器
 coze start
+```
+
+### 7. 配置 Cloudflare Tunnel（外网访问）
+
+```bash
+# Windows
+setup-cloudflare-tunnel.bat
+
+# 详细配置指南
+# 参阅 CLOUDFLARE-TUNNEL-GUIDE.md
 ```
 
 ## 项目结构
@@ -293,6 +396,177 @@ export default function ClientComponent() {
   return <div>{JSON.stringify(data)}</div>;
 }
 ```
+
+## 安全措施
+
+本项目实施了以下安全措施，确保应用的安全性：
+
+### 认证与授权
+
+- ✅ **JWT 认证系统**
+  - HMAC SHA256 签名算法
+  - 访问令牌（1 小时有效期）和刷新令牌（7 天有效期）
+  - 支持从 Authorization header 和 Cookie 获取令牌
+  - 密码使用 bcrypt 哈希（12 轮加盐）
+
+- ✅ **三级权限系统**
+  - `admin`：管理员，完全访问权限
+  - `manager`：经理，管理功能和部分权限
+  - `user`：普通用户，基本访问权限
+
+- ✅ **认证中间件**
+  - 自动验证 JWT 令牌
+  - 支持权限检查
+  - 统一错误处理
+
+### 数据保护
+
+- ✅ **敏感数据加密**
+  - AES-256-GCM 加密算法
+  - PBKDF2 密钥派生（100,000 次迭代）
+  - 支持文本和对象加密/解密
+  - 数据库字段加密助手
+
+- ✅ **SQL 注入防护**
+  - 使用 Drizzle ORM 参数化查询
+  - 移除所有字符串拼接 SQL
+  - 自动转义用户输入
+
+### 网络安全
+
+- ✅ **CORS 配置**
+  - 白名单机制
+  - 预检请求（OPTIONS）处理
+  - 支持凭证（cookies, authorization headers）
+  - 微信小程序专用配置
+
+- ✅ **HTTPS 强制**
+  - HSTS（有效期 2 年）
+  - 内容安全策略 (CSP)
+  - 安全 HTTP 头（X-Content-Type-Options, X-Frame-Options, X-XSS-Protection）
+  - Referrer-Policy 和 Permissions-Policy
+
+- ✅ **API 速率限制**
+  - 滑动窗口算法
+  - 多种预设配置（strict, standard, loose, login, upload）
+  - IP 白名单支持
+  - 速率限制响应头
+
+### 代码质量
+
+- ✅ **单元测试和集成测试**
+  - Jest 测试框架
+  - 认证工具测试（56 个测试用例）
+  - 加密工具测试（45 个测试用例）
+  - 认证 API 集成测试框架
+
+### 安全文档
+
+详细的安全文档请参阅：
+
+- [SECURITY-CHECKLIST.md](SECURITY-CHECKLIST.md) - 安全检查清单
+- [SECURITY-IMPLEMENTATION-REPORT.md](SECURITY-IMPLEMENTATION-REPORT.md) - 安全措施实施报告
+- [COMPLETE-SECURITY-IMPLEMENTATION-REPORT.md](COMPLETE-SECURITY-IMPLEMENTATION-REPORT.md) - 完整的安全措施报告
+- [SECURITY-AUDIT-CHECKLIST.md](SECURITY-AUDIT-CHECKLIST.md) - 安全审计检查清单
+
+## 部署指南
+
+### 本地部署
+
+详细的本地部署指南请参阅 [DEPLOYMENT.md](DEPLOYMENT.md)。
+
+**快速部署脚本（Windows）：**
+
+```bash
+# 完整部署向导
+deploy-local.bat
+
+# 系统健康检查
+health-check.bat
+
+# 快速启动
+quick-start.bat
+```
+
+### 外网访问（Cloudflare Tunnel）
+
+使用 Cloudflare Tunnel 实现内网穿透，提供稳定的外网访问：
+
+```bash
+# 快速配置向导
+setup-cloudflare-tunnel.bat
+
+# 详细指南
+# 参阅 CLOUDFLARE-TUNNEL-GUIDE.md
+```
+
+### 部署脚本说明
+
+所有部署脚本的说明请参阅 [DEPLOYMENT-SCRIPTS-README.md](DEPLOYMENT-SCRIPTS-README.md)。
+
+## 文档索引
+
+- [README.md](README.md) - 项目说明和快速开始
+- [DEPLOYMENT.md](DEPLOYMENT.md) - 本地部署指南
+- [CLOUDFLARE-TUNNEL-GUIDE.md](CLOUDFLARE-TUNNEL-GUIDE.md) - Cloudflare Tunnel 配置指南
+- [DEPLOYMENT-SCRIPTS-README.md](DEPLOYMENT-SCRIPTS-README.md) - 部署脚本说明
+- [SECURITY-CHECKLIST.md](SECURITY-CHECKLIST.md) - 安全检查清单
+- [SECURITY-IMPLEMENTATION-REPORT.md](SECURITY-IMPLEMENTATION-REPORT.md) - 安全措施实施报告
+- [COMPLETE-SECURITY-IMPLEMENTATION-REPORT.md](COMPLETE-SECURITY-IMPLEMENTATION-REPORT.md) - 完整的安全措施报告
+- [SECURITY-AUDIT-CHECKLIST.md](SECURITY-AUDIT-CHECKLIST.md) - 安全审计检查清单
+
+## 故障排查
+
+### 开发服务器无法启动
+
+1. 检查 Node.js 版本（需要 24+）
+2. 检查端口 5000 是否被占用
+3. 确保已安装依赖：`pnpm install`
+4. 检查 .env 文件是否正确配置
+
+### 数据库连接失败
+
+1. 确保 PostgreSQL 服务已启动
+2. 检查 DATABASE_URL 配置是否正确
+3. 确保数据库已创建
+4. 检查防火墙设置
+
+### 安全测试失败
+
+1. 确保环境变量已正确配置
+2. 运行 `node scripts/validate-env.js` 检查配置
+3. 确保开发服务器正在运行
+4. 检查密钥长度和格式
+
+### Cloudflare Tunnel 无法连接
+
+1. 确保已登录 Cloudflare 账户：`cloudflared tunnel login`
+2. 检查隧道配置文件
+3. 确保域名已正确配置
+4. 检查防火墙设置
+
+## 技术栈
+
+- **框架**: Next.js 16 (App Router)
+- **React 版本**: React 19
+- **TypeScript**: TypeScript 5
+- **UI 组件**: shadcn/ui (基于 Radix UI)
+- **样式**: Tailwind CSS 4
+- **数据库**: PostgreSQL 14
+- **ORM**: Drizzle ORM
+- **认证**: JWT + bcrypt
+- **加密**: AES-256-GCM + PBKDF2
+- **测试**: Jest
+- **包管理器**: pnpm
+- **内网穿透**: Cloudflare Tunnel
+
+## 许可证
+
+本项目为洛瓦托水泵选型系统内部使用。
+
+## 联系方式
+
+如有问题，请联系开发团队。
 
 ## 常见开发场景
 
