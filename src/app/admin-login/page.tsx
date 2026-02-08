@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Lock, AlertCircle } from 'lucide-react'
+import { setToken } from '@/lib/api'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -35,12 +36,12 @@ export default function AdminLoginPage() {
       
       if (response.ok) {
         const data = await response.json()
-        
+
         // 检查是否是管理员
         if (data.user?.role === 'admin') {
-          // 将token保存到sessionStorage作为备选方案
+          // 使用 setToken 工具保存 token（sessionStorage）
           if (data.token) {
-            sessionStorage.setItem('admin_token', data.token)
+            setToken(data.token, 'session')
           }
           // 设置登录成功状态
           setLoginSuccess(true)

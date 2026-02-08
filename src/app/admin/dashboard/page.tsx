@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Search, Download, Filter, RefreshCw, Crown, Shield, UserCheck, UserX, Calendar } from 'lucide-react'
+import { get, post } from '@/lib/api'
 
 interface User {
   id: string
@@ -52,11 +53,8 @@ export default function AdminDashboard() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/admin/users')
-      if (response.ok) {
-        const data = await response.json()
-        setUsers(data.users)
-      }
+      const data = await get<{ users: User[] }>('/api/admin/users')
+      setUsers(data.users)
     } catch (error) {
       console.error('获取用户列表失败:', error)
     } finally {
@@ -66,11 +64,8 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/admin/stats')
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data.stats)
-      }
+      const data = await get<{ stats: SubscriptionStats }>('/api/admin/stats')
+      setStats(data.stats)
     } catch (error) {
       console.error('获取统计数据失败:', error)
     }
@@ -118,49 +113,30 @@ export default function AdminDashboard() {
 
   const handleUpgradeUser = async (userId: string, newTier: string) => {
     if (!confirm(`确定要将用户升级到${newTier}吗？`)) return
-    
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/upgrade`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier: newTier }),
-      })
 
-      if (response.ok) {
-        alert('升级成功')
-        fetchUsers()
-        fetchStats()
-      } else {
-        const data = await response.json()
-        alert(data.error || '升级失败')
-      }
-    } catch (error) {
-      alert('升级失败')
+    try {
+      await post(`/api/admin/users/${userId}/upgrade`, { tier: newTier })
+      alert('升级成功')
+      fetchUsers()
+      fetchStats()
+    } catch (error: any) {
+      alert(error.message || '升级失败')
     }
   }
 
   const handleToggleUserStatus = async (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'active' ? 'expired' : 'active'
     const action = newStatus === 'active' ? '激活' : '停用'
-    
-    if (!confirm(`确定要${action}该用户吗？`)) return
-    
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      })
 
-      if (response.ok) {
-        alert(`${action}成功`)
-        fetchUsers()
-        fetchStats()
-      } else {
-        alert('操作失败')
-      }
-    } catch (error) {
-      alert('操作失败')
+    if (!confirm(`确定要${action}该用户吗？`)) return
+
+    try {
+      await post(`/api/admin/users/${userId}/status`, { status: newStatus })
+      alert(`${action}成功`)
+      fetchUsers()
+      fetchStats()
+    } catch (error: any) {
+      alert(error.message || '操作失败')
     }
   }
 
