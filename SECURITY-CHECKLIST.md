@@ -5,6 +5,7 @@
 本文档详细记录了洛瓦托水泵选型系统的全面安全审计结果，包括已修复的漏洞、已实施的安全措施和后续建议。
 
 **审计日期**: 2025-01-15
+**最后更新**: 2025-01-15
 **审计范围**: 全栈应用代码、数据库配置、API 端点、文件上传、依赖项
 **严重程度分级**: 
 - 🔴 **严重 (Critical)**: 立即修复
@@ -241,57 +242,200 @@ function handleError(error: unknown) {
 
 ---
 
-## 待实施的安全建议
+### 6. JWT 认证与授权 ✅
 
-### 1. API 认证与授权 🟠
+**实施范围**: 管理后台 API
+**技术方案**:
+- JWT 令牌认证
+- 基于角色的访问控制（RBAC）
+- 多级权限（admin, manager, user）
+- 访问令牌和刷新令牌
 
-**优先级**: 高
-**建议方案**: JWT + 角色权限控制 (RBAC)
+**实施文件**:
+- `src/lib/auth.ts` - 认证工具函数
+- `src/lib/auth-middleware.ts` - 认证中间件
+- `src/lib/admin-auth.ts` - 管理员认证中间件
+- `src/app/api/auth/login/route.ts` - 登录 API
 
-**实施步骤**:
-1. 安装依赖: `pnpm add jsonwebtoken bcryptjs`
-2. 创建认证中间件: `src/lib/auth.ts`
-3. 实现登录 API: `src/app/api/auth/login/route.ts`
-4. 保护管理 API: `src/lib/requireAuth.ts`
+**功能特性**:
+- 密码哈希（bcrypt，12 轮加盐）
+- JWT 签名和验证（HMAC SHA256）
+- 令牌过期控制（访问令牌 1 小时，刷新令牌 7 天）
+- 权限检查（admin > manager > user）
 
-**示例代码**:
+**使用示例**:
 ```typescript
-// 认证中间件
-export async function requireAuth(request: Request) {
-  const token = request.headers.get('authorization')?.replace('Bearer ', '');
-  
-  if (!token) {
-    throw new Error('Unauthorized');
-  }
-  
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    return decoded as { userId: string; role: string };
-  } catch {
-    throw new Error('Invalid token');
-  }
-}
+// 使用认证中间件保护 API
+import { withAuth } from '@/lib/auth-middleware';
 
-// 保护 API 路由
-export async function DELETE(request: Request) {
-  const user = await requireAuth(request);
-  
-  if (user.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Forbidden' },
-      { status: 403 }
-    );
-  }
-  
-  // 继续处理...
+export const GET = withAuth(
+  async (request, user) => {
+    // user 包含用户信息
+    return NextResponse.json({ data: '...' });
+  },
+  { requireRole: 'admin' } // 可选：要求特定角色
+);
+```
+
+---
+
+### 7. HTTPS 强制配置 ✅
+
+**实施范围**: 全站
+**技术方案**:
+- HSTS (HTTP Strict Transport Security)
+- 安全 HTTP 头
+- 内容安全策略 (CSP)
+- Cookie 安全设置
+
+**实施文件**:
+- `next.config.ts` - Next.js 配置
+
+**安全头**:
+- `Strict-Transport-Security`: 强制 HTTPS，有效期 2 年
+- `Content-Security-Policy`: 防止 XSS 和数据注入攻击
+- `X-Content-Type-Options`: 防止 MIME 类型嗅探
+- `X-Frame-Options`: 防止点击劫持
+- `X-XSS-Protection`: 启用浏览器 XSS 过滤器
+- `Referrer-Policy`: 控制 Referer 信息泄露
+- `Permissions-Policy`: 控制浏览器功能访问
+
+**配置示例**:
+```typescript
+// next.config.ts
+async headers() {
+  return [
+    {
+      source: '/:path*',
+      headers: [
+        {
+          key: 'Strict-Transport-Security',
+          value: 'max-age=63072000; includeSubDomains; preload',
+        },
+        {
+          key: 'Content-Security-Policy',
+          value: "default-src 'self'; script-src 'self' 'unsafe-inline'; ...",
+        },
+      ],
+    },
+  ];
 }
 ```
+
+---
+
+### 8. 敏感数据加密 ✅
+
+**实施范围**: 全站
+**技术方案**:
+- AES-256-GCM 加密算法
+- PBKDF2 密钥派生
+- 随机盐和 IV
+- 认证标签（GCM）
+
+**实施文件**:
+- `src/lib/encryption.ts` - 加密工具函数
+
+**功能特性**:
+- 文本加密/解密
+- 对象加密/解密
+- 数据库字段加密助手
+- 安全随机数生成
+- 哈希和 HMAC
+
+**使用示例**:
+```typescript
+import { encrypt, decrypt, createDBEncryption } from '@/lib/encryption';
+
+// 加密敏感数据
+const encrypted = encrypt('sensitive-data', 'encryption-password');
+
+// 解密数据
+const decrypted = decrypt(encrypted, 'encryption-password');
+
+// 加密数据库字段
+const dbEncryption = createDBEncryption();
+const encryptedField = dbEncryption.encryptField('sensitive-value');
+```
+
+---
+
+### 9. CORS 配置 ✅
+
+**实施范围**: API 端点
+**技术方案**:
+- CORS 白名单
+- 预检请求处理
+- 凭证支持
+- 自定义配置
+
+**实施文件**:
+- `src/lib/cors.ts` - CORS 中间件
+
+**功能特性**:
+- 源白名单验证
+- 方法白名单
+- 头白名单
+- 凭证支持（cookies, authorization headers）
+- 预检请求缓存
+
+**使用示例**:
+```typescript
+import { withCors, withAuthAndCors } from '@/lib/cors';
+
+// 基本 CORS
+export const GET = withCors(async (request) => {
+  return NextResponse.json({ data: '...' });
+});
+
+// CORS + 认证
+export const POST = withAuthAndCors(
+  async (request, user) => {
+    return NextResponse.json({ data: '...' });
+  },
+  { requireRole: 'admin', cors: { credentials: true } }
+);
+
+// 微信小程序 CORS
+export const GET = withWeChatCORS(
+  async (request) => {
+    return NextResponse.json({ data: '...' });
+  },
+  'https://your-weixin-app.com'
+);
+```
+
+---
+
+## 待实施的安全建议
+
+### 1. API 认证与授权 ✅ 已完成
+
+**优先级**: 高
+**状态**: ✅ 已实施
+**实施日期**: 2025-01-15
+**实施文件**:
+- `src/lib/auth.ts`
+- `src/lib/auth-middleware.ts`
+- `src/lib/admin-auth.ts`
+- `src/app/api/auth/login/route.ts`
+
+**已实施功能**:
+- ✅ JWT 令牌认证
+- ✅ 基于角色的访问控制（RBAC）
+- ✅ 多级权限（admin, manager, user）
+- ✅ 访问令牌和刷新令牌
+- ✅ 密码哈希（bcrypt）
+- ✅ 认证中间件
+
+**使用方法**: 见上方"已实施的安全措施"第 6 节。
 
 ---
 
 ### 2. API 速率限制 🟡
 
 **优先级**: 中
+**状态**: ⏳ 待实施
 **建议方案**: `@upstash/ratelimit`
 
 **实施步骤**:
@@ -326,120 +470,66 @@ export async function POST(request: Request) {
 
 ---
 
-### 3. CORS 配置 🟡
+### 3. CORS 配置 ✅ 已完成
 
 **优先级**: 中
-**建议方案**: 明确的 CORS 白名单
+**状态**: ✅ 已实施
+**实施日期**: 2025-01-15
+**实施文件**:
+- `src/lib/cors.ts` - CORS 中间件
 
-**实施步骤**:
-1. 配置 CORS 中间件: `src/lib/cors.ts`
-2. 在 API 路由中应用
+**已实施功能**:
+- ✅ CORS 白名单
+- ✅ 预检请求处理
+- ✅ 凭证支持
+- ✅ 自定义配置
+- ✅ 微信小程序专用配置
 
-**示例代码**:
-```typescript
-const ALLOWED_ORIGINS = [
-  'http://localhost:5000',
-  'https://yourdomain.com',
-  'https://your-weixin-app.com',
-];
-
-export function corsHeaders(request: Request) {
-  const origin = request.headers.get('origin');
-  
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
-    return {
-      'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    };
-  }
-  
-  return {};
-}
-```
+**使用方法**: 见上方"已实施的安全措施"第 9 节。
 
 ---
 
-### 4. HTTPS 强制 🟠
+### 4. HTTPS 强制 ✅ 已完成
 
 **优先级**: 高
-**建议方案**: 使用 Cloudflare Tunnel
+**状态**: ✅ 已实施
+**实施日期**: 2025-01-15
+**实施文件**:
+- `next.config.ts` - Next.js 配置
 
-**实施步骤**:
-1. 配置 Cloudflare Tunnel
-2. 强制 HTTPS 重定向
-3. 配置 HSTS
+**已实施功能**:
+- ✅ HSTS (HTTP Strict Transport Security)
+- ✅ 安全 HTTP 头
+- ✅ 内容安全策略 (CSP)
+- ✅ Cookie 安全设置
 
-**Next.js 配置**:
-```javascript
-// next.config.js
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-        ],
-      },
-    ];
-  },
-};
-```
+**使用方法**: 见上方"已实施的安全措施"第 7 节。
+
+**额外配置**:
+- Cloudflare Tunnel 配置：参考 `DEPLOYMENT.md` 中的内网穿透配置章节
 
 ---
 
-### 5. 敏感数据加密 🟠
+### 5. 敏感数据加密 ✅ 已完成
 
 **优先级**: 高
-**建议方案**: 
-- 数据库字段加密
-- 环境变量加密
-- 传输层加密 (TLS)
+**状态**: ✅ 已实施
+**实施日期**: 2025-01-15
+**实施文件**:
+- `src/lib/encryption.ts` - 加密工具函数
 
-**示例代码**:
-```typescript
-import crypto from 'crypto';
+**已实施功能**:
+- ✅ AES-256-GCM 加密算法
+- ✅ PBKDF2 密钥派生
+- ✅ 随机盐和 IV
+- ✅ 认证标签（GCM）
+- ✅ 文本加密/解密
+- ✅ 对象加密/解密
+- ✅ 数据库字段加密助手
+- ✅ 安全随机数生成
+- ✅ 哈希和 HMAC
 
-const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 16;
-const SALT_LENGTH = 64;
-const TAG_LENGTH = 16;
-const TAG_POSITION = SALT_LENGTH + IV_LENGTH;
-const ENCRYPTED_POSITION = TAG_POSITION + TAG_LENGTH;
-
-export function encrypt(text: string, key: string): string {
-  const salt = crypto.randomBytes(SALT_LENGTH);
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const keyBuffer = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
-  
-  const cipher = crypto.createCipheriv(ALGORITHM, keyBuffer, iv);
-  let encrypted = cipher.update(text, 'utf8', 'binary');
-  encrypted += cipher.final('binary');
-  const tag = cipher.getAuthTag();
-  
-  return Buffer.concat([salt, iv, tag, Buffer.from(encrypted, 'binary')]).toString('base64');
-}
-
-export function decrypt(encrypted: string, key: string): string {
-  const buffer = Buffer.from(encrypted, 'base64');
-  const salt = buffer.slice(0, SALT_LENGTH);
-  const iv = buffer.slice(SALT_LENGTH, TAG_POSITION);
-  const tag = buffer.slice(TAG_POSITION, ENCRYPTED_POSITION);
-  const encryptedText = buffer.slice(ENCRYPTED_POSITION);
-  
-  const keyBuffer = crypto.pbkdf2Sync(key, salt, 100000, 32, 'sha512');
-  const decipher = crypto.createDecipheriv(ALGORITHM, keyBuffer, iv);
-  decipher.setAuthTag(tag);
-  
-  let decrypted = decipher.update(encryptedText);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString('utf8');
-}
-```
+**使用方法**: 见上方"已实施的安全措施"第 8 节。
 
 ---
 

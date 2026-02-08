@@ -1,8 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { db } from '@/lib/db'
+import { verifyManagerAuth } from '@/lib/admin-auth'
 
-// 获取客户列表
-export async function GET(request: Request) {
+// 获取客户列表（需要管理员或经理权限）
+export async function GET(request: NextRequest) {
+  // 验证权限
+  const authResult = await verifyManagerAuth(request);
+  if (authResult instanceof NextResponse) {
+    return authResult;
+  }
+  
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -32,8 +39,14 @@ export async function GET(request: Request) {
   }
 }
 
-// 创建客户
-export async function POST(request: Request) {
+// 创建客户（需要管理员或经理权限）
+export async function POST(request: NextRequest) {
+  // 验证权限
+  const authResult = await verifyManagerAuth(request);
+  if (authResult instanceof NextResponse) {
+    return authResult;
+  }
+  
   try {
     const body = await request.json()
     const { code, name, contact_person, phone, email, address, status } = body
