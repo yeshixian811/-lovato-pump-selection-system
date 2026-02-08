@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Storage } from 'coze-coding-dev-sdk';
 
-// 初始化对象存储客户端
+// 安全警告：accessKey 和 secretKey 需要从环境变量中配置
+// 当前为空字符串，文件上传功能可能无法正常工作
 const storage = new S3Storage({
   endpointUrl: process.env.COZE_BUCKET_ENDPOINT_URL,
-  accessKey: "",
-  secretKey: "",
+  accessKey: process.env.COZE_BUCKET_ACCESS_KEY || "",
+  secretKey: process.env.COZE_BUCKET_SECRET_KEY || "",
   bucketName: process.env.COZE_BUCKET_NAME,
   region: "cn-beijing",
 });

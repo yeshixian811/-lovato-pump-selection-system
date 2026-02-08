@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { pumpManager } from "@/storage/database";
 import { getDb } from "coze-coding-dev-sdk";
+import { pumpPerformancePoints } from "@/storage/database/shared/schema";
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,20 +55,23 @@ export async function POST(request: NextRequest) {
         const maxHead = pumpData.max_head ? parseFloat(pumpData.max_head) : ratedHead * 1.3;
         const efficiency = pumpData.efficiency ? parseFloat(pumpData.efficiency) : null;
 
+        // 使用安全的删除方法
+        await pumpManager.deletePerformancePoints(pumpData.id);
+
         // 步长0.1 m³/h
         const step = 0.1;
         const numPoints = Math.floor(maxFlow / step);
 
-        // 先删除该水泵的旧性能曲线数据（如果表存在）
-        try {
-          await db.execute(`DELETE FROM pump_performance_points WHERE pump_id = '${pumpData.id}'`);
-        } catch (deleteError) {
-          // 表可能不存在，忽略DELETE错误
-          console.log(`跳过DELETE操作: ${pumpData.id}`);
-        }
-
         // 生成新的性能曲线数据点
         let pointCount = 0;
+        const points: Array<{
+          pumpId: string;
+          flowRate: string;
+          head: string;
+          power?: string;
+          efficiency?: string;
+        }> = [];
+
         for (let i = 0; i <= numPoints; i++) {
           const flow = parseFloat((i * step).toFixed(2));
 
@@ -88,16 +93,26 @@ export async function POST(request: NextRequest) {
           }
 
           if (head > 0) {
-            try {
-              await db.execute(
-                `INSERT INTO pump_performance_points (pump_id, flow_rate, head, power, efficiency)
-                 VALUES ('${pumpData.id}', ${parseFloat(flow.toFixed(2))}, ${parseFloat(head.toFixed(2))}, ${parseFloat(power.toFixed(2))}, ${eff ? parseFloat(eff.toFixed(2)) : 'NULL'})`
-              );
-              pointCount++;
-            } catch (insertError) {
-              console.error(`插入数据点失败: flow=${flow}, pump=${pumpData.id}`, insertError);
-            }
+            points.push({
+              pumpId: pumpData.id,
+              flowRate: flow.toFixed(2),
+              head: parseFloat(head.toFixed(2)).toFixed(2),
+              power: parseFloat(power.toFixed(2)).toFixed(2),
+              efficiency: eff ? parseFloat(eff.toFixed(2)).toFixed(2) : undefined,
+            });
+            pointCount++;
           }
+        }
+
+        // 使用安全的批量插入
+        for (const point of points) {
+          await db.insert(pumpPerformancePoints).values({
+            pumpId: point.pumpId,
+            flowRate: point.flowRate,
+            head: point.head,
+            power: point.power,
+            efficiency: point.efficiency,
+          });
         }
 
         success++;
