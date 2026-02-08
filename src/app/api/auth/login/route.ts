@@ -2,38 +2,64 @@ import { NextRequest, NextResponse } from 'next/server';
 import { userManager } from '@/storage/database/userManager';
 import bcrypt from 'bcryptjs';
 import { createToken } from '@/lib/auth';
+import { rateLimit, createRateLimitResponse, RateLimitPresets } from '@/lib/ratelimit';
 
 export async function POST(request: NextRequest) {
+  // 应用速率限制（严格限制）
+  const rateLimitResult = await rateLimit(request, RateLimitPresets.login);
+
+  // 添加速率限制头
+  const baseHeaders = new Headers();
+  baseHeaders.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+  baseHeaders.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+
+  // 检查是否被限制
+  if (rateLimitResult.blocked) {
+    return createRateLimitResponse(rateLimitResult, RateLimitPresets.login.errorMessage);
+  }
+
   try {
     const body = await request.json();
     const { email, password } = body;
 
     // 验证必填字段
     if (!email || !password) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: '邮箱和密码为必填项' },
         { status: 400 }
       );
+      // 添加速率限制头
+      response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+      response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+      return response;
     }
 
     // 查找用户
     const user = await userManager.getUserByEmail(email);
     
     if (!user) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: '邮箱或密码错误' },
         { status: 401 }
       );
+      // 添加速率限制头
+      response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+      response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+      return response;
     }
 
     // 验证密码
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     
     if (!isPasswordValid) {
-      return NextResponse.json(
+      const response = NextResponse.json(
         { error: '邮箱或密码错误' },
         { status: 401 }
       );
+      // 添加速率限制头
+      response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+      response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+      return response;
     }
 
     // 创建JWT token
@@ -64,13 +90,21 @@ export async function POST(request: NextRequest) {
       `auth_token=${token}; Path=/; HttpOnly=false; Secure=false; SameSite=lax; Max-Age=${60 * 60 * 24 * 7}`
     );
 
+    // 添加速率限制头
+    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+    response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+
     console.log('登录成功 - Cookie已设置');
     return response;
   } catch (error) {
     console.error('登录错误:', error);
-    return NextResponse.json(
+    const response = NextResponse.json(
       { error: '登录失败，请稍后重试' },
       { status: 500 }
     );
+    // 添加速率限制头
+    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+    response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.reset).toISOString());
+    return response;
   }
 }
