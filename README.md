@@ -453,6 +453,47 @@ src/app/(marketing)/about/page.tsx
 - [部署指南](docs/DEPLOYMENT.md) - 部署详细指南
 - [用户指南](docs/USER-GUIDE.md) - 用户使用手册
 
+### 🚀 部署文档
+
+#### 快速部署（推荐新手）
+
+- [⚡ 超级简单部署](SUPER-SIMPLE-DEPLOY.md) - 3步完成部署，最简单！
+- [⚡ 快速部署指南](LOCAL-DEPLOYMENT-QUICK-START.md) - 10步快速部署
+- [🔧 一键部署脚本](ONE-CLICK-DEPLOYMENT.md) - 自动化脚本使用指南
+
+#### 完整部署流程
+
+- [📘 完整部署流程](LOCAL-DEPLOYMENT-FLOW.md) - 详细的部署步骤和说明
+- [📕 服务器部署指南](WINDOWS-SERVER-DEPLOYMENT-GUIDE.md) - 生产环境部署最佳实践
+
+#### 一键部署脚本说明
+
+- [🔧 脚本使用说明](DEPLOY-SCRIPT-USAGE.md) - 详细的脚本使用方法和示例
+- [🚀 一键部署](ONE-CLICK-QUICK-DEPLOY.md) - 一键部署快速指南
+
+#### 部署文档索引
+
+- [📚 部署文档索引](DEPLOYMENT-INDEX.md) - 所有部署文档的导航和索引
+
+### 📝 系统文档
+
+- [📙 快速开始](QUICK-START-GUIDE.md) - 系统功能快速上手
+- [📖 系统诊断页面](DIAGNOSTIC-PAGE-GUIDE.md) - 如何使用诊断功能
+- [🔬 选型算法说明](SELECTION-ALGORITHM-OPTIMIZATION.md) - 选型算法原理和优化
+- [🧪 选型算法测试](SELECTION-ALGORITHM-TESTING.md) - 如何测试选型算法
+
+### 📕 问题诊断
+
+- [📕 故障排查](TROUBLESHOOTING.md) - 常见问题和解决方案
+- [📗 项目交付报告](PROJECT-DELIVERY-REPORT.md) - 完整的项目交付说明
+- [📗 系统优化报告](SYSTEM-IMPROVEMENT-REPORT.md) - 系统优化和改进记录
+
+### 📗 项目文档
+
+- [📗 完整安全审计](COMPLETE-SECURITY-AUDIT-REPORT.md) - 安全审计报告
+- [📗 项目状态说明](PROJECT-STATUS.md) - 当前项目状态
+- [📗 沙箱环境限制](SANDBOX-LIMITATIONS.md) - Coze沙箱环境限制
+
 ### 快速链接
 
 - [环境变量配置](QUICK-START-GUIDE.md#1-环境变量配置)
