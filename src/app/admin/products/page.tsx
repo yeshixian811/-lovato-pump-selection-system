@@ -101,12 +101,17 @@ export default function ProductsPage() {
     try {
       setLoading(true)
       const response = await fetch('/api/pumps?limit=100')
-      if (response.ok) {
-        const data = await response.json()
-        setPumps(data.pumps || [])
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || '获取产品列表失败')
       }
+
+      const data = await response.json()
+      setPumps(data.pumps || [])
     } catch (error) {
       console.error('获取产品列表失败:', error)
+      alert(error instanceof Error ? error.message : '获取产品列表失败，请稍后重试')
     } finally {
       setLoading(false)
     }

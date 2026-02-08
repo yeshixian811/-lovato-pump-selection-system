@@ -503,6 +503,11 @@ src/app/(marketing)/about/page.tsx
 - [维护命令](QUICK-START-GUIDE.md#-维护命令)
 - [问题诊断](TROUBLESHOOTING.md) - 项目显示异常的解决方案
 
+### 后台管理
+
+- [后台管理指南](ADMIN-SYSTEM-GUIDE.md) - 后台管理系统使用指南
+- [后台功能检查](/admin-check) - 检查后台功能是否正常
+
 ---
 
 ## 🔧 维护和更新

@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { 
+import {
   Package,
   Users,
   FileText,
@@ -11,6 +11,10 @@ import {
   Palette,
   Layers,
   ArrowRight,
+  ShoppingCart,
+  Database,
+  Settings,
+  LayoutDashboard,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -23,137 +27,206 @@ export default function AdminDashboardPage() {
         <p className="text-white/80">今天也是充满活力的一天！</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">产品总数</CardTitle>
-            <Package className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">156</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+12</span> 本月新增
-            </p>
-          </CardContent>
-        </Card>
+      {/* 管理功能导航 */}
+      <div>
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">管理功能</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* 用户管理 */}
+          <Link href="/admin/dashboard" className="group">
+            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <CardTitle className="text-lg">用户管理</CardTitle>
+                </div>
+                <CardDescription>
+                  查看和管理用户信息、权限和订阅
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full gap-2" variant="outline">
+                  进入管理
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">用户总数</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2,456</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+86</span> 本月新增
-            </p>
-          </CardContent>
-        </Card>
+          {/* 产品管理（选型系统） */}
+          <Link href="/admin/products" className="group">
+            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <CardTitle className="text-lg">产品管理</CardTitle>
+                </div>
+                <CardDescription>
+                  管理产品库、性能曲线和选型参数
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full gap-2" variant="outline">
+                  进入管理
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">选型次数</CardTitle>
-            <FileText className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+28</span> 较上周
-            </p>
-          </CardContent>
-        </Card>
+          {/* 进销存管理 */}
+          <Link href="/admin/inventory" className="group">
+            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <CardTitle className="text-lg">进销存管理</CardTitle>
+                </div>
+                <CardDescription>
+                  库存、采购、销售、供应商和客户管理
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full gap-2" variant="outline">
+                  进入管理
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">访问量</CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8,542</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+156</span> 较上周
-            </p>
-          </CardContent>
-        </Card>
+          {/* 内容管理 */}
+          <Link href="/admin/content" className="group">
+            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                    <LayoutDashboard className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <CardTitle className="text-lg">内容管理</CardTitle>
+                </div>
+                <CardDescription>
+                  图片、页面、文本内容管理
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full gap-2" variant="outline">
+                  进入管理
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* 版本管理 */}
+          <Link href="/versions" className="group">
+            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-cyan-100 dark:bg-cyan-900 rounded-lg">
+                    <Layers className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <CardTitle className="text-lg">版本管理</CardTitle>
+                </div>
+                <CardDescription>
+                  代码备份、版本回滚和在线编辑
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full gap-2" variant="outline">
+                  进入管理
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* 系统设置 */}
+          <Link href="/admin/settings" className="group">
+            <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg">
+                    <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <CardTitle className="text-lg">系统设置</CardTitle>
+                </div>
+                <CardDescription>
+                  配置系统参数和基本设置
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full gap-2" variant="outline">
+                  进入设置
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="group hover:shadow-lg transition-all cursor-pointer">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <Palette className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <CardTitle className="text-lg">模板中心</CardTitle>
-            </div>
-            <CardDescription>
-              浏览精美模板，快速搭建页面
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              从 10+ 预设模板中选择，包括企业官网、产品展示、营销活动等多种类型
-            </p>
-            <Link href="/admin/templates">
-              <Button className="w-full gap-2">
-                选择模板
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+      {/* Quick Stats */}
+      <div>
+        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">数据概览</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">产品总数</CardTitle>
+              <Package className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">156</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+12</span> 本月新增
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="group hover:shadow-lg transition-all cursor-pointer">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                <Layers className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <CardTitle className="text-lg">页面编辑器</CardTitle>
-            </div>
-            <CardDescription>
-              积木式拖拽，自由设计页面
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              使用积木组件自由组合，快速创建专业页面
-            </p>
-            <Link href="/admin/builder">
-              <Button className="w-full gap-2" variant="outline">
-                开始编辑
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">用户总数</CardTitle>
+              <Users className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">2,456</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+86</span> 本月新增
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="group hover:shadow-lg transition-all cursor-pointer">
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-              <CardTitle className="text-lg">产品管理</CardTitle>
-            </div>
-            <CardDescription>
-              管理产品信息与库存
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              添加、编辑、删除产品，管理产品分类和规格
-            </p>
-            <Link href="/admin/products">
-              <Button className="w-full gap-2" variant="outline">
-                管理产品
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">选型次数</CardTitle>
+              <FileText className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">1,234</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+28</span> 较上周
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">访问量</CardTitle>
+              <TrendingUp className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">8,542</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-green-600">+156</span> 较上周
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Recent Activity */}
@@ -191,6 +264,25 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* 系统诊断 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>系统诊断</CardTitle>
+          <CardDescription>
+            检查系统状态和配置
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/diagnostic">
+            <Button className="w-full gap-2">
+              <Database className="h-4 w-4" />
+              运行系统诊断
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

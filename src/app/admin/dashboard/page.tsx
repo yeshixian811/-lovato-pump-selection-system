@@ -53,10 +53,33 @@ export default function AdminDashboard() {
   const fetchUsers = async () => {
     try {
       setLoading(true)
-      const data = await get<{ users: User[] }>('/api/admin/users')
-      setUsers(data.users)
+      const response = await fetch('/api/admin/users', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.status === 401) {
+        alert('请先登录')
+        window.location.href = '/auth'
+        return
+      }
+
+      if (response.status === 403) {
+        alert('需要管理员权限')
+        return
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || '获取用户列表失败')
+      }
+
+      const data = await response.json()
+      setUsers(data.users || [])
     } catch (error) {
       console.error('获取用户列表失败:', error)
+      alert(error instanceof Error ? error.message : '获取用户列表失败，请稍后重试')
     } finally {
       setLoading(false)
     }
@@ -64,8 +87,30 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const data = await get<{ stats: SubscriptionStats }>('/api/admin/stats')
-      setStats(data.stats)
+      const response = await fetch('/api/admin/stats', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.status === 401) {
+        alert('请先登录')
+        window.location.href = '/auth'
+        return
+      }
+
+      if (response.status === 403) {
+        alert('需要管理员权限')
+        return
+      }
+
+      if (!response.ok) {
+        console.warn('获取统计数据失败')
+        return
+      }
+
+      const data = await response.json()
+      setStats(data.stats || null)
     } catch (error) {
       console.error('获取统计数据失败:', error)
     }
