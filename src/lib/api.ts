@@ -11,23 +11,26 @@ interface RequestOptions extends RequestInit {
  * 从多个来源获取 Token
  */
 export function getToken(): string | null {
-  // 1. 优先从 sessionStorage 获取（管理员登录使用）
-  const sessionToken = sessionStorage.getItem('admin_token');
-  if (sessionToken) {
-    return sessionToken;
-  }
+  // 客户端环境
+  if (typeof window !== 'undefined') {
+    // 1. 优先从 sessionStorage 获取（管理员登录使用）
+    const sessionToken = sessionStorage.getItem('admin_token');
+    if (sessionToken) {
+      return sessionToken;
+    }
 
-  // 2. 从 localStorage 获取（普通用户登录使用）
-  const localToken = localStorage.getItem('auth_token');
-  if (localToken) {
-    return localToken;
-  }
+    // 2. 从 localStorage 获取（普通用户登录使用）
+    const localToken = localStorage.getItem('auth_token');
+    if (localToken) {
+      return localToken;
+    }
 
-  // 3. 从 cookie 获取（服务端使用）
-  const cookies = document.cookie;
-  const match = cookies.match(/auth_token=([^;]+)/);
-  if (match) {
-    return match[1];
+    // 3. 从 cookie 获取
+    const cookies = document.cookie;
+    const match = cookies.match(/auth_token=([^;]+)/);
+    if (match) {
+      return match[1];
+    }
   }
 
   return null;
@@ -48,9 +51,12 @@ export function setToken(token: string, storage: 'session' | 'local' = 'local'):
  * 清除 Token
  */
 export function clearToken(): void {
-  sessionStorage.removeItem('admin_token');
-  localStorage.removeItem('auth_token');
-  document.cookie = 'auth_token=; Path=/; Max-Age=0';
+  // 客户端环境
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem('admin_token');
+    localStorage.removeItem('auth_token');
+    document.cookie = 'auth_token=; Path=/; Max-Age=0';
+  }
 }
 
 /**
