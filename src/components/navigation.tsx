@@ -66,6 +66,8 @@ export default function Navigation() {
     { href: '/selection', label: '智能选型', icon: Layout },
   ]
 
+  const diagnosticItem = { href: '/diagnostic', label: '系统诊断', icon: FileCode }
+
   const isAdminPage = pathname.startsWith('/admin')
 
   // 在微信小程序中隐藏导航栏
@@ -162,6 +164,13 @@ export default function Navigation() {
                         </DropdownMenuItem>
                       </>
                     )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/diagnostic">
+                        <Layout className="mr-2 h-4 w-4" />
+                        系统诊断
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />

@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inspector } from 'react-dev-inspector';
 import Navigation from '@/components/navigation';
 import { WechatInitializer } from '@/components/wechat/initializer';
 import './globals.css';
 
 export const metadata: Metadata = {
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes',
   title: {
     default: '洛瓦托水泵选型系统',
     template: '%s | 洛瓦托水泵选型',
@@ -34,6 +33,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
@@ -57,6 +57,13 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: 'yes',
 };
 
 export default function RootLayout({

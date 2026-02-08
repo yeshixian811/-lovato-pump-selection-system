@@ -414,6 +414,7 @@ src/app/(marketing)/about/page.tsx
 - [安全检查](QUICK-START-GUIDE.md#-安全检查)
 - [常见问题](QUICK-START-GUIDE.md#-常见问题)
 - [维护命令](QUICK-START-GUIDE.md#-维护命令)
+- [问题诊断](TROUBLESHOOTING.md) - 项目显示异常的解决方案
 
 ---
 
