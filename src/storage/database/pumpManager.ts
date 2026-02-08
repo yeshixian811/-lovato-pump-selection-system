@@ -448,37 +448,81 @@ export class PumpManager {
     const headMargin = ((operatingHead - requiredHead) / requiredHead) * 100;
     const powerMargin = operatingPower ? ((operatingPower - ratedPower) / ratedPower) * 100 : null;
 
-    // 2. 流量余量评分（权重：20%）
+    // 2. 满足度评分（权重：30%）
+    // 评估产品是否满足需求，以及满足的程度
+    // 流量和扬程都满足需求（>=），且余量适中为最佳
+    let satisfactionScore: number;
+
+    // 流量满足度（0-50分）
+    let flowSatisfaction: number;
+    if (flowMargin < 0) {
+      flowSatisfaction = 0; // 不满足需求
+    } else if (flowMargin < 2) {
+      flowSatisfaction = 30 + (flowMargin / 2) * 10; // 30-40分，刚好满足
+    } else if (flowMargin <= 10) {
+      flowSatisfaction = 40 + ((flowMargin - 2) / 8) * 10; // 40-50分，满足度好
+    } else if (flowMargin <= 25) {
+      flowSatisfaction = 50; // 50分，最佳满足度
+    } else if (flowMargin <= 50) {
+      flowSatisfaction = 50 - ((flowMargin - 25) / 25) * 10; // 40-50分，满足度良好
+    } else if (flowMargin <= 100) {
+      flowSatisfaction = 40 - ((flowMargin - 50) / 50) * 20; // 20-40分，满足度一般
+    } else {
+      flowSatisfaction = 20; // 20分，满足度较低（余量过大）
+    }
+
+    // 扬程满足度（0-50分）
+    let headSatisfaction: number;
+    if (headMargin < 0) {
+      headSatisfaction = 0; // 不满足需求
+    } else if (headMargin < 2) {
+      headSatisfaction = 30 + (headMargin / 2) * 10; // 30-40分，刚好满足
+    } else if (headMargin <= 10) {
+      headSatisfaction = 40 + ((headMargin - 2) / 8) * 10; // 40-50分，满足度好
+    } else if (headMargin <= 25) {
+      headSatisfaction = 50; // 50分，最佳满足度
+    } else if (headMargin <= 50) {
+      headSatisfaction = 50 - ((headMargin - 25) / 25) * 10; // 40-50分，满足度良好
+    } else if (headMargin <= 100) {
+      headSatisfaction = 40 - ((headMargin - 50) / 50) * 20; // 20-40分，满足度一般
+    } else {
+      headSatisfaction = 20; // 20分，满足度较低（余量过大）
+    }
+
+    // 满足度综合评分（取平均值）
+    satisfactionScore = (flowSatisfaction + headSatisfaction) / 2;
+
+    // 3. 流量余量评分（权重：15%）
     // 最佳余量范围：5%-20%
     let flowMarginScore: number;
     if (flowMargin < 5) {
-      flowMarginScore = 60 + (flowMargin / 5) * 20; // 60-80分
+      flowMarginScore = 40 + (flowMargin / 5) * 20; // 40-60分，余量偏小
     } else if (flowMargin <= 20) {
-      flowMarginScore = 80 + ((20 - flowMargin) / 15) * 15; // 65-80分
+      flowMarginScore = 85 + ((20 - flowMargin) / 15) * 10; // 75-85分，最佳余量
     } else if (flowMargin <= 50) {
-      flowMarginScore = 65 - ((flowMargin - 20) / 30) * 35; // 30-65分
+      flowMarginScore = 75 - ((flowMargin - 20) / 30) * 35; // 40-75分，余量偏大
     } else if (flowMargin <= 100) {
-      flowMarginScore = 30 - ((flowMargin - 50) / 50) * 20; // 10-30分
+      flowMarginScore = 40 - ((flowMargin - 50) / 50) * 20; // 20-40分，余量过大
     } else {
-      flowMarginScore = 5; // 超大余量，最低分
+      flowMarginScore = 20; // 超大余量，最低分
     }
 
-    // 3. 扬程余量评分（权重：20%）
+    // 4. 扬程余量评分（权重：10%）
     // 最佳余量范围：5%-15%
     let headMarginScore: number;
     if (headMargin < 5) {
-      headMarginScore = 60 + (headMargin / 5) * 20; // 60-80分
+      headMarginScore = 40 + (headMargin / 5) * 20; // 40-60分，余量偏小
     } else if (headMargin <= 15) {
-      headMarginScore = 80 + ((15 - headMargin) / 10) * 15; // 65-80分
+      headMarginScore = 85 + ((15 - headMargin) / 10) * 10; // 75-85分，最佳余量
     } else if (headMargin <= 40) {
-      headMarginScore = 65 - ((headMargin - 15) / 25) * 35; // 30-65分
+      headMarginScore = 75 - ((headMargin - 15) / 25) * 35; // 40-75分，余量偏大
     } else if (headMargin <= 100) {
-      headMarginScore = 30 - ((headMargin - 40) / 60) * 20; // 10-30分
+      headMarginScore = 40 - ((headMargin - 40) / 60) * 20; // 20-40分，余量过大
     } else {
-      headMarginScore = 5; // 超大余量，最低分
+      headMarginScore = 20; // 超大余量，最低分
     }
 
-    // 4. 效率评分（权重：30%）
+    // 5. 效率评分（权重：25%）
     // 最佳效率：>75%，良好：60-75%，一般：<60%
     let efficiencyScore: number;
     if (operatingEfficiency) {
@@ -493,7 +537,7 @@ export class PumpManager {
       efficiencyScore = 50; // 无效率数据，默认50分
     }
 
-    // 5. BEP（最佳效率点）匹配度评分（权重：20%）
+    // 6. BEP（最佳效率点）匹配度评分（权重：20%）
     // BEP通常在最大流量附近，最佳匹配范围：80%-120%最大流量
     const flowRatio = operatingFlow / maxFlow;
     let bepMatchScore: number;
@@ -515,30 +559,14 @@ export class PumpManager {
       bepMatchScore = 20 + (1 - Math.min((distanceFromOptimal - 0.7) / 0.3, 1)) * 20;
     }
 
-    // 6. 功率余量评分（权重：10%）
-    // 最佳余量范围：10%-30%
-    let powerMarginScore: number;
-    if (powerMargin !== null) {
-      if (powerMargin < 10) {
-        powerMarginScore = 60 + (powerMargin / 10) * 20; // 60-80分
-      } else if (powerMargin <= 30) {
-        powerMarginScore = 80 + ((30 - powerMargin) / 20) * 15; // 80-95分
-      } else if (powerMargin <= 60) {
-        powerMarginScore = 95 - ((powerMargin - 30) / 30) * 35; // 60-95分
-      } else {
-        powerMarginScore = Math.max(0, 60 - (powerMargin - 60) / 10); // <60分
-      }
-    } else {
-      powerMarginScore = 50; // 无功率数据，默认50分
-    }
-
     // 7. 综合评分（加权平均）
-    const comprehensiveScore = 
-      flowMarginScore * 0.2 +
-      headMarginScore * 0.2 +
-      efficiencyScore * 0.3 +
+    // 满足度评分（30%）+ 效率评分（25%）+ BEP匹配度（20%）+ 流量余量（15%）+ 扬程余量（10%）
+    const comprehensiveScore =
+      satisfactionScore * 0.3 +
+      efficiencyScore * 0.25 +
       bepMatchScore * 0.2 +
-      powerMarginScore * 0.1;
+      flowMarginScore * 0.15 +
+      headMarginScore * 0.1;
 
     // 8. 推荐等级
     let recommendationLevel: string;

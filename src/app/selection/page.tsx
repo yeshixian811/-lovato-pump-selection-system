@@ -647,6 +647,16 @@ export default function PumpSelectionPage() {
                     <strong className="text-gray-900 dark:text-white">💡 匹配度说明：</strong>
                     <p className="mt-2 text-xs">系统根据您的参数，综合考虑流量、扬程、功率等因素计算匹配度（0-100%），分数越高表示越适合您的需求。</p>
                   </div>
+
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                    <strong className="text-gray-900 dark:text-white">✅ 选型原则：</strong>
+                    <ul className="mt-2 text-xs space-y-1 list-disc list-inside">
+                      <li>只显示<strong>大于等于需求值</strong>的产品型号</li>
+                      <li>优先推荐余量适中（流量5%-20%，扬程5%-15%）的产品</li>
+                      <li>综合考虑效率、BEP匹配度和性能曲线</li>
+                      <li>遵循"选大不选小"原则，确保满足使用需求</li>
+                    </ul>
+                  </div>
                 </div>
               </CardContent>
             </Card>
