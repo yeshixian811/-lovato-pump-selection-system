@@ -3,6 +3,8 @@ import { View, Text, Button, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { connect } from 'react-redux'
 import { RootState } from '@/store'
+import { withRedux } from '@/store/withRedux'
+
 import { User } from '@/types'
 import './index.scss'
 
@@ -101,4 +103,5 @@ class Login extends Component<Props> {
   }
 }
 
-export default Login
+export default withRedux(Login)
+

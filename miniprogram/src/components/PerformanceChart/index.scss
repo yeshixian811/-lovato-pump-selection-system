@@ -1,0 +1,114 @@
+.performance-chart {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.chart-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.chart-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.chart-container {
+  width: 100%;
+  height: 500px;
+  margin-bottom: 24px;
+  background: #fafafa;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 24px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legend-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+
+  &--curve {
+    background: #2563eb;
+  }
+
+  &--required-flow {
+    background: #ef4444;
+  }
+
+  &--required-head {
+    background: #f59e0b;
+  }
+
+  &--curve-point {
+    background: #10b981;
+    border: 4px solid #ffffff;
+  }
+
+  &--required-point {
+    background: #ef4444;
+    border: 4px solid #ffffff;
+  }
+}
+
+.legend-text {
+  font-size: 24px;
+  color: #6b7280;
+}
+
+.chart-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 24px;
+  color: #6b7280;
+}
+
+.info-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1f2937;
+
+  &--highlight {
+    color: #2563eb;
+  }
+
+  &--good {
+    color: #10b981;
+  }
+
+  &--bad {
+    color: #ef4444;
+  }
+}

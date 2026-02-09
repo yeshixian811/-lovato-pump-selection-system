@@ -99,6 +99,15 @@ export interface SelectionResult {
   fluid_match: boolean;
 }
 
+// 选型历史记录
+export interface SelectionHistory {
+  id: string;
+  params: SelectionParams;
+  results: SelectionResult[];
+  timestamp: number;
+}
+
+
 // API 响应类型
 export interface ApiResponse<T = any> {
   success: boolean;

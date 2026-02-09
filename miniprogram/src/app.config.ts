@@ -5,7 +5,8 @@ export default {
     'pages/products/index',
     'pages/login/index',
     'pages/profile/index',
-    'pages/result/index'
+    'pages/result/index',
+    'pages/history/index'
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { SelectionParams, SelectionResult, ApiResponse } from '@/types'
+import { SelectionParams, SelectionResult, SelectionHistory, ApiResponse } from '@/types'
 import { matchPump as matchPumpApi } from '@/services/pump'
 
 interface SelectionState {
@@ -8,6 +8,7 @@ interface SelectionState {
   error: string | null;
   params: SelectionParams | null;
   selectedPump: SelectionResult | null;
+  history: SelectionHistory[];
 }
 
 const initialState: SelectionState = {
@@ -15,7 +16,8 @@ const initialState: SelectionState = {
   loading: false,
   error: null,
   params: null,
-  selectedPump: null
+  selectedPump: null,
+  history: []
 }
 
 // 异步 action - 水泵选型
@@ -49,7 +51,13 @@ const selectionSlice = createSlice({
     },
     setSelectedPump: (state, action: PayloadAction<SelectionResult>) => {
       state.selectedPump = action.payload
-    }
+    },
+    clearHistory: (state) => {
+      state.history = []
+    },
+    removeHistoryItem: (state, action: PayloadAction<string>) => {
+      state.history = state.history.filter((item) => item.id !== action.payload)
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -61,6 +69,21 @@ const selectionSlice = createSlice({
         state.loading = false
         state.results = action.payload.results
         state.params = action.payload.params
+
+        // 保存到历史记录
+        if (action.payload.results && action.payload.results.length > 0) {
+          const historyItem: SelectionHistory = {
+            id: `${Date.now()}`,
+            params: action.payload.params,
+            results: action.payload.results,
+            timestamp: Date.now(),
+          }
+          state.history.unshift(historyItem)
+          // 限制最多保存 50 条历史记录
+          if (state.history.length > 50) {
+            state.history = state.history.slice(0, 50)
+          }
+        }
       })
       .addCase(matchPump.rejected, (state, action) => {
         state.loading = false
@@ -69,6 +92,6 @@ const selectionSlice = createSlice({
   }
 })
 
-export const { clearError, clearResults, setSelectedPump } = selectionSlice.actions
+export const { clearError, clearResults, setSelectedPump, clearHistory, removeHistoryItem } = selectionSlice.actions
 
 export default selectionSlice.reducer

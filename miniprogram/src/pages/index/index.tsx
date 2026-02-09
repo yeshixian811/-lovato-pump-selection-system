@@ -3,6 +3,8 @@ import { View, Text, Image, Button, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { connect } from 'react-redux'
 import { RootState } from '@/store'
+import { withRedux } from '@/store/withRedux'
+
 import { User } from '@/types'
 import './index.scss'
 
@@ -188,4 +190,5 @@ class Index extends Component<Props, State> {
   }
 }
 
-export default Index
+export default withRedux(Index)
+

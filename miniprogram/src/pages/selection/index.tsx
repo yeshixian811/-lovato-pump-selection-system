@@ -3,6 +3,8 @@ import { View, Text, Input, Button, ScrollView, Picker } from '@tarojs/component
 import Taro from '@tarojs/taro'
 import { connect } from 'react-redux'
 import { RootState, AppDispatch } from '@/store'
+import { withRedux } from '@/store/withRedux'
+
 import { matchPump, setSelectedPump } from '@/store/modules/selection'
 import { SelectionParams, SelectionResult } from '@/types'
 import './index.scss'
@@ -111,7 +113,7 @@ class Selection extends Component<Props, State> {
   handleViewDetail = (result: SelectionResult) => {
     this.props.setSelectedPump(result)
     Taro.navigateTo({
-      url: `/pages/result/index`,
+      url: `/pages/result/index?pumpId=${result.pump.id}`,
     })
   }
 
@@ -275,4 +277,5 @@ class Selection extends Component<Props, State> {
   }
 }
 
-export default Selection
+export default withRedux(Selection)
+
