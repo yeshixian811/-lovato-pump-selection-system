@@ -17,18 +17,22 @@ const nextConfig: NextConfig = {
   },
   // 安全相关的 HTTP 头
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development';
+
     return [
       {
         source: '/:path*',
         headers: [
           // HSTS (HTTP Strict Transport Security)
           // 强制使用 HTTPS 连接，有效期 2 年
-          {
+          // 开发环境可以禁用
+          ...(isDev ? [] : [{
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
-          },
+          }]),
           // 内容安全策略
           // 防止 XSS 攻击和数据注入攻击
+          // 开发环境允许在 Coze iframe 中显示
           {
             key: 'Content-Security-Policy',
             value: [
@@ -42,7 +46,8 @@ const nextConfig: NextConfig = {
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
-              "frame-ancestors 'self'",
+              // 开发环境允许所有 frame-ancestors，生产环境只允许同源
+              ...(isDev ? ["frame-ancestors *"] : ["frame-ancestors 'self'"]),
               "upgrade-insecure-requests",
             ].join('; '),
           },
@@ -54,9 +59,10 @@ const nextConfig: NextConfig = {
           },
           // X-Frame-Options
           // 防止点击劫持攻击
+          // 开发环境允许在 Coze iframe 中显示
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: isDev ? 'ALLOWALL' : 'DENY',
           },
           // X-XSS-Protection
           // 启用浏览器 XSS 过滤器
