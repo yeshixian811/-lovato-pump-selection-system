@@ -1,0 +1,61 @@
+{
+  "name": "lovato-pump-miniprogram",
+  "version": "1.0.0",
+  "description": "洛瓦托水泵选型小程序",
+  "templateInfo": {
+    "name": "default",
+    "typescript": true,
+    "css": "scss"
+  },
+  "scripts": {
+    "build:weapp": "taro build --type weapp",
+    "build:swan": "taro build --type swan",
+    "build:alipay": "taro build --type alipay",
+    "build:tt": "taro build --type tt",
+    "build:h5": "taro build --type h5",
+    "build:rn": "taro build --type rn",
+    "build:qq": "taro build --type qq",
+    "build:jd": "taro build --type jd",
+    "dev:weapp": "npm run build:weapp -- --watch",
+    "dev:swan": "npm run build:swan -- --watch",
+    "dev:alipay": "npm run build:alipay -- --watch",
+    "dev:tt": "npm run build:tt -- --watch",
+    "dev:h5": "npm run build:h5 -- --watch",
+    "dev:rn": "npm run build:rn -- --watch",
+    "dev:qq": "npm run build:qq -- --watch",
+    "dev:jd": "npm run build:jd -- --watch"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "author": "Lovato",
+  "license": "MIT",
+  "dependencies": {
+    "@tarojs/components": "^4.0.0",
+    "@tarojs/helper": "^4.0.0",
+    "@tarojs/plugin-framework-react": "^4.0.0",
+    "@tarojs/plugin-platform-weapp": "^4.0.0",
+    "@tarojs/react": "^4.0.0",
+    "@tarojs/runtime": "^4.0.0",
+    "@tarojs/shared": "^4.0.0",
+    "@tarojs/taro": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "echarts-for-weixin": "^1.0.0",
+    "dayjs": "^1.11.10"
+  },
+  "devDependencies": {
+    "@tarojs/cli": "^4.0.0",
+    "@tarojs/taro-loader": "^4.0.0",
+    "@tarojs/webpack5-runner": "^4.0.0",
+    "@types/webpack-env": "^1.18.0",
+    "@types/react": "^18.0.0",
+    "typescript": "^5.1.0",
+    "webpack": "^5.78.0",
+    "@babel/core": "^7.8.0",
+    "@types/react-dom": "^18.0.0",
+    "sass": "^1.56.0"
+  }
+}
