@@ -34,21 +34,19 @@
 
 Vercel 会提供以下 DNS 记录配置：
 
-#### 选项 A：根域名 (lowatopump.com)
-
-如果域名提供商支持 **ANAME** 或 **ALIAS** 记录：
+#### 选项 A：根域名 (lowatopump.com) - 推荐配置
 
 | 类型 | 主机记录 | 记录值 |
 |------|----------|--------|
-| ANAME / ALIAS | @ | `cname.vercel-dns.com` |
+| A | @ | `216.198.79.1` |
 
-#### 选项 B：使用 A 记录（如果 ANAME 不可用）
+#### 选项 B：使用 CNAME（部分域名提供商不支持根域名 A 记录）
 
 | 类型 | 主机记录 | 记录值 |
 |------|----------|--------|
-| A | @ | `76.76.21.21` |
+| CNAME | @ | `cname.vercel-dns.com` |
 
-#### 选项 C：www 子域名 (www.lowatopump.com)
+#### 选项 C：www 子域名 (www.lowatopump.com) - 必需配置
 
 | 类型 | 主机记录 | 记录值 |
 |------|----------|--------|
