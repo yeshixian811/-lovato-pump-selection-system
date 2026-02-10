@@ -1,4 +1,9 @@
-# 火山云部署检查清单
+# 部署检查清单
+
+本清单支持多种云服务提供商部署，请根据你的选择使用对应的检查清单。
+
+- [火山云部署](#火山云部署检查清单)
+- [腾讯云部署](#腾讯云部署检查清单)
 
 ## ✅ 语法检查
 
@@ -199,6 +204,214 @@
 - [ ] 在微信中访问正常
 - [ ] 添加到主屏幕功能正常
 - [ ] 所有功能在微信中可用
+
+## 腾讯云部署检查清单
+
+### 服务器准备
+- [ ] 腾讯云 CVM 服务器已购买（2核4GB）
+- [ ] 服务器已配置 SSH 密钥访问
+- [ ] 域名已解析到服务器公网 IP
+- [ ] 安全组已配置（22, 80, 443, 5000）
+
+### 数据库准备
+- [ ] 腾讯云 PostgreSQL 已创建
+- [ ] 数据库连接信息已获取
+  - [ ] 内网地址
+  - [ ] 端口
+  - [ ] 用户名
+  - [ ] 密码
+  - [ ] 数据库名
+
+### SSL 证书
+- [ ] 腾讯云 SSL 证书已申请（免费 TrustAsia 证书）
+- [ ] 证书已下载（Nginx 格式）
+- [ ] 证书已上传到服务器 /etc/nginx/ssl/your-domain.com/
+  - [ ] fullchain.pem
+  - [ ] privkey.pem
+
+### 环境配置
+- [ ] Node.js 24 已安装
+- [ ] pnpm 已安装
+- [ ] PM2 已安装
+- [ ] Nginx 已安装
+- [ ] Git 已安装
+
+### 配置文件
+- [ ] 修改 `.env.production` 中的腾讯云 PostgreSQL 连接字符串
+- [ ] 修改 `.env.production` 中的微信 AppID
+- [ ] 修改 `deploy-tencent.sh` 中的域名和邮箱
+- [ ] 配置腾讯云 COS（如果使用对象存储）
+
+### 腾讯云配置
+- [ ] 域名解析已配置
+  - [ ] A 记录：@ → 服务器公网 IP
+  - [ ] A 记录：www → 服务器公网 IP（可选）
+- [ ] 微信小程序业务域名已配置
+  - [ ] 域名已添加到微信业务域名
+  - [ ] 校验文件已上传并验证
+
+## 腾讯云部署步骤
+
+### 方式一：自动部署脚本（推荐）
+
+1. 上传项目到服务器
+   ```bash
+   scp -r /path/to/project root@your-server-ip:/var/www/luowato-selection
+   ```
+
+2. 登录服务器
+   ```bash
+   ssh root@your-server-ip
+   cd /var/www/luowato-selection
+   ```
+
+3. 修改部署脚本
+   ```bash
+   nano deploy-tencent.sh
+   # 修改 DOMAIN 和 EMAIL 变量
+   ```
+
+4. 运行部署脚本
+   ```bash
+   bash deploy-tencent.sh
+   ```
+
+5. 修改环境变量
+   ```bash
+   nano /var/www/luowato-selection/.env.production
+   # 更新 DATABASE_URL 等配置
+   ```
+
+6. 上传 SSL 证书
+   ```bash
+   mkdir -p /etc/nginx/ssl/your-domain.com
+   # 上传 fullchain.pem 和 privkey.pem
+   ```
+
+7. 重启服务
+   ```bash
+   systemctl restart nginx
+   pm2 restart luowato-selection
+   ```
+
+### 方式二：手动部署
+
+1. 安装依赖
+   ```bash
+   curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+   apt install -y nodejs
+   npm install -g pnpm pm2
+   ```
+
+2. 安装依赖并构建
+   ```bash
+   cd /var/www/luowato-selection
+   pnpm install
+   pnpm run build
+   ```
+
+3. 配置环境变量
+   ```bash
+   nano .env.production
+   ```
+
+4. 启动应用
+   ```bash
+   pm2 start ecosystem.config.js
+   pm2 save
+   ```
+
+5. 配置 Nginx
+   ```bash
+   nano /etc/nginx/sites-available/luowato-selection
+   ```
+
+6. 创建 SSL 证书目录
+   ```bash
+   mkdir -p /etc/nginx/ssl/your-domain.com
+   ```
+
+7. 上传 SSL 证书
+   ```bash
+   # 上传 fullchain.pem 和 privkey.pem
+   ```
+
+8. 启用配置
+   ```bash
+   ln -s /etc/nginx/sites-available/luowato-selection /etc/nginx/sites-enabled/
+   nginx -t
+   systemctl restart nginx
+   ```
+
+## 腾讯云部署后验证
+
+### 基础访问
+- [ ] HTTP 访问正常（http://your-domain.com）
+- [ ] HTTPS 访问正常（https://your-domain.com）
+- [ ] 自动跳转到 HTTPS
+- [ ] SSL 证书有效
+
+### 应用状态
+- [ ] PM2 进程运行正常（pm2 status）
+- [ ] 端口 5000 正常监听
+- [ ] 应用日志无错误
+
+### 页面测试
+- [ ] 首页正常跳转到智能选型
+- [ ] 智能选型页面正常
+- [ ] 产品库页面需要密码才能访问
+- [ ] 所有页面在手机上正常显示
+
+### 功能测试
+- [ ] 智能选型功能正常
+- [ ] 产品管理功能正常
+- [ ] 图片上传功能正常
+- [ ] PDF 导出功能正常
+- [ ] 性能曲线显示正常
+- [ ] 恒压参考线显示正常
+
+### 微信测试
+- [ ] 在微信中访问正常
+- [ ] 添加到主屏幕功能正常
+- [ ] 所有功能在微信中可用
+
+### 数据库连接
+- [ ] PostgreSQL 连接正常
+- [ ] 数据读写正常
+
+## 腾讯云成本估算
+
+### 月度成本
+- [x] 云服务器 CVM（2核4GB）：约 200 元/月
+- [x] PostgreSQL（4GB）：约 150 元/月
+- [x] 带宽（5Mbps）：约 150 元/月
+- [x] SSL 证书（免费）：0 元/月
+- [x] 域名：约 5 元/月
+- [x] CDN（按流量）：约 0.24 元/GB
+
+**总计**：约 500 元/月
+
+## 腾讯云监控和维护
+
+### 日常检查
+- [ ] PM2 进程状态：`pm2 status`
+- [ ] 应用日志：`pm2 logs luowato-selection`
+- [ ] Nginx 日志：`tail -f /var/log/nginx/luowato-selection-error.log`
+- [ ] 磁盘空间：`df -h`
+- [ ] 内存使用：`free -h`
+
+### 备份策略
+- [ ] 数据库定期备份（每天凌晨2点）
+- [ ] 应用代码备份（每天）
+- [ ] 配置文件备份
+- [ ] 日志归档
+
+### 监控告警
+- [ ] 腾讯云云监控已配置
+  - [ ] CPU 使用率告警（>80%）
+  - [ ] 内存使用率告警（>80%）
+  - [ ] 磁盘使用率告警（>80%）
+  - [ ] 应用进程告警
 
 ## 监控和维护
 
