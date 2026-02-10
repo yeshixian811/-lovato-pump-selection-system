@@ -50,10 +50,11 @@
 - 使用火山云其他服务
 
 ### 部署文档
-1. **⭐ 快速开始**：[火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md) ⭐
-2. **详细步骤**：[火山云详细步骤指南](DEPLOYMENT_VOLCANO_STEP_BY_STEP.md)
-3. **详细指南**：[火山云部署指南](DEPLOYMENT_GUIDE.md)
-4. **检查清单**：[部署检查清单](DEPLOYMENT_CHECKLIST.md)
+1. **⭐⭐⭐ 超详细教程**：[火山云一步一步教程](DEPLOYMENT_VOLCANO_TUTORIAL.md) ⭐⭐⭐ **最强推荐！**
+2. **快速开始**：[火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md)
+3. **详细步骤**：[火山云详细步骤指南](DEPLOYMENT_VOLCANO_STEP_BY_STEP.md)
+4. **详细指南**：[火山云部署指南](DEPLOYMENT_GUIDE.md)
+5. **检查清单**：[部署检查清单](DEPLOYMENT_CHECKLIST.md)
 
 ### 部署脚本
 - `deploy-volcano.sh` - 火山云自动部署脚本
