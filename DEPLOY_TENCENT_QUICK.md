@@ -4,7 +4,7 @@
 
 - 服务器 IP：122.51.22.101
 - SSH 用户名：ubuntu
-- SSH 密码：lhkp-gbdknawa
+- SSH 密码：yezi100243..
 - 域名：lowatopump.com
 
 ---
