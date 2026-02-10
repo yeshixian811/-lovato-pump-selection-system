@@ -33,3 +33,23 @@ export async function PUT(
     return NextResponse.json({ error: '更新产品失败' }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
+
+    const db = await getDb(schema)
+
+    await db.delete(productShowcase)
+      .where(eq(productShowcase.id, id))
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('删除产品失败:', error)
+    return NextResponse.json({ error: '删除产品失败' }, { status: 500 })
+  }
+}

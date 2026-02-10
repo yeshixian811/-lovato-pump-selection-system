@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Loader2, Edit, Plus, Upload, Download, ZoomIn, Menu, X } from 'lucide-react'
+import { Loader2, Edit, Plus, Upload, Download, ZoomIn, Menu, X, Trash2, Check, AlertCircle } from 'lucide-react'
 import { EditProductDialog } from '@/components/EditProductDialog'
 import { ImportProductDialog } from '@/components/ImportProductDialog'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import dynamic from 'next/dynamic'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Checkbox } from '@/components/ui/checkbox'
 import { usePathname } from 'next/navigation'
 
 const PumpCurveChart = dynamic(() => import('@/components/pump-curve-chart'), {
@@ -53,6 +54,10 @@ export default function ProductsPage() {
   const [curveProduct, setCurveProduct] = useState<Product | null>(null)
   const [curveDialogOpen, setCurveDialogOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set())
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleteProduct, setDeleteProduct] = useState<Product | null>(null)
+  const [isBatchDelete, setIsBatchDelete] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -89,6 +94,76 @@ export default function ProductsPage() {
 
   const handleSave = () => {
     fetchProducts()
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProducts(new Set(products.map(p => p.id)))
+    } else {
+      setSelectedProducts(new Set())
+    }
+  }
+
+  const handleSelectProduct = (productId: number, checked: boolean) => {
+    const newSelected = new Set(selectedProducts)
+    if (checked) {
+      newSelected.add(productId)
+    } else {
+      newSelected.delete(productId)
+    }
+    setSelectedProducts(newSelected)
+  }
+
+  const handleDelete = (product: Product) => {
+    setDeleteProduct(product)
+    setIsBatchDelete(false)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleBatchDelete = () => {
+    if (selectedProducts.size === 0) {
+      alert('请先选择要删除的产品')
+      return
+    }
+    setDeleteProduct(null)
+    setIsBatchDelete(true)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    try {
+      if (isBatchDelete) {
+        // 批量删除
+        const res = await fetch('/api/website/products/batch', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: Array.from(selectedProducts) }),
+        })
+        if (res.ok) {
+          setSelectedProducts(new Set())
+          fetchProducts()
+          alert('批量删除成功')
+        } else {
+          alert('批量删除失败')
+        }
+      } else if (deleteProduct) {
+        // 单个删除
+        const res = await fetch(`/api/website/products/${deleteProduct.id}`, {
+          method: 'DELETE',
+        })
+        if (res.ok) {
+          fetchProducts()
+          alert('删除成功')
+        } else {
+          alert('删除失败')
+        }
+      }
+      setDeleteDialogOpen(false)
+      setDeleteProduct(null)
+    } catch (error) {
+      console.error('删除失败:', error)
+      alert('删除失败')
+    }
   }
 
   const handleImport = async (importedProducts: any[]) => {
@@ -250,7 +325,7 @@ export default function ProductsPage() {
               <h1 className="text-lg font-bold text-gray-900 mb-0">产品库</h1>
               <p className="text-xs text-gray-600">水泵产品性能曲线参数列表</p>
             </div>
-            <div>
+            <div className="flex gap-2">
               <Button onClick={() => {
                 setEditProduct(null)
                 setEditDialogOpen(true)
@@ -262,6 +337,12 @@ export default function ProductsPage() {
                 <Upload className="mr-2 h-4 w-4" />
                 导入产品
               </Button>
+              {selectedProducts.size > 0 && (
+                <Button variant="destructive" onClick={handleBatchDelete}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  批量删除 ({selectedProducts.size})
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -284,6 +365,12 @@ export default function ProductsPage() {
                 <Table>
                   <TableHeader className="sticky top-0 bg-white z-10">
                   <TableRow>
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={selectedProducts.size === filteredProducts.length && filteredProducts.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead className="w-[80px]">图片</TableHead>
                     <TableHead className="w-[150px]">产品名称</TableHead>
                     <TableHead className="w-[100px]">分类</TableHead>
@@ -291,7 +378,7 @@ export default function ProductsPage() {
                     <TableHead className="w-[100px]">扬程 (m)</TableHead>
                     <TableHead className="w-[100px]">功率 (kW)</TableHead>
                     <TableHead className="w-[120px]">性能曲线</TableHead>
-                    <TableHead className="w-[80px]">操作</TableHead>
+                    <TableHead className="w-[120px]">操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -300,8 +387,14 @@ export default function ProductsPage() {
                       return (
                         <TableRow
                           key={product.id}
-                          className="hover:bg-gray-50"
+                          className={`hover:bg-gray-50 ${selectedProducts.has(product.id) ? 'bg-blue-50' : ''}`}
                         >
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedProducts.has(product.id)}
+                              onCheckedChange={(checked) => handleSelectProduct(product.id, checked as boolean)}
+                            />
+                          </TableCell>
                           <TableCell>
                             {product.image_url ? (
                               <img
@@ -379,6 +472,14 @@ export default function ProductsPage() {
                               >
                                 <Download className="h-4 w-4" />
                               </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(product)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -419,6 +520,33 @@ export default function ProductsPage() {
               />
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              {isBatchDelete ? '批量删除产品' : '删除产品'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-gray-700">
+              {isBatchDelete
+                ? `确定要删除选中的 ${selectedProducts.size} 个产品吗？此操作不可恢复。`
+                : `确定要删除产品「${deleteProduct?.name}」吗？此操作不可恢复。`
+              }
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              取消
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              确认删除
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
