@@ -11,9 +11,17 @@
   },
   "build": {
     "env": {
-      "NEXT_PUBLIC_APP_URL": "https://luowato-pump-selection.vercel.app"
+      "NEXT_PUBLIC_APP_URL": "https://lowatopump.com"
     }
   },
+  "domains": [
+    {
+      "domain": "lowatopump.com"
+    },
+    {
+      "domain": "www.lowatopump.com"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
