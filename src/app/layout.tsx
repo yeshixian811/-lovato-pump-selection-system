@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Inspector } from 'react-dev-inspector';
-import Navigation from '@/components/navigation';
 import { WechatInitializer } from '@/components/wechat/initializer';
 import './globals.css';
 
@@ -63,7 +62,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  userScalable: 'yes',
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -87,7 +86,6 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <WechatInitializer />
-        <Navigation />
         <main>
           {isDev && <Inspector />}
           {children}

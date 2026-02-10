@@ -141,7 +141,6 @@
   input,
   textarea,
   select {
-    @apply text-base;
     font-size: 16px; /* 防止iOS缩放 */
   }
 }

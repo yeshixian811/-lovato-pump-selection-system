@@ -1,825 +1,419 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Combobox } from "@/components/ui/combobox";
-import { PasswordProtect } from "@/components/password-protect";
-import { Plus, Upload, Download, Edit, Trash2, Search, Droplets, TrendingUp, CheckSquare, Square } from "lucide-react";
-import PumpCurveChart from "@/components/pump-curve-chart";
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Loader2, Edit, Plus, Upload, Download, ZoomIn, Menu, X } from 'lucide-react'
+import { EditProductDialog } from '@/components/EditProductDialog'
+import { ImportProductDialog } from '@/components/ImportProductDialog'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import dynamic from 'next/dynamic'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { usePathname } from 'next/navigation'
 
-interface Pump {
-  id: string;
-  name: string;
-  model: string;
-  brand: string;
-  pumpType: string | null;
-  material: string | null;
-  flowRate: string;
-  head: string;
-  maxFlow: string | null;
-  maxHead: string | null;
-  power: string;
-  efficiency: string | null;
-  speed: number | null;
-  inletDiameter: number | null;
-  outletDiameter: number | null;
-  applicationType: string | null;
-  description: string | null;
-  price: string | null;
-  createdAt: string;
+const PumpCurveChart = dynamic(() => import('@/components/pump-curve-chart'), {
+  ssr: false,
+  loading: () => <div className="h-16 flex items-center justify-center text-gray-400 text-xs">...</div>
+})
+
+interface Product {
+  id: number
+  name: string
+  category: string
+  description: string
+  specifications: string
+  image_url: string | null
+  featured: boolean
+  display_order: number
 }
 
-interface PerformanceData {
-  pump: Pump;
-  performancePoints: Array<{
-    flowRate: number;
-    head: number;
-    power: number;
-    efficiency: number | null;
-  }>;
+interface Specs {
+  流量?: string
+  扬程?: string
+  功率?: string
+  效率?: string
+  转速?: string
+  进口直径?: string
+  出口直径?: string
+  最高温度?: string
+  最高压力?: string
+  最大固体颗粒?: string
+  [key: string]: any
 }
 
 export default function ProductsPage() {
-  const [pumps, setPumps] = useState<Pump[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingPump, setEditingPump] = useState<Pump | null>(null);
-  const [isPerformanceOpen, setIsPerformanceOpen] = useState(false);
-  const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
-  const [performanceLoading, setPerformanceLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    model: "",
-    brand: "",
-    pumpType: "",
-    material: "",
-    flowRate: "",
-    head: "",
-    maxFlow: "",
-    maxHead: "",
-    power: "",
-    efficiency: "",
-    speed: "",
-    inletDiameter: "",
-    outletDiameter: "",
-    applicationType: "",
-    description: "",
-    price: "",
-    maxTemperature: "",
-    maxPressure: "",
-  });
+  const pathname = usePathname()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editProduct, setEditProduct] = useState<Product | null>(null)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const [curveProduct, setCurveProduct] = useState<Product | null>(null)
+  const [curveDialogOpen, setCurveDialogOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   useEffect(() => {
-    fetchPumps();
-  }, []);
+    fetchProducts()
+  }, [])
 
-  // 提取唯一的产品名称、型号、品牌列表
-  const uniqueNames = useMemo(() => {
-    return [...new Set(pumps.map((p) => p.name).filter(Boolean))].sort();
-  }, [pumps]);
-
-  const uniqueModels = useMemo(() => {
-    return [...new Set(pumps.map((p) => p.model).filter(Boolean))].sort();
-  }, [pumps]);
-
-  const uniqueBrands = useMemo(() => {
-    return [...new Set(pumps.map((p) => p.brand).filter(Boolean))].sort();
-  }, [pumps]);
-
-  const fetchPumps = async () => {
+  const fetchProducts = async () => {
     try {
-      setLoading(true);
-      const response = await fetch("/api/pumps");
-      const data = await response.json();
-      setPumps(data.pumps);
-    } catch (error) {
-      console.error("Error fetching pumps:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      const url = new URL("/api/pumps", window.location.origin);
-      if (searchTerm) {
-        url.searchParams.set("model", searchTerm);
-        url.searchParams.set("brand", searchTerm);
+      const response = await fetch('/api/website/products')
+      if (response.ok) {
+        const data = await response.json()
+        setProducts(data.products || [])
       }
-      const response = await fetch(url.toString());
-      const data = await response.json();
-      setPumps(data.pumps);
     } catch (error) {
-      console.error("Error searching pumps:", error);
+      console.error('获取产品失败:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const parseSpecifications = (specs: string): Specs => {
     try {
-      const payload = {
-        ...formData,
-        pumpType: formData.pumpType === "none" ? null : formData.pumpType,
-        material: formData.material === "none" ? null : formData.material,
-        flowRate: parseFloat(formData.flowRate),
-        head: parseFloat(formData.head),
-        power: parseFloat(formData.power),
-        efficiency: formData.efficiency ? parseFloat(formData.efficiency) : null,
-        speed: formData.speed ? parseInt(formData.speed) : null,
-        inletDiameter: formData.inletDiameter ? parseInt(formData.inletDiameter) : null,
-        outletDiameter: formData.outletDiameter ? parseInt(formData.outletDiameter) : null,
-        price: formData.price ? parseFloat(formData.price) : null,
-        maxTemperature: formData.maxTemperature ? parseFloat(formData.maxTemperature) : null,
-        maxPressure: formData.maxPressure ? parseFloat(formData.maxPressure) : null,
-      };
+      return JSON.parse(specs)
+    } catch {
+      return {}
+    }
+  }
 
-      if (editingPump) {
-        await fetch(`/api/pumps/${editingPump.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+  const filteredProducts = products
+
+  const handleRowClick = (product: Product) => {
+    setEditProduct(product)
+    setEditDialogOpen(true)
+  }
+
+  const handleSave = () => {
+    fetchProducts()
+  }
+
+  const handleImport = async (importedProducts: any[]) => {
+    try {
+      const res = await fetch('/api/website/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products: importedProducts }),
+      })
+
+      if (res.ok) {
+        fetchProducts()
       } else {
-        await fetch("/api/pumps", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        alert('导入失败')
       }
-
-      setIsDialogOpen(false);
-      setEditingPump(null);
-      resetForm();
-      fetchPumps();
     } catch (error) {
-      console.error("Error saving pump:", error);
+      console.error('导入失败:', error)
+      alert('导入失败')
     }
-  };
+  }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("确定要删除这个产品吗？")) return;
+  const generatePDF = (product: Product) => {
+    const specs = parseSpecifications(product.specifications)
+    const doc = new jsPDF()
 
-    try {
-      await fetch(`/api/pumps/${id}`, { method: "DELETE" });
-      fetchPumps();
-    } catch (error) {
-      console.error("Error deleting pump:", error);
-    }
-  };
+    // 标题
+    doc.setFontSize(20)
+    doc.text('洛瓦托水泵选型系统', 105, 20, { align: 'center' })
+    doc.setFontSize(16)
+    doc.text('产品说明书', 105, 35, { align: 'center' })
 
-  const handleSelect = (id: string) => {
-    const newSelected = new Set(selectedIds);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
-    } else {
-      newSelected.add(id);
-    }
-    setSelectedIds(newSelected);
-  };
+    // 产品信息
+    doc.setFontSize(14)
+    doc.text('产品信息', 20, 55)
 
-  const handleSelectAll = () => {
-    if (selectedIds.size === pumps.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(pumps.map(p => p.id)));
-    }
-  };
+    const productInfo = [
+      ['产品名称', product.name],
+      ['分类', product.category],
+      ['描述', product.description],
+    ]
 
-  const handleBatchDelete = async () => {
-    if (selectedIds.size === 0) {
-      alert("请先选择要删除的产品");
-      return;
-    }
+    const table1 = autoTable(doc, {
+      startY: 60,
+      head: [['项目', '内容']],
+      body: productInfo,
+      theme: 'grid',
+    })
 
-    if (!confirm(`确定要删除选中的 ${selectedIds.size} 个产品吗？`)) return;
+    // 性能参数
+    doc.setFontSize(14)
+    const lastY = (doc as any).lastAutoTable?.finalY || 90
+    doc.text('性能参数', 20, lastY + 20)
 
-    try {
-      await fetch("/api/pumps/batch-delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: Array.from(selectedIds) }),
-      });
-      setSelectedIds(new Set());
-      fetchPumps();
-      alert("批量删除成功");
-    } catch (error) {
-      console.error("Error batch deleting pumps:", error);
-      alert("批量删除失败");
-    }
-  };
+    const performanceData = [
+      ['流量 (m³/h)', specs['流量'] || '-'],
+      ['扬程 (m)', specs['扬程'] || '-'],
+      ['功率 (kW)', specs['功率'] || '-'],
+      ['效率 (%)', specs['效率'] || '-'],
+      ['转速', specs['转速'] || '-'],
+      ['进口直径 (mm)', specs['进口直径'] || '-'],
+      ['出口直径 (mm)', specs['出口直径'] || '-'],
+      ['最高温度 (°C)', specs['最高温度'] || '-'],
+      ['最高压力 (bar)', specs['最高压力'] || '-'],
+    ]
 
-  const handleEdit = (pump: Pump) => {
-    setEditingPump(pump);
-    setFormData({
-      name: pump.name,
-      model: pump.model,
-      brand: pump.brand,
-      pumpType: pump.pumpType || "none",
-      material: pump.material || "none",
-      flowRate: pump.flowRate,
-      head: pump.head,
-      maxFlow: pump.maxFlow || "",
-      maxHead: pump.maxHead || "",
-      power: pump.power,
-      efficiency: pump.efficiency || "",
-      speed: pump.speed?.toString() || "",
-      inletDiameter: pump.inletDiameter?.toString() || "",
-      outletDiameter: pump.outletDiameter?.toString() || "",
-      applicationType: pump.applicationType || "",
-      description: pump.description || "",
-      price: pump.price || "",
-      maxTemperature: "",
-      maxPressure: "",
-    });
-    setIsDialogOpen(true);
-  };
+    autoTable(doc, {
+      startY: lastY + 25,
+      head: [['参数', '数值']],
+      body: performanceData,
+      theme: 'grid',
+    })
 
-  const handleViewPerformance = async (pump: Pump) => {
-    try {
-      setPerformanceLoading(true);
-      setIsPerformanceOpen(true);
+    // 页脚
+    const pageCount = doc.getNumberOfPages()
+    doc.setFontSize(10)
+    doc.text(
+      `洛瓦托水泵选型系统 - 第 ${pageCount} 页`,
+      105,
+      280,
+      { align: 'center' }
+    )
 
-      const response = await fetch(`/api/pumps/${pump.id}/performance`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch performance data");
-      }
-
-      const data = await response.json();
-      setPerformanceData(data);
-    } catch (error) {
-      console.error("Error fetching performance data:", error);
-      alert("加载性能曲线失败，请稍后重试");
-      setIsPerformanceOpen(false);
-    } finally {
-      setPerformanceLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      model: "",
-      brand: "",
-      pumpType: "none",
-      material: "none",
-      flowRate: "",
-      head: "",
-      maxFlow: "",
-      maxHead: "",
-      power: "",
-      efficiency: "",
-      speed: "",
-      inletDiameter: "",
-      outletDiameter: "",
-      applicationType: "",
-      description: "",
-      price: "",
-      maxTemperature: "",
-      maxPressure: "",
-    });
-  };
-
-  const handleExport = async () => {
-    try {
-      const response = await fetch("/api/pumps/export");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `pump-products-${new Date().toISOString().split("T")[0]}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Error exporting pumps:", error);
-    }
-  };
-
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/pumps/import", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-      alert(`导入成功：${result.success} 条\n导入失败：${result.failed} 条`);
-      fetchPumps();
-    } catch (error) {
-      console.error("Error importing pumps:", error);
-      alert("导入失败，请检查文件格式");
-    }
-
-    e.target.value = "";
-  };
+    // 下载PDF
+    doc.save(`${product.name}_产品说明书.pdf`)
+  }
 
   return (
-    <PasswordProtect correctPassword="yezi100243">
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
-        {/* Header */}
-        <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4"></div>
-        </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>产品库管理</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Actions */}
-            <div className="flex flex-wrap gap-4 mb-6">
-              <div className="flex-1 flex gap-2">
-                <Input
-                  placeholder="搜索产品型号或品牌..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-xs"
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header Navigation */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40 flex-shrink-0">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo and Slogan */}
+            <div className="flex items-center gap-6">
+              <a href="/" className="flex items-end gap-3">
+                <img
+                  src="/luwatto-logo.png"
+                  alt="洛瓦托LOGO"
+                  className="h-8 w-auto"
                 />
-                <Button onClick={handleSearch}>
-                  <Search className="h-4 w-4 mr-2" />
-                  搜索
-                </Button>
-              </div>
+                <span className="text-gray-900 font-medium text-sm hidden sm:block">
+                  精准输配 冷暖随心
+                </span>
+              </a>
 
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => { setEditingPump(null); resetForm(); }}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    添加产品
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>{editingPump ? "编辑产品" : "添加产品"}</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="name">产品名称 *</Label>
-                        <Combobox
-                          options={uniqueNames}
-                          value={formData.name}
-                          onValueChange={(value) => setFormData({ ...formData, name: value })}
-                          placeholder="选择或输入产品名称"
-                          allowCustom={true}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="model">产品型号 *</Label>
-                        <Combobox
-                          options={uniqueModels}
-                          value={formData.model}
-                          onValueChange={(value) => setFormData({ ...formData, model: value })}
-                          placeholder="选择或输入产品型号"
-                          allowCustom={true}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="brand">品牌 *</Label>
-                        <Combobox
-                          options={uniqueBrands}
-                          value={formData.brand}
-                          onValueChange={(value) => setFormData({ ...formData, brand: value })}
-                          placeholder="选择或输入品牌"
-                          allowCustom={true}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="pumpType">泵类型</Label>
-                        <Select value={formData.pumpType} onValueChange={(value) => setFormData({ ...formData, pumpType: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="选择类型" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">无</SelectItem>
-                            <SelectItem value="自适应变频屏蔽泵">自适应变频屏蔽泵</SelectItem>
-                            <SelectItem value="卧式多级离心泵">卧式多级离心泵</SelectItem>
-                            <SelectItem value="立式多级离心泵">立式多级离心泵</SelectItem>
-                            <SelectItem value="立式单级管道泵">立式单级管道泵</SelectItem>
-                            <SelectItem value="卧式单级端吸泵">卧式单级端吸泵</SelectItem>
-                            <SelectItem value="卧式多级离心增压泵">卧式多级离心增压泵</SelectItem>
-                            <SelectItem value="立式多级离心增压泵">立式多级离心增压泵</SelectItem>
-                            <SelectItem value="立式单级管道增压泵">立式单级管道增压泵</SelectItem>
-                            <SelectItem value="卧式单级端吸增压泵">卧式单级端吸增压泵</SelectItem>
-                            <SelectItem value="卧式多级离心变频增压泵">卧式多级离心变频增压泵</SelectItem>
-                            <SelectItem value="立式多级离心变频增压泵">立式多级离心变频增压泵</SelectItem>
-                            <SelectItem value="立式单级管道变频增压泵">立式单级管道变频增压泵</SelectItem>
-                            <SelectItem value="卧式单级端吸变频增压泵">卧式单级端吸变频增压泵</SelectItem>
-                            <SelectItem value="家用变频增压泵">家用变频增压泵</SelectItem>
-                            <SelectItem value="工频屏蔽泵">工频屏蔽泵</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="material">材质</Label>
-                        <Select value={formData.material} onValueChange={(value) => setFormData({ ...formData, material: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="选择材质" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">无</SelectItem>
-                            <SelectItem value="不锈钢">不锈钢</SelectItem>
-                            <SelectItem value="铸铁">铸铁</SelectItem>
-                            <SelectItem value="塑料">塑料</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="applicationType">应用场景</Label>
-                        <Select value={formData.applicationType} onValueChange={(value) => setFormData({ ...formData, applicationType: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="选择应用场景" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="供水系统">供水系统</SelectItem>
-                            <SelectItem value="建筑供水">建筑供水</SelectItem>
-                            <SelectItem value="市政供水">市政供水</SelectItem>
-                            <SelectItem value="消防系统">消防系统</SelectItem>
-                            <SelectItem value="暖通空调">暖通空调</SelectItem>
-                            <SelectItem value="工业循环">工业循环</SelectItem>
-                            <SelectItem value="化工流程">化工流程</SelectItem>
-                            <SelectItem value="污水处理">污水处理</SelectItem>
-                            <SelectItem value="污水提升">污水提升</SelectItem>
-                            <SelectItem value="农业灌溉">农业灌溉</SelectItem>
-                            <SelectItem value="深井取水">深井取水</SelectItem>
-                            <SelectItem value="地下水抽取">地下水抽取</SelectItem>
-                            <SelectItem value="锅炉给水">锅炉给水</SelectItem>
-                            <SelectItem value="冷却循环">冷却循环</SelectItem>
-                            <SelectItem value="泳池循环">泳池循环</SelectItem>
-                            <SelectItem value="园林喷灌">园林喷灌</SelectItem>
-                            <SelectItem value="水产养殖">水产养殖</SelectItem>
-                            <SelectItem value="船舶">船舶</SelectItem>
-                            <SelectItem value="其他">其他</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="flowRate">最大流量 (m³/h) *</Label>
-                        <Input
-                          id="flowRate"
-                          type="number"
-                          step="0.01"
-                          value={formData.flowRate}
-                          onChange={(e) => setFormData({ ...formData, flowRate: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="head">最大扬程 (m) *</Label>
-                        <Input
-                          id="head"
-                          type="number"
-                          step="0.01"
-                          value={formData.head}
-                          onChange={(e) => setFormData({ ...formData, head: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="power">功率 (kW) *</Label>
-                        <Input
-                          id="power"
-                          type="number"
-                          step="0.01"
-                          value={formData.power}
-                          onChange={(e) => setFormData({ ...formData, power: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="efficiency">效率 (%)</Label>
-                        <Input
-                          id="efficiency"
-                          type="number"
-                          step="0.01"
-                          value={formData.efficiency}
-                          onChange={(e) => setFormData({ ...formData, efficiency: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="speed">转速 (rpm)</Label>
-                        <Input
-                          id="speed"
-                          type="number"
-                          value={formData.speed}
-                          onChange={(e) => setFormData({ ...formData, speed: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="price">价格</Label>
-                        <Input
-                          id="price"
-                          type="number"
-                          step="0.01"
-                          value={formData.price}
-                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="inletDiameter">进口直径 (mm)</Label>
-                        <Input
-                          id="inletDiameter"
-                          type="number"
-                          value={formData.inletDiameter}
-                          onChange={(e) => setFormData({ ...formData, inletDiameter: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="outletDiameter">出口直径 (mm)</Label>
-                        <Input
-                          id="outletDiameter"
-                          type="number"
-                          value={formData.outletDiameter}
-                          onChange={(e) => setFormData({ ...formData, outletDiameter: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="maxTemperature">最高温度 (°C)</Label>
-                        <Input
-                          id="maxTemperature"
-                          type="number"
-                          step="0.01"
-                          value={formData.maxTemperature}
-                          onChange={(e) => setFormData({ ...formData, maxTemperature: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="maxPressure">最高压力 (bar)</Label>
-                        <Input
-                          id="maxPressure"
-                          type="number"
-                          step="0.01"
-                          value={formData.maxPressure}
-                          onChange={(e) => setFormData({ ...formData, maxPressure: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="description">描述</Label>
-                      <Input
-                        id="description"
-                        value={formData.description}
-                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                        取消
-                      </Button>
-                      <Button type="submit">{editingPump ? "更新" : "添加"}</Button>
-                    </div>
-                  </form>
-                </DialogContent>
-              </Dialog>
-
-              <Button onClick={handleExport} variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                导出
-              </Button>
-
-              <Button
-                onClick={handleBatchDelete}
-                variant={selectedIds.size > 0 ? "destructive" : "outline"}
-                disabled={selectedIds.size === 0}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                批量删除 {selectedIds.size > 0 && `(${selectedIds.size})`}
-              </Button>
-
-              <div>
-                <input
-                  type="file"
-                  accept=".xlsx,.xls"
-                  onChange={handleImport}
-                  className="hidden"
-                  id="import-file"
-                />
-                <label htmlFor="import-file">
-                  <Button variant="outline" asChild>
-                    <span>
-                      <Upload className="h-4 w-4 mr-2" />
-                      导入
-                    </span>
-                  </Button>
-                </label>
-              </div>
-
-              <Button variant="outline" onClick={() => window.open('/pump-import-template.txt', '_blank')}>
-                <Download className="h-4 w-4 mr-2" />
-                模板
-              </Button>
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center gap-1">
+                <a
+                  href="/selection"
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 text-gray-700 hover:bg-gray-100"
+                >
+                  智能选型
+                </a>
+                <a
+                  href="/products"
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-blue-100 text-blue-600"
+                >
+                  产品中心
+                </a>
+              </nav>
             </div>
 
-            {/* Table */}
-            {loading ? (
-              <div className="text-center py-8">加载中...</div>
-            ) : (
-              <div className="border rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-10 whitespace-nowrap">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleSelectAll}
-                            className="h-8 w-8 p-0"
-                          >
-                            {selectedIds.size === pumps.length ? (
-                              <CheckSquare className="h-4 w-4" />
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="md:hidden py-4 space-y-2 border-t border-gray-200">
+              <a
+                href="/selection"
+                className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  pathname === '/selection' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                智能选型
+              </a>
+              <a
+                href="/products"
+                className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  pathname === '/products' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                产品中心
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200 py-8 flex-shrink-0">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">产品库</h1>
+              <p className="text-gray-600">水泵产品性能曲线参数列表</p>
+            </div>
+            <div>
+              <Button onClick={() => {
+                setEditProduct(null)
+                setEditDialogOpen(true)
+              }}>
+                <Plus className="mr-2 h-4 w-4" />
+                添加产品
+              </Button>
+              <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" />
+                导入产品
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6 flex-1 overflow-hidden">
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center text-gray-500">
+              暂无产品
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="h-full">
+            <CardContent className="p-0 h-full overflow-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow>
+                    <TableHead className="w-[80px]">图片</TableHead>
+                    <TableHead className="w-[150px]">产品名称</TableHead>
+                    <TableHead className="w-[100px]">分类</TableHead>
+                    <TableHead className="w-[100px]">流量 (m³/h)</TableHead>
+                    <TableHead className="w-[100px]">扬程 (m)</TableHead>
+                    <TableHead className="w-[100px]">功率 (kW)</TableHead>
+                    <TableHead className="w-[350px]">性能曲线</TableHead>
+                    <TableHead className="w-[80px]">操作</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredProducts.map((product) => {
+                      const specs = parseSpecifications(product.specifications)
+                      return (
+                        <TableRow
+                          key={product.id}
+                          className="hover:bg-gray-50"
+                        >
+                          <TableCell>
+                            {product.image_url ? (
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="w-16 h-16 object-cover rounded"
+                              />
                             ) : (
-                              <Square className="h-4 w-4" />
+                              <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                                <span className="text-gray-400 text-xs">无图片</span>
+                              </div>
                             )}
-                          </Button>
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap">产品名称</TableHead>
-                        <TableHead className="whitespace-nowrap">型号</TableHead>
-                        <TableHead className="whitespace-nowrap">品牌</TableHead>
-                        <TableHead className="whitespace-nowrap">泵类型</TableHead>
-                        <TableHead className="whitespace-nowrap">材质</TableHead>
-                        <TableHead className="whitespace-nowrap">最大流量 (m³/h)</TableHead>
-                        <TableHead className="whitespace-nowrap">最大扬程 (m)</TableHead>
-                        <TableHead className="whitespace-nowrap">功率 (kW)</TableHead>
-                        <TableHead className="whitespace-nowrap">应用场景</TableHead>
-                        <TableHead className="whitespace-nowrap">价格</TableHead>
-                        <TableHead className="text-right whitespace-nowrap">操作</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {pumps.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={12} className="text-center py-8">
-                            暂无产品数据，请添加产品或导入数据
                           </TableCell>
-                        </TableRow>
-                      ) : (
-                        pumps.map((pump) => (
-                          <TableRow key={pump.id}>
-                            <TableCell className="w-10">
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              <span>{product.name}</span>
+                              {product.featured && <span className="text-yellow-500">★</span>}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                              {product.category}
+                            </span>
+                          </TableCell>
+                          <TableCell>{specs['流量'] || '-'}</TableCell>
+                          <TableCell>{specs['扬程'] || '-'}</TableCell>
+                          <TableCell>{specs['功率'] || '-'}</TableCell>
+                          <TableCell>
+                            {specs['流量'] && specs['扬程'] ? (
+                              <div
+                                className="w-[330px] h-[165px] cursor-pointer hover:opacity-80 transition-opacity relative"
+                                onClick={() => {
+                                  setCurveProduct(product)
+                                  setCurveDialogOpen(true)
+                                }}
+                              >
+                                <div className="absolute inset-0 z-10">
+                                  <PumpCurveChart
+                                    pumpFlow={specs['流量']}
+                                    pumpHead={specs['扬程']}
+                                    userFlow={null}
+                                    userHead={null}
+                                  />
+                                </div>
+                                <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
+                                  <ZoomIn className="h-6 w-6 text-white drop-shadow-md" />
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-xs">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleSelect(pump.id)}
-                                className="h-8 w-8 p-0"
+                                onClick={() => handleRowClick(product)}
                               >
-                                {selectedIds.has(pump.id) ? (
-                                  <CheckSquare className="h-4 w-4" />
-                                ) : (
-                                  <Square className="h-4 w-4" />
-                                )}
+                                <Edit className="h-4 w-4" />
                               </Button>
-                            </TableCell>
-                            <TableCell className="font-medium whitespace-nowrap">{pump.name}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.model}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.brand}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.pumpType || "-"}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.material || "-"}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.flowRate}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.head}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.power}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.applicationType || "-"}</TableCell>
-                            <TableCell className="whitespace-nowrap">{pump.price || "-"}</TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleViewPerformance(pump)}
-                                  title="查看性能曲线"
-                                >
-                                  <TrendingUp className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleEdit(pump)}
-                                  title="编辑"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleDelete(pump.id)}
-                                  title="删除"
-                                >
-                                  <Trash2 className="h-4 w-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => generatePDF(product)}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
-    {/* 性能曲线查看弹窗 */}
-    <Dialog open={isPerformanceOpen} onOpenChange={setIsPerformanceOpen}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>性能曲线查看</DialogTitle>
-        </DialogHeader>
-        {performanceLoading ? (
-          <div className="py-12 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-muted-foreground">加载中...</p>
-          </div>
-        ) : performanceData ? (
-          <div className="space-y-4">
-            {/* 水泵基本信息 */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <Label className="text-xs text-muted-foreground">型号</Label>
-                <div className="font-semibold">{performanceData.pump.model}</div>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">最大流量</Label>
-                <div className="font-semibold">{performanceData.pump.flowRate} m³/h</div>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">最大扬程</Label>
-                <div className="font-semibold">{performanceData.pump.head} m</div>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">功率</Label>
-                <div className="font-semibold">{performanceData.pump.power} kW</div>
-              </div>
-            </div>
-
-            {/* 性能曲线图 */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border">
-              <Label className="mb-2 block">Q-H 性能曲线</Label>
+      <EditProductDialog
+        product={editProduct}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSave={handleSave}
+      />
+      <ImportProductDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        onImport={handleImport}
+      />
+      <Dialog open={curveDialogOpen} onOpenChange={setCurveDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>
+              {curveProduct?.name} - 性能曲线
+            </DialogTitle>
+          </DialogHeader>
+          {curveProduct && (
+            <div className="py-4">
               <PumpCurveChart
-                pumpFlow={performanceData.pump.flowRate || 0}
-                pumpHead={performanceData.pump.head || 0}
-                pumpMaxFlow={performanceData.pump.maxFlow || 0}
-                pumpMaxHead={performanceData.pump.maxHead || 0}
+                pumpFlow={parseSpecifications(curveProduct.specifications)['流量'] || ''}
+                pumpHead={parseSpecifications(curveProduct.specifications)['扬程'] || ''}
                 userFlow={null}
                 userHead={null}
               />
             </div>
-
-            {/* 性能数据统计 */}
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-              <Label className="mb-2 block">性能数据统计</Label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">数据点数量：</span>
-                  <span className="font-semibold ml-1">{performanceData.performancePoints.length}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">流量范围：</span>
-                  <span className="font-semibold ml-1">
-                    {parseFloat(String(performanceData.performancePoints[0]?.flowRate || '0')).toFixed(1)} - {parseFloat(String(performanceData.performancePoints[performanceData.performancePoints.length - 1]?.flowRate || '0')).toFixed(1)} m³/h
-                  </span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">最大扬程：</span>
-                  <span className="font-semibold ml-1">
-                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(String(p.head)))).toFixed(1)} m
-                  </span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">最大功率：</span>
-                  <span className="font-semibold ml-1">
-                    {Math.max(...performanceData.performancePoints.map(p => parseFloat(String(p.power)))).toFixed(2)} kW
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </DialogContent>
-    </Dialog>
-    </PasswordProtect>
-  );
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
 }

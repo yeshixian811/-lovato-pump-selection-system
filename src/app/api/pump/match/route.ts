@@ -43,8 +43,8 @@ interface Pump {
   max_temperature: number;
   min_temperature: number;
   max_viscosity: number;
-  price: number;
-  currency: string;
+  price: number | null;
+  currency: string | null;
   in_stock: boolean;
   stock_quantity: number;
   image_url: string;

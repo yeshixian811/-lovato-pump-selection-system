@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Navigation from '@/components/navigation';
 import { ArrowLeft, Search, CheckCircle2, XCircle, Loader2, Info, Zap, Droplet, Gauge } from 'lucide-react';
 import Link from 'next/link';
 import { WechatShareConfig } from '@/components/wechat/initializer';
@@ -62,8 +63,8 @@ interface Pump {
   max_temperature: number;
   min_temperature: number;
   max_viscosity: number;
-  price: number;
-  currency: string;
+  price: number | null;
+  currency: string | null;
   in_stock: boolean;
   stock_quantity: number;
   image_url: string;
@@ -360,14 +361,21 @@ export default function PumpSelectionPage() {
     pump_type: 'all',
   });
 
-  // 处理表单输入
-  const handleInputChange = (field: keyof SelectionParams, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  // 使用 useMemo 缓存选项数组，避免重新渲染
+  const applicationOptions = useMemo(() => APPLICATION_TYPES, []);
+  const fluidOptions = useMemo(() => FLUID_TYPES, []);
+  const pumpOptions = useMemo(() => PUMP_TYPES, []);
 
-  // 处理键盘输入
-  const handleNumberInput = (field: keyof SelectionParams, value: string) => {
-    // 允许空值
+  // 使用 useCallback 缓存处理函数，避免不必要的重新创建
+  const handleInputChange = useCallback((field: keyof SelectionParams, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleSelectChange = useCallback((field: keyof SelectionParams, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleNumberInput = useCallback((field: keyof SelectionParams, value: string) => {
     if (value === '') {
       handleInputChange(field, 0);
       return;
@@ -377,10 +385,9 @@ export default function PumpSelectionPage() {
     if (!isNaN(numValue)) {
       handleInputChange(field, numValue);
     }
-  };
+  }, [handleInputChange]);
 
-  // 提交选型
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
     setError(null);
@@ -402,7 +409,6 @@ export default function PumpSelectionPage() {
       const data = await response.json();
       setResults(data.pumps || []);
 
-      // 如果没有匹配结果，获取推荐产品
       if (!data.pumps || data.pumps.length === 0) {
         try {
           const recommendResponse = await fetch('/api/pumps?limit=6');
@@ -423,14 +429,13 @@ export default function PumpSelectionPage() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [formData]);
 
-  // 重置表单
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setFormData({
       required_flow_rate: 0,
       required_head: 0,
-      application_type: '供水系统',
+      application_type: '暖通空调',
       fluid_type: '清水',
       pump_type: 'all',
     });
@@ -438,7 +443,7 @@ export default function PumpSelectionPage() {
     setResults([]);
     setRecommendedProducts([]);
     setError(null);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
@@ -448,23 +453,8 @@ export default function PumpSelectionPage() {
         desc="快速、精准、高效 - 根据您的需求智能匹配最合适的水泵产品"
       />
 
-      {/* Header */}
-      <div className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                返回首页
-              </Button>
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              智能选型系统
-            </h1>
-            <div className="w-24" />
-          </div>
-        </div>
-      </div>
+      {/* Navigation */}
+      <Navigation />
 
       <div className="container mx-auto px-4 py-6 md:py-8 overflow-hidden">
         <div className="grid md:grid-cols-3 gap-6 md:gap-8 overflow-hidden">
@@ -522,17 +512,17 @@ export default function PumpSelectionPage() {
                     <div className="space-y-2">
                       <Label htmlFor="application_type" className="text-sm md:text-base">应用类型</Label>
                       <Select
-                        value={formData.application_type}
+                        value={String(formData.application_type || '')}
                         onValueChange={(value) =>
-                          handleInputChange('application_type', value)
+                          handleSelectChange('application_type', value)
                         }
                       >
                         <SelectTrigger id="application_type" className="text-sm md:text-base">
                           <SelectValue placeholder="请选择应用类型" />
                         </SelectTrigger>
                         <SelectContent>
-                          {APPLICATION_TYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                          {applicationOptions.map((type) => (
+                            <SelectItem key={type.value} value={String(type.value)} className="text-sm md:text-base">
                               {type.label}
                             </SelectItem>
                           ))}
@@ -544,17 +534,17 @@ export default function PumpSelectionPage() {
                     <div className="space-y-2">
                       <Label htmlFor="fluid_type" className="text-sm md:text-base">流体类型</Label>
                       <Select
-                        value={formData.fluid_type}
+                        value={String(formData.fluid_type || '')}
                         onValueChange={(value) =>
-                          handleInputChange('fluid_type', value)
+                          handleSelectChange('fluid_type', value)
                         }
                       >
                         <SelectTrigger id="fluid_type" className="text-sm md:text-base">
                           <SelectValue placeholder="请选择流体类型" />
                         </SelectTrigger>
                         <SelectContent>
-                          {FLUID_TYPES.map((type) => (
-                            <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                          {fluidOptions.map((type) => (
+                            <SelectItem key={type.value} value={String(type.value)} className="text-sm md:text-base">
                               {type.label}
                             </SelectItem>
                           ))}
@@ -567,17 +557,17 @@ export default function PumpSelectionPage() {
                   <div className="space-y-2">
                     <Label htmlFor="pump_type" className="text-sm md:text-base">水泵类型（可选）</Label>
                     <Select
-                      value={formData.pump_type}
+                      value={String(formData.pump_type || '')}
                       onValueChange={(value) =>
-                        handleInputChange('pump_type', value)
+                        handleSelectChange('pump_type', value)
                       }
                     >
                       <SelectTrigger id="pump_type" className="text-sm md:text-base">
                         <SelectValue placeholder="请选择水泵类型" />
                       </SelectTrigger>
                       <SelectContent>
-                        {PUMP_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value} className="text-sm md:text-base">
+                        {pumpOptions.map((type) => (
+                          <SelectItem key={type.value} value={String(type.value)} className="text-sm md:text-base">
                             {type.label}
                           </SelectItem>
                         ))}
@@ -815,7 +805,7 @@ export default function PumpSelectionPage() {
 
                           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                             <div className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
-                              ¥{pump.price.toLocaleString()}
+                              {pump.price ? `¥${pump.price.toLocaleString()}` : '价格待定'}
                             </div>
                             <div className="flex gap-2">
                               {pump.in_stock ? (
@@ -946,7 +936,7 @@ export default function PumpSelectionPage() {
 
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                         <div className="text-base md:text-lg font-bold text-gray-900 dark:text-white">
-                          ¥{pump.price.toLocaleString()}
+                          {pump.price ? `¥${pump.price.toLocaleString()}` : '价格待定'}
                         </div>
                         <div className="flex gap-2">
                           {pump.in_stock ? (

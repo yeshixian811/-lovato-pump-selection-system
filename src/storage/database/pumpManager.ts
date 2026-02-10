@@ -559,6 +559,20 @@ export class PumpManager {
       bepMatchScore = 20 + (1 - Math.min((distanceFromOptimal - 0.7) / 0.3, 1)) * 20;
     }
 
+    // 功率余量评分
+    let powerMarginScore: number;
+    if (powerMargin === null) {
+      powerMarginScore = 50; // 无功率数据，默认50分
+    } else if (powerMargin < 10) {
+      powerMarginScore = 60 + (powerMargin / 10) * 20;
+    } else if (powerMargin <= 30) {
+      powerMarginScore = 80 + ((30 - powerMargin) / 20) * 15;
+    } else if (powerMargin <= 60) {
+      powerMarginScore = 95 - ((powerMargin - 30) / 30) * 35;
+    } else {
+      powerMarginScore = Math.max(0, 60 - (powerMargin - 60) / 10);
+    }
+
     // 7. 综合评分（加权平均）
     // 满足度评分（30%）+ 效率评分（25%）+ BEP匹配度（20%）+ 流量余量（15%）+ 扬程余量（10%）
     const comprehensiveScore =

@@ -4,71 +4,31 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   Menu,
   X,
   Home,
-  User,
-  Crown,
-  LogOut,
-  LayoutDashboard,
   ShoppingCart,
   Layout,
-  GitBranch,
   FileCode,
 } from 'lucide-react'
 import { isWechatMiniProgram } from '@/lib/wechat'
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const [isMiniProgram, setIsMiniProgram] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
-    fetchUserInfo()
     setIsMiniProgram(isWechatMiniProgram())
   }, [])
 
-  const fetchUserInfo = async () => {
-    try {
-      const response = await fetch('/api/user/me')
-      if (response.ok) {
-        const data = await response.json()
-        setUser(data.user)
-      }
-    } catch (error) {
-      console.error('获取用户信息失败:', error)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      setUser(null)
-      window.location.href = '/'
-    } catch (error) {
-      console.error('登出失败:', error)
-    }
-  }
-
   const navItems = [
-    { href: '/', label: '首页', icon: Home },
     { href: '/products', label: '产品库', icon: ShoppingCart },
     { href: '/selection', label: '智能选型', icon: Layout },
   ]
 
   const diagnosticItem = { href: '/diagnostic', label: '系统诊断', icon: FileCode }
-
-  const isAdminPage = pathname.startsWith('/admin')
 
   // 在微信小程序中隐藏导航栏
   if (isMiniProgram) {
@@ -93,7 +53,7 @@ export default function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
-            {!isAdminPage && navItems.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -107,98 +67,6 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))}
-          </div>
-
-          {/* User Menu */}
-          <div className="hidden md:flex items-center gap-2">
-            {user ? (
-              <div className="flex items-center gap-2">
-                {/* 会员标识 */}
-                {user.subscriptionTier === 'pro' && (
-                  <Badge className="bg-gradient-to-r from-blue-600 to-purple-600">
-                    <Crown className="w-3 h-3 mr-1" />
-                    高级会员
-                  </Badge>
-                )}
-                {user.subscriptionTier === 'basic' && (
-                  <Badge variant="secondary">
-                    基础会员
-                  </Badge>
-                )}
-
-                {/* 用户菜单 */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>{user.name || user.email}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard">
-                        <User className="mr-2 h-4 w-4" />
-                        用户中心
-                      </Link>
-                    </DropdownMenuItem>
-                    {user.role === 'admin' && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin">
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            后台管理
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/versions">
-                            <GitBranch className="mr-2 h-4 w-4" />
-                            版本管理
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href="/editor">
-                            <FileCode className="mr-2 h-4 w-4" />
-                            在线编辑
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/diagnostic">
-                        <Layout className="mr-2 h-4 w-4" />
-                        系统诊断
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      登出
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <>
-                <Link href="/auth">
-                  <Button variant="ghost" size="sm">
-                    登录
-                  </Button>
-                </Link>
-                <Link href="/auth?tab=register">
-                  <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                    注册
-                  </Button>
-                </Link>
-                <Link href="/admin-login">
-                  <Button variant="outline" size="sm">
-                    <LayoutDashboard className="h-4 w-4 mr-2" />
-                    后台
-                  </Button>
-                </Link>
-              </>
-            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -227,7 +95,7 @@ export default function Navigation() {
               </Link>
             </div>
 
-            {!isAdminPage && navItems.map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -242,63 +110,6 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))}
-
-            <div className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-4">
-              {user ? (
-                <div className="space-y-2">
-                  <div className="px-4 py-2">
-                    <p className="text-sm font-medium">{user.name || user.email}</p>
-                    {user.subscriptionTier === 'pro' && (
-                      <Badge className="mt-1">
-                        <Crown className="w-3 h-3 mr-1" />
-                        高级会员
-                      </Badge>
-                    )}
-                  </div>
-                  <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <User className="mr-2 h-4 w-4" />
-                      用户中心
-                    </Button>
-                  </Link>
-                  {user.role === 'admin' && (
-                    <Link href="/admin" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        后台管理
-                      </Button>
-                    </Link>
-                  )}
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    登出
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Link href="/auth" onClick={() => setIsMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full">
-                      登录
-                    </Button>
-                  </Link>
-                  <Link href="/auth?tab=register" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
-                      注册
-                    </Button>
-                  </Link>
-                  <Link href="/admin-login" onClick={() => setIsMenuOpen(false)}>
-                    <Button variant="outline" className="w-full">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      后台管理
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
           </div>
         )}
       </div>

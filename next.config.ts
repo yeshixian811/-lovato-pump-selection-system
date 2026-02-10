@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   // outputFileTracingRoot: path.resolve(__dirname, '../../'),
   /* config options here */
   allowedDevOrigins: ['*.dev.coze.site'],
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   images: {
     remotePatterns: [
       {
@@ -13,7 +16,20 @@ const nextConfig: NextConfig = {
         hostname: 'lf-coze-web-cdn.coze.cn',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'source.unsplash.com',
+        pathname: '/**',
+      },
     ],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    formats: ['image/avif', 'image/webp'],
   },
   // 安全相关的 HTTP 头
   async headers() {
@@ -39,7 +55,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://trusted.cdn.com",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: https://lf-coze-web-cdn.coze.cn",
+              "img-src 'self' data: https: https://lf-coze-web-cdn.coze.cn https://images.unsplash.com https://source.unsplash.com",
               "font-src 'self' data:",
               "connect-src 'self' https:",
               "media-src 'self' https:",

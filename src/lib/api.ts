@@ -70,9 +70,9 @@ export async function api<T = any>(
   const { skipAuth = false, ...fetchOptions } = options;
 
   // 构建 headers
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...fetchOptions.headers,
+    ...(fetchOptions.headers as Record<string, string> || {}),
   };
 
   // 添加认证 Token（如果不是跳过认证）

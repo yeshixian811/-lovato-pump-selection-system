@@ -10,202 +10,9 @@ import {
   jsonb,
   boolean,
   uuid,
-  pgEnum,
 } from "drizzle-orm/pg-core";
 import { createSchemaFactory, createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-
-// 用户角色枚举
-export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
-
-// 订阅状态枚举
-export const subscriptionStatusEnum = pgEnum('subscription_status', ['active', 'canceled', 'expired', 'past_due', 'trialing']);
-
-// 用户表
-export const users = pgTable(
-  "users",
-  {
-    id: uuid("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    email: varchar("email", { length: 255 }).notNull().unique(),
-    passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-    name: varchar("name", { length: 255 }),
-    role: userRoleEnum("role").notNull().default('user'),
-    subscriptionTier: varchar("subscription_tier", { length: 50 }).notNull().default('free'),
-    subscriptionStatus: subscriptionStatusEnum("subscription_status").notNull().default('active'),
-    subscriptionStartDate: timestamp("subscription_start_date", { withTimezone: true }),
-    subscriptionEndDate: timestamp("subscription_end_date", { withTimezone: true }),
-    emailVerified: boolean("email_verified").notNull().default(false),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    emailIdx: index("users_email_idx").on(table.email),
-  })
-);
-
-// 邮箱验证表
-export const emailVerifications = pgTable(
-  "email_verifications",
-  {
-    id: uuid("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    token: varchar("token", { length: 255 }).notNull().unique(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    tokenIdx: index("email_verifications_token_idx").on(table.token),
-    userIdIdx: index("email_verifications_user_id_idx").on(table.userId),
-    expiresAtIdx: index("email_verifications_expires_at_idx").on(table.expiresAt),
-  })
-);
-
-// 密码重置表
-export const passwordResets = pgTable(
-  "password_resets",
-  {
-    id: uuid("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    token: varchar("token", { length: 255 }).notNull().unique(),
-    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    tokenIdx: index("password_resets_token_idx").on(table.token),
-    userIdIdx: index("password_resets_user_id_idx").on(table.userId),
-    expiresAtIdx: index("password_resets_expires_at_idx").on(table.expiresAt),
-  })
-);
-
-// 订阅计划表
-export const subscriptionPlans = pgTable(
-  "subscription_plans",
-  {
-    id: varchar("id", { length: 50 }).primaryKey(),
-    name: varchar("name", { length: 100 }).notNull(),
-    description: text("description"),
-    price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-    billingCycle: varchar("billing_cycle", { length: 20 }).notNull(), // monthly, yearly
-    features: jsonb("features").notNull().$type<{
-      maxSelections?: number;
-      historyRetention?: number; // days
-      exportFormats?: string[];
-      supportPriority?: string;
-      apiAccess?: boolean;
-      maxUsers?: number;
-    }>(),
-    isActive: boolean("is_active").notNull().default(true),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  }
-);
-
-// 订阅表
-export const subscriptions = pgTable(
-  "subscriptions",
-  {
-    id: uuid("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    planId: varchar("plan_id", { length: 50 })
-      .notNull()
-      .references(() => subscriptionPlans.id),
-    status: subscriptionStatusEnum("status").notNull(),
-    startDate: timestamp("start_date", { withTimezone: true }).notNull(),
-    endDate: timestamp("end_date", { withTimezone: true }),
-    cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
-    stripeSubscriptionId: varchar("stripe_subscription_id"), // 如果使用Stripe
-    wechatTransactionId: varchar("wechat_transaction_id"), // 如果使用微信支付
-    alipayTransactionId: varchar("alipay_transaction_id"), // 如果使用支付宝
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    userIdIdx: index("subscriptions_user_id_idx").on(table.userId),
-    planIdIdx: index("subscriptions_plan_id_idx").on(table.planId),
-    statusIdx: index("subscriptions_status_idx").on(table.status),
-  })
-);
-
-// 选型历史表
-export const selectionHistory = pgTable(
-  "selection_history",
-  {
-    id: uuid("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    flowRate: decimal("flow_rate", { precision: 10, scale: 2 }),
-    head: decimal("head", { precision: 10, scale: 2 }),
-    selectedPumpId: varchar("selected_pump_id"),
-    pumpData: jsonb("pump_data"),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    userIdIdx: index("selection_history_user_id_idx").on(table.userId),
-    createdAtIdx: index("selection_history_created_at_idx").on(table.createdAt),
-  })
-);
-
-// 使用统计表
-export const usageStats = pgTable(
-  "usage_stats",
-  {
-    id: uuid("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" })
-      .unique(),
-    selectionCount: integer("selection_count").notNull().default(0),
-    lastResetDate: timestamp("last_reset_date", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    userIdIdx: index("usage_stats_user_id_idx").on(table.userId),
-  })
-);
 
 // 水泵表
 export const pumps = pgTable(
@@ -460,3 +267,143 @@ export type VersionFile = typeof versionFiles.$inferSelect;
 export type InsertVersionFile = z.infer<typeof insertVersionFileSchema>;
 export type VersionChange = typeof versionChanges.$inferSelect;
 export type InsertVersionChange = z.infer<typeof insertVersionChangeSchema>;
+
+// ========== 官网内容管理 ==========
+
+// 官网内容表
+export const websiteContent = pgTable(
+  "website_content",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    key: varchar("key", { length: 100 }).notNull().unique(),
+    type: varchar("type", { length: 50 }).notNull(), // 'hero', 'stats', 'features', 'news', 'cta', etc.
+    title: varchar("title", { length: 255 }).notNull(),
+    content: text("content").notNull(),
+    image_url: text("image_url"),
+    link_url: text("link_url"),
+    display_order: integer("display_order").notNull().default(0),
+    is_active: boolean("is_active").notNull().default(true),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    keyIdx: index("website_content_key_idx").on(table.key),
+    typeIdx: index("website_content_type_idx").on(table.type),
+  })
+);
+
+// 新闻表
+export const news = pgTable(
+  "news",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    title: varchar("title", { length: 255 }).notNull(),
+    category: varchar("category", { length: 50 }).notNull(),
+    summary: text("summary").notNull(),
+    content: text("content").notNull(),
+    image_url: text("image_url"),
+    publish_date: timestamp("publish_date", { withTimezone: true }).notNull().defaultNow(),
+    is_published: boolean("is_published").notNull().default(false),
+    display_order: integer("display_order").notNull().default(0),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    categoryIdx: index("news_category_idx").on(table.category),
+    publishDateIdx: index("news_publish_date_idx").on(table.publish_date),
+    isPublishedIdx: index("news_is_published_idx").on(table.is_published),
+  })
+);
+
+// 产品展示表
+export const productShowcase = pgTable(
+  "product_showcase",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar("name", { length: 255 }).notNull(),
+    category: varchar("category", { length: 100 }).notNull(),
+    description: text("description").notNull(),
+    specifications: text("specifications").notNull(),
+    image_url: text("image_url"),
+    featured: boolean("featured").notNull().default(false),
+    display_order: integer("display_order").notNull().default(0),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    categoryIdx: index("product_showcase_category_idx").on(table.category),
+    featuredIdx: index("product_showcase_featured_idx").on(table.featured),
+  })
+);
+
+// 使用 createSchemaFactory 配置 date coercion（处理前端 string → Date 转换）
+const { createInsertSchema: createCoercedInsertSchemaWithDate } = createSchemaFactory({
+  coerce: { date: true },
+});
+
+// Zod schemas for validation
+export const insertWebsiteContentSchema = createCoercedInsertSchemaWithDate(websiteContent)
+  .pick({
+    key: true,
+    type: true,
+    title: true,
+    content: true,
+    image_url: true,
+    link_url: true,
+    display_order: true,
+    is_active: true,
+  })
+  .partial();
+
+export const updateWebsiteContentSchema = insertWebsiteContentSchema.partial();
+
+export const insertNewsSchema = createCoercedInsertSchemaWithDate(news)
+  .pick({
+    title: true,
+    category: true,
+    summary: true,
+    content: true,
+    image_url: true,
+    is_published: true,
+    display_order: true,
+  });
+
+export const updateNewsSchema = insertNewsSchema.partial();
+
+export const insertProductShowcaseSchema = createCoercedInsertSchemaWithDate(productShowcase)
+  .pick({
+    name: true,
+    category: true,
+    description: true,
+    specifications: true,
+    image_url: true,
+    featured: true,
+    display_order: true,
+  });
+
+export const updateProductShowcaseSchema = insertProductShowcaseSchema.partial();
+
+// TypeScript types
+export type WebsiteContent = typeof websiteContent.$inferSelect;
+export type InsertWebsiteContent = z.infer<typeof insertWebsiteContentSchema>;
+export type UpdateWebsiteContent = z.infer<typeof updateWebsiteContentSchema>;
+
+export type News = typeof news.$inferSelect;
+export type InsertNews = z.infer<typeof insertNewsSchema>;
+export type UpdateNews = z.infer<typeof updateNewsSchema>;
+
+export type ProductShowcase = typeof productShowcase.$inferSelect;
+export type InsertProductShowcase = z.infer<typeof insertProductShowcaseSchema>;
+export type UpdateProductShowcase = z.infer<typeof updateProductShowcaseSchema>;
