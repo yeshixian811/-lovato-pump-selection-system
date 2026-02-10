@@ -1,6 +1,6 @@
 "use client";
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot, ReferenceLine } from "recharts";
 
 interface PumpCurveChartProps {
   pumpFlow: string | number; // 水泵最大流量 m³/h
@@ -127,6 +127,33 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
             strokeWidth={1}
             label={{ value: "需求点", position: "top", offset: 5, fontSize: 12, fill: "#dc2626" }}
             isFront={true}
+          />
+
+          {/* 恒压参考线 - 10米 */}
+          <ReferenceLine
+            y={10}
+            stroke="#8b5cf6"
+            strokeWidth={1.5}
+            strokeDasharray="5 3"
+            label={{ value: "10m", position: "right", fontSize: 10, fill: "#8b5cf6" }}
+          />
+
+          {/* 恒压参考线 - 8米 */}
+          <ReferenceLine
+            y={8}
+            stroke="#f59e0b"
+            strokeWidth={1.5}
+            strokeDasharray="5 3"
+            label={{ value: "8m", position: "right", fontSize: 10, fill: "#f59e0b" }}
+          />
+
+          {/* 恒压参考线 - 6米 */}
+          <ReferenceLine
+            y={6}
+            stroke="#ec4899"
+            strokeWidth={1.5}
+            strokeDasharray="5 3"
+            label={{ value: "6m", position: "right", fontSize: 10, fill: "#ec4899" }}
           />
         </LineChart>
       </ResponsiveContainer>
