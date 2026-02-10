@@ -50,8 +50,10 @@
 - 使用火山云其他服务
 
 ### 部署文档
-1. **详细指南**：[火山云部署指南](DEPLOYMENT_GUIDE.md)
-2. **检查清单**：[部署检查清单](DEPLOYMENT_CHECKLIST.md)
+1. **⭐ 快速开始**：[火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md) ⭐
+2. **详细步骤**：[火山云详细步骤指南](DEPLOYMENT_VOLCANO_STEP_BY_STEP.md)
+3. **详细指南**：[火山云部署指南](DEPLOYMENT_GUIDE.md)
+4. **检查清单**：[部署检查清单](DEPLOYMENT_CHECKLIST.md)
 
 ### 部署脚本
 - `deploy-volcano.sh` - 火山云自动部署脚本
@@ -156,6 +158,8 @@ ss -lptn              # 查看端口
 ### 文档资源
 - [腾讯云快速部署指南](DEPLOYMENT_TENCENT_QUICKSTART.md)
 - [腾讯云部署指南](DEPLOYMENT_GUIDE_TENCENT.md)
+- **[火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md) ⭐**
+- [火山云详细步骤指南](DEPLOYMENT_VOLCANO_STEP_BY_STEP.md)
 - [火山云部署指南](DEPLOYMENT_GUIDE.md)
 - [部署错误检查报告](DEPLOYMENT_ERROR_CHECK.md)
 - [部署检查清单](DEPLOYMENT_CHECKLIST.md)
@@ -170,10 +174,17 @@ ss -lptn              # 查看端口
 
 ## 🎯 推荐部署流程
 
-### 新手推荐
+### 新手推荐（腾讯云）
 1. 阅读 [腾讯云快速部署指南](DEPLOYMENT_TENCENT_QUICKSTART.md)
 2. 准备腾讯云服务器和域名
 3. 使用自动部署脚本 `deploy-tencent.sh`
+4. 配置环境变量和 SSL 证书
+5. 验证部署结果
+
+### 新手推荐（火山云）
+1. 阅读 [火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md)
+2. 准备火山云服务器和域名
+3. 使用自动部署脚本 `deploy-volcano.sh`
 4. 配置环境变量和 SSL 证书
 5. 验证部署结果
 

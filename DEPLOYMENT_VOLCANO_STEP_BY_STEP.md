@@ -1,4 +1,4 @@
-# 腾讯云部署 - 详细步骤指南
+# 火山云部署 - 详细步骤指南
 
 ## ⚠️ 重要提示
 **我无法直接访问你的服务器**，你需要在本地的终端或 SSH 客户端中执行以下命令。
@@ -9,10 +9,10 @@
 
 ### 1. 准备必要信息
 在开始之前，请准备好以下信息：
-- ✅ 腾讯云服务器公网 IP 地址
+- ✅ 火山云服务器公网 IP 地址
 - ✅ 服务器 SSH 密钥文件路径
 - ✅ 域名（已解析到服务器 IP）
-- ✅ 腾讯云 PostgreSQL 连接信息
+- ✅ 火山云 PostgreSQL 连接信息
 - ✅ 微信小程序 AppID
 - ✅ SSL 证书文件（fullchain.pem 和 privkey.pem）
 
@@ -23,7 +23,7 @@ cd /path/to/luowato-selection
 ls -lh
 
 # 确认以下文件存在：
-# - deploy-tencent.sh
+# - deploy-volcano.sh
 # - ecosystem.config.js
 # - nginx-config
 # - .env.production.example
@@ -42,7 +42,7 @@ ls -lh
 ssh -i /path/to/your-ssh-key.pem root@你的服务器公网IP
 
 # 示例：
-# ssh -i ~/.ssh/tencent-key.pem root@123.456.789.0
+# ssh -i ~/.ssh/volcano-key.pem root@123.456.789.0
 ```
 
 #### 方式 B：使用密码
@@ -57,7 +57,7 @@ ssh root@你的服务器公网IP
 
 **成功连接后，你应该看到类似这样的提示：**
 ```
-root@VM-0-0-ubuntu:~#
+[root@volcano-instance ~]#
 ```
 
 ---
@@ -74,7 +74,7 @@ cd /path/to/luowato-selection
 scp -i /path/to/your-ssh-key.pem -r . root@你的服务器公网IP:/var/www/luowato-selection
 
 # 示例：
-# scp -i ~/.ssh/tencent-key.pem -r . root@123.456.789.0:/var/www/luowato-selection
+# scp -i ~/.ssh/volcano-key.pem -r . root@123.456.789.0:/var/www/luowato-selection
 
 # 如果使用密码：
 # scp -r . root@你的服务器公网IP:/var/www/luowato-selection
@@ -93,10 +93,10 @@ scp -i /path/to/your-ssh-key.pem -r . root@你的服务器公网IP:/var/www/luow
 cd /var/www/luowato-selection
 
 # 查看部署脚本
-ls -lh deploy-tencent.sh
+ls -lh deploy-volcano.sh
 
 # 修改部署脚本中的域名和邮箱
-nano deploy-tencent.sh
+nano deploy-volcano.sh
 ```
 
 **在 nano 编辑器中，找到以下行并修改：**
@@ -115,23 +115,25 @@ EMAIL="your-email@example.com"  # 改为 EMAIL="your-email@your-domain.com"
 
 ```bash
 # 给脚本添加执行权限（如果没有）
-chmod +x deploy-tencent.sh
+chmod +x deploy-volcano.sh
 
 # 运行部署脚本
-bash deploy-tencent.sh
+bash deploy-volcano.sh
 ```
 
 **部署脚本会自动执行以下操作：**
 1. 检查并安装 Node.js 24
 2. 检查并安装 pnpm
 3. 检查并安装 PM2
-4. 创建项目目录
-5. 安装项目依赖
-6. 构建项目
-7. 配置 PM2
-8. 启动应用
-9. 配置 Nginx
-10. 重启 Nginx
+4. 检查并安装 Git
+5. 创建项目目录
+6. 安装项目依赖
+7. 构建项目
+8. 配置环境变量模板
+9. 配置 PM2
+10. 启动应用
+11. 配置 Nginx
+12. 重启 Nginx
 
 **部署大约需要 5-10 分钟，请耐心等待。**
 
@@ -150,6 +152,7 @@ nano /var/www/luowato-selection/.env.production
 
 ```bash
 # 数据库配置（重要！）
+# 火山云 PostgreSQL 连接字符串格式
 # 格式：postgresql://用户名:密码@内网地址:端口/数据库名
 DATABASE_URL=postgresql://用户名:密码@内网IP:5432/数据库名
 
@@ -164,11 +167,11 @@ NODE_ENV=production
 PORT=5000
 NEXT_PUBLIC_APP_URL=https://your-domain.com
 
-# 腾讯云 COS 配置（可选）
-# COS_SECRET_ID=your-tencent-cos-secret-id
-# COS_SECRET_KEY=your-tencent-cos-secret-key
-# COS_BUCKET=your-bucket-name
-# COS_REGION=ap-beijing
+# 火山云对象存储 TOS 配置（可选）
+# TOS_ACCESS_KEY_ID=your-volcano-tos-access-key-id
+# TOS_SECRET_ACCESS_KEY=your-volcano-tos-secret-access-key
+# TOS_BUCKET=your-bucket-name
+# TOS_REGION=cn-beijing
 ```
 
 **保存并退出 nano：**
@@ -178,7 +181,17 @@ NEXT_PUBLIC_APP_URL=https://your-domain.com
 
 ---
 
-### 步骤 5：上传 SSL 证书
+### 步骤 5：获取并上传 SSL 证书
+
+#### 方式 A：使用火山云 SSL 证书（推荐）
+
+1. 登录火山云控制台
+2. 进入「SSL 证书」服务
+3. 申请免费证书（DV 证书）
+4. 下载证书（选择 Nginx 格式）
+5. 解压后你会得到：
+   - `your-domain.com.pem` 或 `fullchain.pem`
+   - `your-domain.com.key` 或 `privkey.pem`
 
 #### 在你的本地电脑上执行
 
@@ -191,8 +204,29 @@ scp -i /path/to/your-ssh-key.pem fullchain.pem root@你的服务器公网IP:/etc
 scp -i /path/to/your-ssh-key.pem privkey.pem root@你的服务器公网IP:/etc/nginx/ssl/your-domain.com/
 
 # 示例：
-# scp -i ~/.ssh/tencent-key.pem fullchain.pem root@123.456.789.0:/etc/nginx/ssl/your-domain.com/
-# scp -i ~/.ssh/tencent-key.pem privkey.pem root@123.456.789.0:/etc/nginx/ssl/your-domain.com/
+# scp -i ~/.ssh/volcano-key.pem fullchain.pem root@123.456.789.0:/etc/nginx/ssl/your-domain.com/
+# scp -i ~/.ssh/volcano-key.pem privkey.pem root@123.456.789.0:/etc/nginx/ssl/your-domain.com/
+```
+
+#### 方式 B：使用 Certbot 自动获取（Let's Encrypt）
+
+#### 在服务器上执行
+
+```bash
+# 安装 Certbot
+apt install -y certbot python3-certbot-nginx
+
+# 获取 SSL 证书
+certbot --nginx -d your-domain.com
+
+# 按提示操作：
+# 1. 输入邮箱地址
+# 2. 同意服务条款
+# 3. 选择是否共享邮箱
+# 4. 选择域名
+# 5. 选择是否强制 HTTPS 重定向
+
+# Certbot 会自动配置 Nginx SSL
 ```
 
 #### 在服务器上验证
@@ -255,11 +289,45 @@ curl -I http://your-domain.com
 #### 在浏览器中测试
 
 1. 打开浏览器
-2. 访问 `http://your-domain.com`0
+2. 访问 `http://your-domain.com`
 3. 应该自动跳转到 `https://your-domain.com`
 4. 检查页面是否正常显示
 5. 测试智能选型功能
 6. 测试产品库功能（密码：admin123）
+
+---
+
+### 步骤 8：配置火山云域名解析
+
+#### 在火山云控制台执行
+
+1. 登录火山云控制台
+2. 进入「域名解析」服务
+3. 选择你的域名
+4. 添加记录：
+   - 记录类型：A
+   - 主机记录：@
+   - 记录值：你的服务器公网 IP
+   - TTL：600
+   - 可选：添加 www 子域名（主机记录：www）
+
+---
+
+### 步骤 9：配置微信小程序业务域名
+
+#### 在微信公众平台执行
+
+1. 登录微信公众平台
+2. 进入「开发」→「开发管理」→「开发设置」
+3. 找到「业务域名」
+4. 点击「配置」
+5. 添加你的域名：
+   - 域名：your-domain.com
+6. 下载校验文件，上传到服务器根目录：
+   ```bash
+   scp -i /path/to/your-ssh-key.pem MP_verify_xxxxxx.txt root@你的服务器公网IP:/var/www/luowato-selection/public/
+   ```
+7. 点击「确认」验证
 
 ---
 
@@ -297,6 +365,52 @@ tail -100 /var/log/nginx/luowato-selection-access.log
 
 ---
 
+## 🔥 火山云特有配置
+
+### 火山云 PostgreSQL 连接
+
+1. 登录火山云控制台
+2. 进入「云数据库 PostgreSQL」
+3. 选择你的实例
+4. 查看连接信息：
+   - 内网地址
+   - 端口
+   - 数据库名
+   - 用户名
+   - 密码
+
+**连接字符串格式：**
+```bash
+DATABASE_URL=postgresql://用户名:密码@内网地址:端口/数据库名
+```
+
+### 火山云对象存储 TOS（可选）
+
+1. 登录火山云控制台
+2. 进入「对象存储 TOS」
+3. 创建存储桶
+4. 获取访问密钥：
+   - Access Key ID
+   - Secret Access Key
+
+**配置到环境变量：**
+```bash
+TOS_ACCESS_KEY_ID=your-access-key-id
+TOS_SECRET_ACCESS_KEY=your-secret-access-key
+TOS_BUCKET=your-bucket-name
+TOS_REGION=cn-beijing
+```
+
+### 火山云 CDN（可选）
+
+1. 登录火山云控制台
+2. 进入「内容分发网络 CDN」
+3. 添加加速域名
+4. 配置回源到你的服务器
+5. 等待配置生效
+
+---
+
 ## 🆘 常见问题排查
 
 ### 问题 1：连接服务器失败
@@ -324,7 +438,7 @@ ssh root@你的服务器公网IP "cd /var/www && tar -xzf project.tar.gz -C luow
 ```bash
 # 手动安装依赖
 curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
-apt install -y nodejs
+apt install -y nodejs git
 npm install -g pnpm pm2
 
 # 手动构建
@@ -362,6 +476,9 @@ nginx -t
 
 # 查看 Nginx 错误日志
 tail -100 /var/log/nginx/luowato-selection-error.log
+
+# 使用 Certbot 重新获取
+certbot --nginx -d your-domain.com --force-renewal
 ```
 
 ### 问题 6：数据库连接失败
@@ -373,11 +490,44 @@ cat /var/www/luowato-selection/.env.production | grep DATABASE_URL
 psql -h 内网地址 -U 用户名 -d 数据库名
 
 # 检查防火墙
+systemctl status firewalld
+# 或
 ufw status
 
 # 重启应用
 pm2 restart luowato-selection
 ```
+
+### 问题 7：火山云 PostgreSQL 无法连接
+
+```bash
+# 检查安全组配置
+# 1. 登录火山云控制台
+# 2. 进入「云服务器 ECS」
+# 3. 选择你的实例
+# 4. 点击「安全组」
+# 5. 确认已开放 5432 端口（仅内网）
+
+# 测试数据库连接
+psql -h 内网地址 -p 5432 -U 用户名 -d 数据库名
+
+# 检查数据库是否在运行
+# 在火山云控制台查看数据库实例状态
+```
+
+---
+
+## 💰 火山云成本估算
+
+### 月度成本
+- 云服务器 ECS（2核4GB）：约 200 元/月
+- PostgreSQL（4GB）：约 150 元/月
+- 带宽（5Mbps）：约 150 元/月
+- SSL 证书（火山云免费）：0 元/月
+- 域名：约 5 元/月
+- CDN（按流量）：约 0.24 元/GB
+
+**总计：约 500 元/月**
 
 ---
 
