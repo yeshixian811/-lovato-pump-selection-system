@@ -1,0 +1,61 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "洛瓦托选型",
+        "navigationBarBackgroundColor": "#2563eb",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/selection/selection",
+      "style": {
+        "navigationBarTitleText": "智能选型",
+        "navigationBarBackgroundColor": "#2563eb",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/products/products",
+      "style": {
+        "navigationBarTitleText": "产品库",
+        "navigationBarBackgroundColor": "#2563eb",
+        "navigationBarTextStyle": "white"
+      }
+    }
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2563eb",
+    "navigationBarTitleText": "洛瓦托选型",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f9fafb"
+  },
+  "tabBar": {
+    "color": "#718096",
+    "selectedColor": "#2563eb",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/selection/selection",
+        "text": "智能选型",
+        "iconPath": "images/selection.png",
+        "selectedIconPath": "images/selection-active.png"
+      },
+      {
+        "pagePath": "pages/products/products",
+        "text": "产品库",
+        "iconPath": "images/products.png",
+        "selectedIconPath": "images/products-active.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 30000,
+    "downloadFile": 30000
+  },
+  "debug": false,
+  "sitemapLocation": "sitemap.json"
+}
