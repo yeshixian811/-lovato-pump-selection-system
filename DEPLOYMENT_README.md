@@ -10,6 +10,7 @@
 
 | 云服务商 | 适用场景 | 月度成本 | 文档链接 |
 |---------|---------|---------|---------|
+| 🟠 **阿里云** ⭐ | 国内业务，推荐选择 | ~500元 | [快速部署](DEPLOYMENT_ALIYUN_QUICKSTART.md) |
 | 🔵 **腾讯云** | 国内业务优先 | ~500元 | [快速部署](DEPLOYMENT_TENCENT_QUICKSTART.md) |
 | 🔴 **火山云** | 开发测试 | ~500元 | [快速部署](DEPLOYMENT_VOLCANO_QUICKSTART.md) |
 
@@ -40,6 +41,25 @@
 ---
 
 ## 🎯 部署流程
+
+### 阿里云部署 ⭐ 推荐
+
+1. **阅读文档**：[阿里云快速部署指南](DEPLOYMENT_ALIYUN_QUICKSTART.md)（预计 30 分钟）
+2. **连接服务器**：使用 SSH 密钥连接到阿里云服务器
+3. **上传项目**：将项目文件上传到服务器
+4. **运行脚本**：执行 `deploy-aliyun.sh` 自动部署脚本
+5. **配置白名单**：配置阿里云 RDS 白名单（重要！）
+6. **配置环境**：配置 `.env.production` 环境变量
+7. **配置 SSL**：上传 SSL 证书或使用 Certbot 自动获取
+8. **验证部署**：测试 HTTP/HTTPS 访问和功能
+
+**注意：**
+- 阿里云 RDS PostgreSQL 默认端口：**1921**（不是 5432）
+- 必须配置 RDS 白名单
+
+**详细文档**：[阿里云一步一步教程](DEPLOYMENT_ALIYUN_TUTORIAL.md)
+
+---
 
 ### 腾讯云部署
 
@@ -74,6 +94,10 @@
 ### 部署文档
 - [部署文档索引](DEPLOYMENT_INDEX.md) - 所有部署文档的总入口
 - [部署检查清单](DEPLOYMENT_CHECKLIST.md) - 部署前后检查清单
+
+### 阿里云文档 ⭐ 推荐
+- [阿里云快速部署指南](DEPLOYMENT_ALIYUN_QUICKSTART.md) ⭐ **推荐新手**
+- [阿里云一步一步教程](DEPLOYMENT_ALIYUN_TUTORIAL.md) - 完整的分步教程
 
 ### 腾讯云文档
 - [腾讯云快速部署指南](DEPLOYMENT_TENCENT_QUICKSTART.md) ⭐ **推荐新手**
@@ -198,6 +222,7 @@ pm2 restart luowato-selection
 
 部署完成后，建议进行以下安全加固：
 
+### 通用安全
 - [ ] 配置防火墙（UFW）
 - [ ] 禁用 root 远程登录
 - [ ] 使用 SSH 密钥登录
@@ -205,6 +230,11 @@ pm2 restart luowato-selection
 - [ ] 配置监控告警
 - [ ] 定期备份数据库
 - [ ] 使用强密码
+
+### 阿里云专用
+- [ ] 配置 ECS 安全组（开放 80、443 端口）
+- [ ] 配置 RDS 白名单（仅允许 ECS 内网 IP）
+- [ ] 启用阿里云云盾（WAF）
 
 ---
 
@@ -227,5 +257,6 @@ pm2 restart luowato-selection
 
 **🎉 准备好了吗？选择你的云服务商，开始部署吧！**
 
+- [阿里云快速部署](DEPLOYMENT_ALIYUN_QUICKSTART.md) ⭐ **推荐**
 - [腾讯云快速部署](DEPLOYMENT_TENCENT_QUICKSTART.md)
 - [火山云快速部署](DEPLOYMENT_VOLCANO_QUICKSTART.md)

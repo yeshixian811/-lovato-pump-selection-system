@@ -8,8 +8,42 @@
 
 | 云服务商 | 推荐场景 | 月度成本 | 部署难度 |
 |---------|---------|---------|---------|
+| [阿里云](#阿里云部署) ⭐ | 国内业务，推荐选择 | ~500元 | ⭐⭐ 中等 |
 | [腾讯云](#腾讯云部署) | 国内业务优先 | ~500元 | ⭐⭐ 中等 |
 | [火山云](#火山云部署) | 开发测试 | ~500元 | ⭐⭐ 中等 |
+
+---
+
+## 🚀 阿里云部署 ⭐
+
+### 适用场景
+- 国内业务，优先选择
+- 使用阿里云其他服务（如 OSS、CDN）
+- 需要阿里云技术支持
+
+### 部署文档
+1. **⭐⭐⭐ 超详细教程**：[阿里云一步一步教程](DEPLOYMENT_ALIYUN_TUTORIAL.md) ⭐⭐⭐ **最强推荐！**
+
+### 部署脚本
+- `deploy-aliyun.sh` - 阿里云自动部署脚本
+
+### 阿里云服务
+- 云服务器 ECS
+- 云数据库 RDS PostgreSQL
+- SSL 证书（免费）
+- 对象存储 OSS（可选）
+- 内容分发网络 CDN（可选）
+
+### 成本估算
+- 云服务器 ECS（2核4GB）：200元/月
+- RDS PostgreSQL（4GB）：150元/月
+- 带宽（5Mbps）：150元/月
+- **总计：约500元/月**
+
+### 阿里云特有注意事项
+- RDS PostgreSQL 默认端口：**1921**（不是 5432）
+- 必须配置 RDS 白名单
+- 内网地址格式：`rm-xxxxxx.pg.rds.aliyuncs.com`
 
 ---
 
@@ -157,9 +191,10 @@ ss -lptn              # 查看端口
 ## 📞 获取帮助
 
 ### 文档资源
+- **[阿里云一步一步教程](DEPLOYMENT_ALIYUN_TUTORIAL.md) ⭐⭐⭐**
 - [腾讯云快速部署指南](DEPLOYMENT_TENCENT_QUICKSTART.md)
 - [腾讯云部署指南](DEPLOYMENT_GUIDE_TENCENT.md)
-- **[火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md) ⭐**
+- [火山云快速部署指南](DEPLOYMENT_VOLCANO_QUICKSTART.md)
 - [火山云详细步骤指南](DEPLOYMENT_VOLCANO_STEP_BY_STEP.md)
 - [火山云部署指南](DEPLOYMENT_GUIDE.md)
 - [部署错误检查报告](DEPLOYMENT_ERROR_CHECK.md)
@@ -174,6 +209,14 @@ ss -lptn              # 查看端口
 ---
 
 ## 🎯 推荐部署流程
+
+### 新手推荐（阿里云）⭐
+1. 阅读 [阿里云一步一步教程](DEPLOYMENT_ALIYUN_TUTORIAL.md)
+2. 准备阿里云服务器和域名
+3. 使用自动部署脚本 `deploy-aliyun.sh`
+4. 配置 RDS 白名单和环境变量
+5. 配置 SSL 证书和域名解析
+6. 验证部署结果
 
 ### 新手推荐（腾讯云）
 1. 阅读 [腾讯云快速部署指南](DEPLOYMENT_TENCENT_QUICKSTART.md)
@@ -191,7 +234,7 @@ ss -lptn              # 查看端口
 
 ### 高级用户
 1. 选择合适的云服务商
-2. 阅读 [腾讯云部署指南](DEPLOYMENT_GUIDE_TENCENT.md) 或 [火山云部署指南](DEPLOYMENT_GUIDE.md)
+2. 阅读对应的详细部署指南
 3. 手动部署或使用自动部署脚本
 4. 配置 CDN、备份、监控
 5. 优化性能和安全性
