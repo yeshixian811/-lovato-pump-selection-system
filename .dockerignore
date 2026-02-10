@@ -1,0 +1,51 @@
+# Node.js
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Next.js
+.next
+out
+dist
+build
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 环境变量
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# 日志
+logs
+*.log
+
+# 文档
+*.md
+!README.md
+
+# 部署相关
+deploy-*.sh
+*.tar.gz
+Dockerfile
+docker-compose.yml
+
+# 测试
+coverage
+.nyc_output

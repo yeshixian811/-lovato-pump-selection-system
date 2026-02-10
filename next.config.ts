@@ -3,6 +3,14 @@ import path from 'path';
 // import withPWA from 'next-pwa';
 
 const nextConfig: NextConfig = {
+  // 构建优化 - 减少构建时间和体积
+  output: 'standalone', // 启用独立输出，减少部署包大小
+
+  // 排除不必要的文件和依赖
+  experimental: {
+    optimizePackageImports: ['recharts', 'lucide-react'],
+  },
+
   // outputFileTracingRoot: path.resolve(__dirname, '../../'),
   /* config options here */
   allowedDevOrigins: ['*.dev.coze.site'],
