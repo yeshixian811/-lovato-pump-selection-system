@@ -292,7 +292,7 @@ export default function ProductsPage() {
                     <TableHead className="w-[100px]">流量 (m³/h)</TableHead>
                     <TableHead className="w-[100px]">扬程 (m)</TableHead>
                     <TableHead className="w-[100px]">功率 (kW)</TableHead>
-                    <TableHead className="w-[350px]">性能曲线</TableHead>
+                    <TableHead className="w-[120px]">性能曲线</TableHead>
                     <TableHead className="w-[80px]">操作</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -334,23 +334,32 @@ export default function ProductsPage() {
                           <TableCell>
                             {specs['流量'] && specs['扬程'] ? (
                               <div
-                                className="w-[330px] h-[165px] cursor-pointer hover:opacity-80 transition-opacity relative"
+                                className="flex items-center justify-center gap-3 cursor-pointer hover:text-blue-600 transition-colors text-gray-600"
                                 onClick={() => {
                                   setCurveProduct(product)
                                   setCurveDialogOpen(true)
                                 }}
                               >
-                                <div className="absolute inset-0 z-10">
-                                  <PumpCurveChart
-                                    pumpFlow={specs['流量']}
-                                    pumpHead={specs['扬程']}
-                                    userFlow={null}
-                                    userHead={null}
-                                  />
+                                {/* 性能曲线图标 */}
+                                <div className="flex flex-col items-center gap-1">
+                                  <svg
+                                    width="60"
+                                    height="40"
+                                    viewBox="0 0 60 40"
+                                    className="border border-gray-200 rounded bg-gray-50"
+                                  >
+                                    <path
+                                      d="M 5 35 Q 15 35, 20 20 Q 25 5, 35 8 Q 45 11, 55 12"
+                                      fill="none"
+                                      stroke="#3b82f6"
+                                      strokeWidth="2"
+                                    />
+                                    <line x1="5" y1="5" x2="5" y2="35" stroke="#9ca3af" strokeWidth="1" />
+                                    <line x1="5" y1="35" x2="55" y2="35" stroke="#9ca3af" strokeWidth="1" />
+                                  </svg>
+                                  <span className="text-xs text-gray-500">查看曲线</span>
                                 </div>
-                                <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/20">
-                                  <ZoomIn className="h-6 w-6 text-white drop-shadow-md" />
-                                </div>
+                                <ZoomIn className="h-4 w-4 text-gray-400" />
                               </div>
                             ) : (
                               <span className="text-gray-400 text-xs">-</span>
