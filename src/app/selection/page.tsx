@@ -26,7 +26,11 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   ReferenceArea,
-  Legend
+  ReferenceDot,
+  Legend,
+  Scatter,
+  ScatterChart,
+  ZAxis
 } from 'recharts';
 
 // 类型定义
@@ -197,6 +201,32 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
     return data;
   };
 
+  // 计算需求流量在性能曲线上的扬程（插值）
+  const calculateIntersectionHead = (flow: number, data: any[]): number => {
+    if (data.length === 0) return 0;
+    
+    // 找到包含需求流量的两点
+    for (let i = 0; i < data.length - 1; i++) {
+      const p1 = data[i];
+      const p2 = data[i + 1];
+      
+      if (flow >= p1.flowRate && flow <= p2.flowRate) {
+        // 线性插值
+        const ratio = (flow - p1.flowRate) / (p2.flowRate - p1.flowRate);
+        return p1.head + ratio * (p2.head - p1.head);
+      }
+    }
+    
+    // 如果超出范围，返回最近点的扬程
+    if (flow < data[0].flowRate) return data[0].head;
+    return data[data.length - 1].head;
+  };
+
+  // 获取交叉点数据
+  const intersectionHead = calculateIntersectionHead(requiredFlowRate, performanceData);
+  const flowError = requiredFlowRate > 0 ? ((performanceData.length > 0 ? (requiredFlowRate / Math.max(...performanceData.map(d => d.flowRate))) * 100 : 0) - 100) : 0;
+  const headError = requiredHead > 0 ? ((intersectionHead / requiredHead) * 100) - 100 : 0;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -294,8 +324,60 @@ function PumpPerformanceCurve({ pump, requiredFlowRate, requiredHead }: PumpPerf
             strokeWidth={1}
             label="最高扬程"
           />
+          
+          {/* 交叉点标记 - 重点显示 */}
+          <ReferenceDot
+            x={Number(requiredFlowRate)}
+            y={Number(intersectionHead)}
+            r={6}
+            fill="#ef4444"
+            stroke="#ffffff"
+            strokeWidth={2}
+            isFront
+          />
+          
+          {/* 需求点标记 */}
+          <ReferenceDot
+            x={Number(requiredFlowRate)}
+            y={Number(requiredHead)}
+            r={4}
+            fill="#f97316"
+            stroke="#ffffff"
+            strokeWidth={1}
+            isFront
+          />
         </LineChart>
       </ResponsiveContainer>
+      
+      {/* 交叉点信息显示 */}
+      <div className="absolute top-2 left-2 z-10 bg-white dark:bg-gray-800 border-2 border-red-500 rounded-lg p-3 text-xs shadow-lg max-w-[180px]">
+        <div className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-1">
+          <span className="w-3 h-3 rounded-full bg-red-500 border-2 border-white inline-block"></span>
+          工作点
+        </div>
+        <div className="space-y-1 text-gray-700 dark:text-gray-300">
+          <div className="flex justify-between">
+            <span>流量:</span>
+            <span className="font-semibold">{requiredFlowRate.toFixed(1)} m³/h</span>
+          </div>
+          <div className="flex justify-between">
+            <span>扬程:</span>
+            <span className="font-semibold">{intersectionHead.toFixed(1)} m</span>
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+            <div className="flex justify-between">
+              <span>需求:</span>
+              <span className="font-semibold text-orange-600 dark:text-orange-400">{requiredHead.toFixed(1)} m</span>
+            </div>
+            <div className="flex justify-between">
+              <span>误差:</span>
+              <span className={`font-semibold ${headError >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                {headError >= 0 ? '+' : ''}{headError.toFixed(1)}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
