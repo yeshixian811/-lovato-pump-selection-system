@@ -245,12 +245,12 @@ export default function ProductsPage() {
       </div>
 
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200 py-4 flex-shrink-0">
+      <div className="bg-white border-b border-gray-200 py-2 flex-shrink-0">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-xl font-bold text-gray-900 mb-1">产品库</h1>
-              <p className="text-sm text-gray-600">水泵产品性能曲线参数列表</p>
+              <h1 className="text-lg font-bold text-gray-900 mb-0">产品库</h1>
+              <p className="text-xs text-gray-600">水泵产品性能曲线参数列表</p>
             </div>
             <div>
               <Button onClick={() => {
