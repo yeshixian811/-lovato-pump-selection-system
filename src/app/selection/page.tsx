@@ -467,9 +467,6 @@ export default function PumpSelectionPage() {
                   <Search className="w-5 h-5 text-blue-600" />
                   参数输入
                 </CardTitle>
-                <CardDescription className="text-sm md:text-base">
-                  请填写您的使用需求，系统将自动匹配最合适的水泵产品
-                </CardDescription>
               </CardHeader>
               <CardContent className="overflow-hidden">
                 <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
