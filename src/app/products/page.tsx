@@ -182,34 +182,32 @@ export default function ProductsPage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Slogan */}
-            <div className="flex items-center gap-6">
-              <a href="/" className="flex items-end gap-3">
-                <img
-                  src="/luwatto-logo.png"
-                  alt="洛瓦托LOGO"
-                  className="h-8 w-auto"
-                />
-                <span className="text-gray-900 font-medium text-sm hidden sm:block">
-                  精准输配 冷暖随心
-                </span>
-              </a>
+            <a href="/" className="flex items-end gap-3">
+              <img
+                src="/luwatto-logo.png"
+                alt="洛瓦托LOGO"
+                className="h-8 w-auto"
+              />
+              <span className="text-gray-900 font-medium text-sm hidden sm:block">
+                精准输配 冷暖随心
+              </span>
+            </a>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center gap-1">
-                <a
-                  href="/selection"
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 text-gray-700 hover:bg-gray-100"
-                >
-                  智能选型
-                </a>
-                <a
-                  href="/products"
-                  className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-blue-100 text-blue-600"
-                >
-                  产品库
-                </a>
-              </nav>
-            </div>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              <a
+                href="/selection"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 text-gray-700 hover:bg-gray-100"
+              >
+                智能选型
+              </a>
+              <a
+                href="/products"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-blue-100 text-blue-600"
+              >
+                产品库
+              </a>
+            </nav>
 
             {/* Mobile Menu Button */}
             <button

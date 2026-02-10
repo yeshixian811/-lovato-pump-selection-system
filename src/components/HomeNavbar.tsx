@@ -19,35 +19,33 @@ export function HomeNavbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Slogan */}
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-end gap-3">
-              <img
-                src="/luwatto-logo.png"
-                alt="洛瓦托LOGO"
-                className="h-8 w-auto"
-              />
-              <span className="text-gray-900 font-medium text-sm hidden sm:block">
-                精准输配 冷暖随心
-              </span>
-            </Link>
+          <Link href="/" className="flex items-end gap-3">
+            <img
+              src="/luwatto-logo.png"
+              alt="洛瓦托LOGO"
+              className="h-8 w-auto"
+            />
+            <span className="text-gray-900 font-medium text-sm hidden sm:block">
+              精准输配 冷暖随心
+            </span>
+          </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                    pathname === item.href
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  pathname === item.href
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
 
           {/* Mobile Menu Button */}
           <button
