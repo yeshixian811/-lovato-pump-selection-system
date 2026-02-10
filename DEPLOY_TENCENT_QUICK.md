@@ -3,7 +3,7 @@
 ## 部署信息
 
 - 服务器 IP：122.51.22.101
-- SSH 用户名：lowato
+- SSH 用户名：ubuntu
 - SSH 密码：lhkp-gbdknawa
 - 域名：lowatopump.com
 
@@ -16,7 +16,7 @@
 在你的本地电脑上执行：
 
 ```bash
-ssh lowato@122.51.22.101
+ssh ubuntu@122.51.22.101
 ```
 
 输入密码：`lhkp-gbdknawa`
