@@ -1,0 +1,36 @@
+{
+  "name": "Lovato Pump Solutions",
+  "version": "1.0.0",
+  "description": "洛瓦托水泵选型系统 - 智能水泵选型工具",
+  "routing": {
+    "defaultRoute": "/",
+    "routes": [
+      {
+        "path": "/",
+        "name": "Home",
+        "expose": "home"
+      },
+      {
+        "path": "/selection",
+        "name": "智能选型",
+        "expose": "selection"
+      },
+      {
+        "path": "/products",
+        "name": "产品库",
+        "expose": "products"
+      },
+      {
+        "path": "/admin",
+        "name": "管理后台",
+        "expose": "admin"
+      }
+    ]
+  },
+  "metadata": {
+    "groupId": "prj_eIVWq7TBdMTRCh063HBq5LJpehgW",
+    "displayName": "yeshixian811——洛瓦托泵选系统",
+    "icon": "pump",
+    "category": "HVAC"
+  }
+}
