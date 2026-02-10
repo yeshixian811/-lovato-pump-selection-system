@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 # 配置变量
 PROJECT_DIR="/var/www/luowato-selection"
 PORT=5000
-DOMAIN="your-domain.com"  # 请修改为你的域名
+DOMAIN="lowato-pumps.com"  # 已修改为你的域名
 EMAIL="your-email@example.com"  # 请修改为你的邮箱
 
 # 检查是否为 root 用户
