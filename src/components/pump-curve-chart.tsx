@@ -67,6 +67,39 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
 
   const curveData = generateCurveData();
 
+  // 计算恒压线与性能曲线的交点流量
+  // 性能曲线：H = shutOffHead - k * Q^2
+  // 恒压线：H = constant
+  // 交点：constant = shutOffHead - k * Q^2 => Q = sqrt((shutOffHead - constant) / k)
+  const k = (pumpMaxHeadNum || pumpHeadNum) / (pumpFlowNum * pumpFlowNum);
+  const shutOffHead = pumpMaxHeadNum || pumpHeadNum;
+
+  // 生成恒压线段数据（只显示到性能曲线内）
+  const generateConstantPressureLine = (constantHead: number) => {
+    // 如果恒压值大于关断扬程，则没有交点，不显示
+    if (constantHead >= shutOffHead) {
+      return [];
+    }
+
+    // 计算交点流量
+    const intersectionFlow = Math.sqrt((shutOffHead - constantHead) / k);
+
+    // 如果交点流量小于0或大于最大流量，则不显示
+    if (intersectionFlow <= 0 || intersectionFlow > pumpFlowNum) {
+      return [];
+    }
+
+    // 生成线段数据：从(0, constantHead)到(intersectionFlow, constantHead)
+    return [
+      { flow: 0, head: constantHead },
+      { flow: Number(intersectionFlow.toFixed(1)), head: constantHead },
+    ];
+  };
+
+  const line10m = generateConstantPressureLine(10);
+  const line8m = generateConstantPressureLine(8);
+  const line6m = generateConstantPressureLine(6);
+
   return (
     <div className="w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
@@ -129,32 +162,74 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
             isFront={true}
           />
 
-          {/* 恒压参考线 - 10米 */}
-          <ReferenceLine
-            y={10}
-            stroke="#8b5cf6"
-            strokeWidth={1.5}
-            strokeDasharray="5 3"
-            label={{ value: "10m", position: "right", fontSize: 10, fill: "#8b5cf6" }}
-          />
+          {/* 恒压参考线 - 10米（只显示到性能曲线内） */}
+          {line10m.length > 0 && (
+            <>
+              <Line
+                dataKey="head_10m"
+                data={line10m}
+                stroke="#8b5cf6"
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={false}
+                name="10m"
+              />
+              <ReferenceDot
+                x={line10m[1].flow}
+                y={10}
+                r={3}
+                fill="#8b5cf6"
+                label={{ value: "10m", position: "top", offset: 5, fontSize: 10, fill: "#8b5cf6" }}
+                isFront={true}
+              />
+            </>
+          )}
 
-          {/* 恒压参考线 - 8米 */}
-          <ReferenceLine
-            y={8}
-            stroke="#f59e0b"
-            strokeWidth={1.5}
-            strokeDasharray="5 3"
-            label={{ value: "8m", position: "right", fontSize: 10, fill: "#f59e0b" }}
-          />
+          {/* 恒压参考线 - 8米（只显示到性能曲线内） */}
+          {line8m.length > 0 && (
+            <>
+              <Line
+                dataKey="head_8m"
+                data={line8m}
+                stroke="#f59e0b"
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={false}
+                name="8m"
+              />
+              <ReferenceDot
+                x={line8m[1].flow}
+                y={8}
+                r={3}
+                fill="#f59e0b"
+                label={{ value: "8m", position: "top", offset: 5, fontSize: 10, fill: "#f59e0b" }}
+                isFront={true}
+              />
+            </>
+          )}
 
-          {/* 恒压参考线 - 6米 */}
-          <ReferenceLine
-            y={6}
-            stroke="#ec4899"
-            strokeWidth={1.5}
-            strokeDasharray="5 3"
-            label={{ value: "6m", position: "right", fontSize: 10, fill: "#ec4899" }}
-          />
+          {/* 恒压参考线 - 6米（只显示到性能曲线内） */}
+          {line6m.length > 0 && (
+            <>
+              <Line
+                dataKey="head_6m"
+                data={line6m}
+                stroke="#ec4899"
+                strokeWidth={1.5}
+                strokeDasharray="5 3"
+                dot={false}
+                name="6m"
+              />
+              <ReferenceDot
+                x={line6m[1].flow}
+                y={6}
+                r={3}
+                fill="#ec4899"
+                label={{ value: "6m", position: "top", offset: 5, fontSize: 10, fill: "#ec4899" }}
+                isFront={true}
+              />
+            </>
+          )}
         </LineChart>
       </ResponsiveContainer>
     </div>
