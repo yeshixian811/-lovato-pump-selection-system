@@ -18,7 +18,7 @@ export default function Home() {
             洛瓦托水泵选型系统
           </h1>
 
-          <div className="grid gap-8 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-1 max-w-md mx-auto">
             {/* 选型工具 */}
             <Link href="/selection">
               <Card className="hover:shadow-xl transition-all cursor-pointer h-full">
@@ -34,27 +34,6 @@ export default function Home() {
                   </p>
                   <Button className="w-full bg-blue-600 hover:bg-blue-700">
                     开始选型
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* 产品库 */}
-            <Link href="/products">
-              <Card className="hover:shadow-xl transition-all cursor-pointer h-full">
-                <CardContent className="p-8 flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                    <Droplets className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                    产品库
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    浏览所有水泵产品，查看详细参数和性能曲线
-                  </p>
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    查看产品
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </CardContent>

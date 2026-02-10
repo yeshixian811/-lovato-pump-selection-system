@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, Edit, Plus, Upload, Download, ZoomIn, Menu, X, Trash2, Check, AlertCircle } from 'lucide-react'
 import { EditProductDialog } from '@/components/EditProductDialog'
 import { ImportProductDialog } from '@/components/ImportProductDialog'
+import { PasswordProtect } from '@/components/PasswordProtect'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import dynamic from 'next/dynamic'
@@ -251,7 +252,8 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <PasswordProtect correctPassword="admin123">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header Navigation */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40 flex-shrink-0">
         <div className="container mx-auto px-4">
@@ -549,6 +551,7 @@ export default function ProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </PasswordProtect>
   )
 }
