@@ -77,23 +77,25 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
   // 生成恒压线段数据（只显示到性能曲线内）
   const generateConstantPressureLine = (constantHead: number) => {
     // 如果恒压值大于关断扬程，则没有交点，不显示
-    if (constantHead >= shutOffHead) {
-      return [];
+    if (constantHead > shutOffHead) {
+      return null;
+    }
+
+    // 如果恒压值等于关断扬程，交点在流量为0的位置
+    if (constantHead === shutOffHead) {
+      return { startFlow: 0, endFlow: 0 };
     }
 
     // 计算交点流量
     const intersectionFlow = Math.sqrt((shutOffHead - constantHead) / k);
 
     // 如果交点流量小于0或大于最大流量，则不显示
-    if (intersectionFlow <= 0 || intersectionFlow > pumpFlowNum) {
-      return [];
+    if (isNaN(intersectionFlow) || intersectionFlow <= 0 || intersectionFlow > pumpFlowNum) {
+      return null;
     }
 
-    // 生成线段数据：从(0, constantHead)到(intersectionFlow, constantHead)
-    return [
-      { flow: 0, head: constantHead },
-      { flow: Number(intersectionFlow.toFixed(1)), head: constantHead },
-    ];
+    // 返回起始和结束流量
+    return { startFlow: 0, endFlow: intersectionFlow };
   };
 
   const line10m = generateConstantPressureLine(10);
@@ -163,19 +165,20 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
           />
 
           {/* 恒压参考线 - 10米（只显示到性能曲线内） */}
-          {line10m.length > 0 && (
+          {line10m && line10m.endFlow > 0 && (
             <>
-              <Line
-                dataKey="head_10m"
-                data={line10m}
+              <ReferenceLine
+                y={10}
                 stroke="#8b5cf6"
                 strokeWidth={1.5}
                 strokeDasharray="5 3"
-                dot={false}
-                name="10m"
+                segment={[
+                  { x: 0, y: 10 },
+                  { x: line10m.endFlow, y: 10 }
+                ]}
               />
               <ReferenceDot
-                x={line10m[1].flow}
+                x={line10m.endFlow}
                 y={10}
                 r={3}
                 fill="#8b5cf6"
@@ -186,19 +189,20 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
           )}
 
           {/* 恒压参考线 - 8米（只显示到性能曲线内） */}
-          {line8m.length > 0 && (
+          {line8m && line8m.endFlow > 0 && (
             <>
-              <Line
-                dataKey="head_8m"
-                data={line8m}
+              <ReferenceLine
+                y={8}
                 stroke="#f59e0b"
                 strokeWidth={1.5}
                 strokeDasharray="5 3"
-                dot={false}
-                name="8m"
+                segment={[
+                  { x: 0, y: 8 },
+                  { x: line8m.endFlow, y: 8 }
+                ]}
               />
               <ReferenceDot
-                x={line8m[1].flow}
+                x={line8m.endFlow}
                 y={8}
                 r={3}
                 fill="#f59e0b"
@@ -209,19 +213,20 @@ export default function PumpCurveChart({ pumpFlow, pumpHead, pumpMaxFlow, pumpMa
           )}
 
           {/* 恒压参考线 - 6米（只显示到性能曲线内） */}
-          {line6m.length > 0 && (
+          {line6m && line6m.endFlow > 0 && (
             <>
-              <Line
-                dataKey="head_6m"
-                data={line6m}
+              <ReferenceLine
+                y={6}
                 stroke="#ec4899"
                 strokeWidth={1.5}
                 strokeDasharray="5 3"
-                dot={false}
-                name="6m"
+                segment={[
+                  { x: 0, y: 6 },
+                  { x: line6m.endFlow, y: 6 }
+                ]}
               />
               <ReferenceDot
-                x={line6m[1].flow}
+                x={line6m.endFlow}
                 y={6}
                 r={3}
                 fill="#ec4899"
