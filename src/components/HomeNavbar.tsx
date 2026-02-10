@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 
 const navItems = [
   { name: '智能选型', href: '/selection' },
-  { name: '产品中心', href: '/products' },
+  { name: '产品库', href: '/products' },
 ]
 
 export function HomeNavbar() {

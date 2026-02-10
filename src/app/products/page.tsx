@@ -206,7 +206,7 @@ export default function ProductsPage() {
                   href="/products"
                   className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 bg-blue-100 text-blue-600"
                 >
-                  产品中心
+                  产品库
                 </a>
               </nav>
             </div>
@@ -237,7 +237,7 @@ export default function ProductsPage() {
                   pathname === '/products' ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                产品中心
+                产品库
               </a>
             </div>
           )}
