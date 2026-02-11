@@ -9,7 +9,7 @@ const { Pool } = require('pg');
 
 // 数据库配置
 const config = {
-  connectionString: 'postgresql://lovato_user:YEzi100243..@122.51.22.101:5432/lovato_pump',
+  connectionString: 'postgresql://lovato_user:YEzi100243..@1.15.166.174:5432/lovato_pump',
   ssl: {
     rejectUnauthorized: false // 生产环境建议使用有效证书
   }
