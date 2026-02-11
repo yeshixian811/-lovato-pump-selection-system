@@ -9,7 +9,9 @@
     "preinstall": "npx only-allow pnpm",
     "start": "bash ./scripts/start.sh",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "ts-check": "tsc -p tsconfig.json"
+    "ts-check": "tsc -p tsconfig.json",
+    "test:db": "node ./scripts/test-db-connection.js",
+    "deploy:tencent": "bash ./scripts/deploy-tencent-cloud.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
