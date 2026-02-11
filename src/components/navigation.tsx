@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Layout,
   FileCode,
+  Settings,
 } from 'lucide-react'
 import { isWechatMiniProgram } from '@/lib/wechat'
 
@@ -29,6 +30,10 @@ export default function Navigation() {
   ]
 
   const diagnosticItem = { href: '/diagnostic', label: '系统诊断', icon: FileCode }
+
+  // 管理面板（仅在开发环境或特定条件显示）
+  const showAdminPanel = process.env.NODE_ENV === 'development' || process.env.SHOW_ADMIN_PANEL === 'true'
+  const adminItem = { href: '/admin', label: '管理面板', icon: Settings }
 
   // 在微信小程序中隐藏导航栏
   if (isMiniProgram) {
@@ -67,6 +72,21 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))}
+
+            {/* 管理面板 */}
+            {showAdminPanel && (
+              <Link
+                href={adminItem.href}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  pathname === adminItem.href
+                    ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <adminItem.icon className="h-4 w-4" />
+                {adminItem.label}
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,6 +130,22 @@ export default function Navigation() {
                 {item.label}
               </Link>
             ))}
+
+            {/* 管理面板 */}
+            {showAdminPanel && (
+              <Link
+                href={adminItem.href}
+                onClick={() => setIsMenuOpen(false)}
+                className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  pathname === adminItem.href
+                    ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <adminItem.icon className="h-4 w-4" />
+                {adminItem.label}
+              </Link>
+            )}
           </div>
         )}
       </div>
