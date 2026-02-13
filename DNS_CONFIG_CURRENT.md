@@ -40,9 +40,9 @@ TTL：600（或默认值）
 
 ## 🔧 各大域名提供商配置步骤
 
-### 阿里云 (Alibaba Cloud)
+### 火山云 (Volcengine)
 
-1. 登录 [阿里云 DNS 控制台](https://dns.console.aliyun.com/)
+1. 登录 [火山云 DNS 控制台](https://console.volcengine.com/dns)
 2. 选择域名：lowatopump.com
 3. 点击 **添加记录**
 
@@ -55,28 +55,6 @@ TTL：600（或默认值）
 **记录 2：**
 - 记录类型：CNAME
 - 主机记录：`www`
-- 记录值：`cname.vercel-dns.com`
-- TTL：600
-
----
-
-### 腾讯云 (Tencent Cloud)
-
-1. 登录 [腾讯云 DNS 控制台](https://console.cloud.tencent.com/cns)
-2. 选择域名：lowatopump.com
-3. 点击 **添加记录**
-
-**记录 1：**
-- 主机记录：`@`
-- 记录类型：A
-- 线路类型：默认
-- 记录值：`216.198.79.1`
-- TTL：600
-
-**记录 2：**
-- 主机记录：`www`
-- 记录类型：CNAME
-- 线路类型：默认
 - 记录值：`cname.vercel-dns.com`
 - TTL：600
 

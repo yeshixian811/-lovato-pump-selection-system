@@ -10,10 +10,10 @@ const execAsync = promisify(exec);
 export async function GET() {
   try {
     const dbConfig = {
-      host: '122.51.22.101',
-      port: 5433,
-      user: 'admin',
-      database: 'mydb',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      user: process.env.DB_USER || 'postgres',
+      database: process.env.DB_NAME || 'lovatopump',
     };
 
     // 使用 nc 检查端口
@@ -32,13 +32,14 @@ export async function GET() {
 
     if (portOpen) {
       try {
+        const dbPassword = process.env.DB_PASSWORD || '';
         const startTime = Date.now();
-        await execAsync(`PGPASSWORD='Tencent@123' psql -h ${dbConfig.host} -p ${dbConfig.port} -U ${dbConfig.user} -d ${dbConfig.database} -c "SELECT 1;"`);
+        await execAsync(`PGPASSWORD='${dbPassword}' psql -h ${dbConfig.host} -p ${dbConfig.port} -U ${dbConfig.user} -d ${dbConfig.database} -c "SELECT 1;"`);
         connectionTime = Date.now() - startTime;
         dbStatus = 'connected';
 
         // 查询表数量
-        const { stdout } = await execAsync(`PGPASSWORD='Tencent@123' psql -h ${dbConfig.host} -p ${dbConfig.port} -U ${dbConfig.user} -d ${dbConfig.database} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';"`);
+        const { stdout } = await execAsync(`PGPASSWORD='${dbPassword}' psql -h ${dbConfig.host} -p ${dbConfig.port} -U ${dbConfig.user} -d ${dbConfig.database} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';"`);
         tableCount = parseInt(stdout.trim()) || 0;
       } catch (error) {
         console.error('数据库查询失败:', error);
