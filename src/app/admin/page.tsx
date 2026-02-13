@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Activity,
   Database,
-  Docker,
+  Box,
   Server,
   RefreshCw,
   Play,
@@ -315,7 +315,7 @@ export default function AdminPanel() {
         <Tabs defaultValue="containers" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="containers" className="gap-2">
-              <Docker className="h-4 w-4" />
+              <Box className="h-4 w-4" />
               容器管理
             </TabsTrigger>
             <TabsTrigger value="database" className="gap-2">
