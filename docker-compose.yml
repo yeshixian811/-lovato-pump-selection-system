@@ -1,8 +1,6 @@
 # ============================================
 # 洛瓦托水泵选型系统 - Docker Compose 配置
 # ============================================
-# 适配腾讯云轻量服务器 + 腾讯云轻量数据库
-# ============================================
 
 version: '3.8'
 
@@ -20,10 +18,10 @@ services:
       # 应用配置
       - NODE_ENV=production
       - PORT=3000
-      - NEXT_PUBLIC_APP_URL=http://122.51.22.101
+      - NEXT_PUBLIC_APP_URL=https://lowato-hvac.com
 
-      # 腾讯云轻量数据库配置
-      - DATABASE_URL=postgresql://admin:Tencent@123@122.51.22.101:5433/mydb
+      # 数据库配置
+      - DATABASE_URL=${DATABASE_URL}
 
       # JWT 认证配置
       - JWT_SECRET=lovato-jwt-secret-key-production-2024-secure
@@ -34,7 +32,7 @@ services:
       - ENCRYPTION_KEY=lovato-encryption-key-production-2024-secure-aes-256-gcm
 
       # CORS 配置
-      - ALLOWED_ORIGINS=http://122.51.22.101,https://lowatopump.com
+      - ALLOWED_ORIGINS=https://lowato-hvac.com
 
       # 日志配置
       - LOG_LEVEL=info
