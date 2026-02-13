@@ -74,22 +74,12 @@ export default function RootLayout({
 
   return (
     <html lang="zh-CN">
-      <head>
-        {/* Viewport 配置 - 确保响应式正常工作 */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
-        {/* 微信小程序兼容性标签 */}
-        <meta name="wechat-enable-compatible" content="true" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="洛瓦托选型" />
-      </head>
       <body className="antialiased">
         <WechatInitializer />
         <main>
-          {isDev && <Inspector />}
           {children}
         </main>
+        {isDev && <Inspector />}
       </body>
     </html>
   );
