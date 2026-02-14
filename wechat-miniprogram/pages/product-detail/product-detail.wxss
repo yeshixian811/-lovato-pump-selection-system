@@ -1,0 +1,347 @@
+/* 产品详情样式 */
+
+.product-header {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  padding: 60rpx 30rpx;
+  text-align: center;
+  color: #ffffff;
+}
+
+.header-badge {
+  display: inline-block;
+  padding: 8rpx 24rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  margin-bottom: 16rpx;
+}
+
+.header-model {
+  font-size: 48rpx;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+}
+
+.header-name {
+  font-size: 28rpx;
+  opacity: 0.9;
+  margin-bottom: 16rpx;
+}
+
+.header-desc {
+  font-size: 24rpx;
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* 卡片 */
+.card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  margin: 30rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 24rpx;
+  padding-left: 20rpx;
+  position: relative;
+}
+
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 32rpx;
+  background: #1e40af;
+  border-radius: 3rpx;
+}
+
+/* 参数网格 */
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  padding: 20rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+}
+
+.spec-label {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+
+.spec-value {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* 性能曲线 */
+.curve-section {
+  margin-top: 20rpx;
+}
+
+.curve-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+}
+
+.legend-line {
+  width: 80rpx;
+  height: 4rpx;
+  margin-right: 12rpx;
+  border-radius: 2rpx;
+}
+
+.head-line {
+  background: #1e40af;
+}
+
+.efficiency-line {
+  background: #22c55e;
+}
+
+.power-line {
+  background: #f59e0b;
+}
+
+.legend-text {
+  font-size: 24rpx;
+  color: #64748b;
+}
+
+/* 曲线数据表 */
+.curve-data {
+  background: #f8fafc;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.curve-header {
+  display: flex;
+  background: #e2e8f0;
+  font-weight: 600;
+}
+
+.curve-row {
+  display: flex;
+  border-top: 1rpx solid #e2e8f0;
+}
+
+.curve-row:nth-child(even) {
+  background: #ffffff;
+}
+
+.data-cell {
+  flex: 1;
+  padding: 16rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #0f172a;
+}
+
+.curve-header .data-cell {
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* 需求点标记 */
+.requirement-point {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  background: #fef3c7;
+  border-radius: 12rpx;
+  border-left: 4rpx solid #f59e0b;
+}
+
+.requirement-label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 12rpx;
+}
+
+.requirement-values {
+  display: flex;
+  gap: 30rpx;
+}
+
+.req-item {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.req-label {
+  font-size: 24rpx;
+  color: #92400e;
+}
+
+.req-value {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #92400e;
+}
+
+/* 详细参数列表 */
+.detail-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f1f5f9;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 28rpx;
+  color: #64748b;
+}
+
+.detail-value {
+  font-size: 28rpx;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+/* 标签容器 */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.tag {
+  padding: 12rpx 24rpx;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 26rpx;
+  border-radius: 8rpx;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  padding: 30rpx;
+}
+
+.btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #1e40af;
+  color: #ffffff;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2rpx solid #1e40af;
+  color: #1e40af;
+}
+
+/* 底部信息 */
+.footer-info {
+  display: flex;
+  gap: 20rpx;
+  padding: 0 30rpx 30rpx;
+}
+
+.footer-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+  background: #f8fafc;
+  border-radius: 12rpx;
+}
+
+.share-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-icon {
+  font-size: 32rpx;
+  margin-right: 8rpx;
+}
+
+.footer-text {
+  font-size: 26rpx;
+  color: #64748b;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #e2e8f0;
+  border-top-color: #1e40af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: #64748b;
+}

@@ -1,0 +1,62 @@
+<!-- 关于我们页面 -->
+
+<view class="page-container">
+  <!-- 公司信息 -->
+  <view class="company-info">
+    <view class="logo">Lovato</view>
+    <view class="name">{{company.name}}</view>
+    <view class="description">{{company.description}}</view>
+  </view>
+
+  <!-- 联系方式 -->
+  <view class="contact-section">
+    <view class="section-title">联系我们</view>
+    <view class="contact-list">
+      <view class="contact-item" bindtap="onCallPhone">
+        <view class="contact-icon">📞</view>
+        <view class="contact-info">
+          <view class="contact-label">客服电话</view>
+          <view class="contact-value">{{company.phone}}</view>
+        </view>
+        <view class="contact-arrow">›</view>
+      </view>
+      <view class="contact-item" bindtap="onCopyEmail">
+        <view class="contact-icon">📧</view>
+        <view class="contact-info">
+          <view class="contact-label">电子邮箱</view>
+          <view class="contact-value">{{company.email}}</view>
+        </view>
+        <view class="contact-arrow">›</view>
+      </view>
+      <view class="contact-item" bindtap="onOpenLocation">
+        <view class="contact-icon">📍</view>
+        <view class="contact-info">
+          <view class="contact-label">公司地址</view>
+          <view class="contact-value">{{company.address}}</view>
+        </view>
+        <view class="contact-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="quick-links">
+    <view class="link-item" bindtap="onVisitWebsite">
+      <view class="link-icon">🌐</view>
+      <view class="link-text">访问官网</view>
+      <view class="link-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <view class="version-text">版本信息</view>
+    <view class="version-number">当前版本: 1.0.0</view>
+  </view>
+
+  <!-- 底部版权 -->
+  <view class="footer">
+    <view class="copyright">© 2024 洛瓦托水泵</view>
+    <view class="rights">All Rights Reserved</view>
+  </view>
+</view>

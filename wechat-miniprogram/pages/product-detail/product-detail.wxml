@@ -1,0 +1,196 @@
+<!-- 产品详情页面 -->
+
+<scroll-view class="page-container" scroll-y="{{true}}" wx:if="{{!loading}}">
+  <!-- 产品头部 -->
+  <view class="product-header">
+    <view class="header-badge">{{product.series}}</view>
+    <view class="header-model">{{product.model}}</view>
+    <view class="header-name">{{product.name}}</view>
+    <view class="header-desc">{{product.description}}</view>
+  </view>
+
+  <!-- 主要参数卡片 -->
+  <view class="card">
+    <view class="card-title">主要参数</view>
+    <view class="specs-grid">
+      <view class="spec-item">
+        <text class="spec-label">流量</text>
+        <text class="spec-value">{{product.max_flow_rate}} m³/h</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">扬程</text>
+        <text class="spec-value">{{product.max_head}} m</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">功率</text>
+        <text class="spec-value">{{product.rated_power}} kW</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">效率</text>
+        <text class="spec-value">{{product.efficiency}}%</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">转速</text>
+        <text class="spec-value">{{product.rated_speed}} r/min</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">电压</text>
+        <text class="spec-value">{{product.voltage}}</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">进口直径</text>
+        <text class="spec-value">{{product.inlet_diameter}} mm</text>
+      </view>
+      <view class="spec-item">
+        <text class="spec-label">出口直径</text>
+        <text class="spec-value">{{product.outlet_diameter}} mm</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 性能曲线图表（最关键功能） -->
+  <view class="card" wx:if="{{product.performance_curve && product.performance_curve.length > 0}}">
+    <view class="card-title">性能曲线</view>
+    <view class="curve-section">
+      <!-- 由于微信小程序限制，这里使用简化的曲线展示 -->
+      <view class="curve-legend">
+        <view class="legend-item">
+          <view class="legend-line head-line"></view>
+          <text class="legend-text">扬程 (m)</text>
+        </view>
+        <view class="legend-item">
+          <view class="legend-line efficiency-line"></view>
+          <text class="legend-text">效率 (%)</text>
+        </view>
+        <view class="legend-item">
+          <view class="legend-line power-line"></view>
+          <text class="legend-text">功率 (kW)</text>
+        </view>
+      </view>
+
+      <!-- 简化的曲线数据表 -->
+      <view class="curve-data">
+        <view class="curve-header">
+          <text class="data-cell">流量</text>
+          <text class="data-cell">扬程</text>
+          <text class="data-cell">效率</text>
+          <text class="data-cell">功率</text>
+        </view>
+        <view class="curve-row" wx:for="{{product.performance_curve}}" wx:key="flowRate">
+          <text class="data-cell">{{item.flowRate}}</text>
+          <text class="data-cell">{{item.head}}</text>
+          <text class="data-cell">{{item.efficiency}}</text>
+          <text class="data-cell">{{item.power}}</text>
+        </view>
+      </view>
+
+      <!-- 需求点标记 -->
+      <view class="requirement-point" wx:if="{{requiredFlow > 0 && requiredHead > 0}}">
+        <view class="requirement-label">您的需求</view>
+        <view class="requirement-values">
+          <view class="req-item">
+            <text class="req-label">需求流量:</text>
+            <text class="req-value">{{requiredFlow}} m³/h</text>
+          </view>
+          <view class="req-item">
+            <text class="req-label">需求扬程:</text>
+            <text class="req-value">{{requiredHead}} m</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详细参数 -->
+  <view class="card">
+    <view class="card-title">详细参数</view>
+    <view class="detail-list">
+      <view class="detail-item">
+        <text class="detail-label">额定电流</text>
+        <text class="detail-value">{{product.current}} A</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">功率因数</text>
+        <text class="detail-value">{{product.power_factor}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">频率</text>
+        <text class="detail-value">{{product.frequency}} Hz</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">重量</text>
+        <text class="detail-value">{{product.weight}} kg</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">外形尺寸</text>
+        <text class="detail-value">{{product.dimensions}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">泵体材料</text>
+        <text class="detail-value">{{product.casing_material}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">叶轮材料</text>
+        <text class="detail-value">{{product.impeller_material}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">密封形式</text>
+        <text class="detail-value">{{product.seal_type}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">防护等级</text>
+        <text class="detail-value">{{product.protection_level}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">绝缘等级</text>
+        <text class="detail-value">{{product.insulation_class}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">最高温度</text>
+        <text class="detail-value">{{product.max_temperature}} °C</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">最低温度</text>
+        <text class="detail-value">{{product.min_temperature}} °C</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 应用场景 -->
+  <view class="card">
+    <view class="card-title">应用场景</view>
+    <view class="tags-container">
+      <view class="tag" wx:for="{{product.applications}}" wx:key="*this">
+        {{item}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="btn btn-outline" bindtap="onToggleFavorite">
+      {{isFavorite ? '❤️ 已收藏' : '🤍 收藏'}}
+    </button>
+    <button class="btn btn-primary" bindtap="onContact">联系客服</button>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer-info">
+    <view class="footer-item" bindtap="onDownloadSpec">
+      <text class="footer-icon">📄</text>
+      <text class="footer-text">下载规格书</text>
+    </view>
+    <view class="footer-item" bindtap="onShareAppMessage">
+      <button class="share-btn" open-type="share">
+        <text class="footer-icon">📤</text>
+        <text class="footer-text">分享给朋友</text>
+      </button>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 加载状态 -->
+<view class="loading-container" wx:if="{{loading}}">
+  <view class="loading-spinner"></view>
+  <text class="loading-text">加载中...</text>
+</view>

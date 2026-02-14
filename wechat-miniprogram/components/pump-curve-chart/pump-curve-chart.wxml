@@ -1,0 +1,42 @@
+<!-- 水泵性能曲线图表组件 -->
+
+<view class="pump-curve-chart-container">
+  <view class="chart-header">
+    <view class="chart-title">性能曲线</view>
+    <view wx:if="{{pump}}" class="chart-subtitle">{{pump.model}}</view>
+  </view>
+
+  <view class="chart-wrapper">
+    <ec-canvas
+      id="mychart-dom-pump-curve"
+      canvas-id="mychart-pump-curve"
+      ec="{{ ec }}"
+    ></ec-canvas>
+  </view>
+
+  <view wx:if="{{showReference && requiredFlow > 0 && requiredHead > 0}}" class="chart-legend">
+    <view class="legend-item">
+      <view class="legend-line reference-line"></view>
+      <text class="legend-text">需求: {{requiredFlow}} m³/h, {{requiredHead}} m</text>
+    </view>
+  </view>
+
+  <view class="chart-legend">
+    <view class="legend-item">
+      <view class="legend-line head-line"></view>
+      <text class="legend-text">扬程曲线</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-line efficiency-line"></view>
+      <text class="legend-text">效率曲线</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-line power-line"></view>
+      <text class="legend-text">功率曲线</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!curveData || curveData.length === 0}}" class="chart-empty">
+    <text class="empty-text">暂无性能曲线数据</text>
+  </view>
+</view>

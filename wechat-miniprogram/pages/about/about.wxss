@@ -1,0 +1,172 @@
+/* 关于页面样式 */
+
+.company-info {
+  text-align: center;
+  padding: 80rpx 30rpx;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+.logo {
+  font-size: 64rpx;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 16rpx;
+}
+
+.name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+}
+
+.description {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 联系方式 */
+.contact-section {
+  padding: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 20rpx;
+  padding-left: 20rpx;
+  position: relative;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6rpx;
+  height: 32rpx;
+  background: #1e40af;
+  border-radius: 3rpx;
+}
+
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.contact-icon {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 12rpx;
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.contact-info {
+  flex: 1;
+}
+
+.contact-label {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 4rpx;
+}
+
+.contact-value {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.contact-arrow {
+  font-size: 36rpx;
+  color: #94a3b8;
+}
+
+/* 快捷入口 */
+.quick-links {
+  padding: 0 30rpx 30rpx;
+}
+
+.link-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.link-icon {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 12rpx;
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.link-text {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.link-arrow {
+  font-size: 36rpx;
+  color: #94a3b8;
+}
+
+/* 版本信息 */
+.version-info {
+  text-align: center;
+  padding: 40rpx 30rpx;
+}
+
+.version-text {
+  font-size: 26rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+
+.version-number {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+/* 底部版权 */
+.footer {
+  text-align: center;
+  padding: 40rpx 30rpx 60rpx;
+}
+
+.copyright {
+  font-size: 26rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+
+.rights {
+  font-size: 24rpx;
+  color: #94a3b8;
+}

@@ -1,0 +1,34 @@
+<!-- 收藏页面 -->
+
+<view class="page-container" wx:if="{{favorites.length > 0}}">
+  <view class="favorites-list">
+    <view
+      class="favorite-card"
+      wx:for="{{favorites}}"
+      wx:key="id"
+      bindtap="onProductDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="card-header">
+        <view class="model">{{item.model}}</view>
+        <view class="remove-btn" catchtap="onRemoveFavorite" data-id="{{item.id}}">✕</view>
+      </view>
+      <view class="card-body">
+        <view class="name">{{item.name}}</view>
+        <view class="specs">
+          <view class="spec">
+            <text>流量: {{item.max_flow_rate}} m³/h</text>
+          </view>
+          <view class="spec">
+            <text>扬程: {{item.max_head}} m</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="empty" wx:if="{{favorites.length === 0}}">
+  <text class="empty-icon">❤️</text>
+  <text class="empty-text">暂无收藏</text>
+</view>

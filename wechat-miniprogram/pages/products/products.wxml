@@ -1,0 +1,84 @@
+<!-- 产品库页面 -->
+
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <input
+      class="search-input"
+      placeholder="搜索产品型号、名称"
+      value="{{keyword}}"
+      bindinput="onSearchInput"
+    />
+    <text class="search-icon">🔍</text>
+  </view>
+
+  <!-- 筛选和排序 -->
+  <view class="filter-bar">
+    <picker mode="selector" range="{{seriesList}}" bindchange="onSeriesFilter">
+      <view class="filter-item">
+        <text class="filter-text">{{filterSeries || '全部系列'}}</text>
+        <text class="filter-arrow">▼</text>
+      </view>
+    </picker>
+    <picker
+      mode="selector"
+      range="{{['默认排序', '按流量', '按扬程', '按功率']}}"
+      bindchange="onSortChange"
+    >
+      <view class="filter-item">
+        <text class="filter-text">排序</text>
+        <text class="filter-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 产品列表 -->
+  <view class="products-list" wx:if="{{!loading}}">
+    <view
+      class="product-card"
+      wx:for="{{getFilteredProducts()}}"
+      wx:key="id"
+      bindtap="onProductDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="card-header">
+        <view class="model">{{item.model}}</view>
+        <view class="badge {{item.in_stock ? 'in-stock' : 'out-stock'}}">
+          {{item.in_stock ? '有货' : '缺货'}}
+        </view>
+      </view>
+      <view class="card-body">
+        <view class="name">{{item.name}}</view>
+        <view class="specs">
+          <view class="spec">
+            <text class="spec-label">流量:</text>
+            <text class="spec-value">{{item.max_flow_rate}} m³/h</text>
+          </view>
+          <view class="spec">
+            <text class="spec-label">扬程:</text>
+            <text class="spec-value">{{item.max_head}} m</text>
+          </view>
+          <view class="spec">
+            <text class="spec-label">功率:</text>
+            <text class="spec-value">{{item.rated_power}} kW</text>
+          </view>
+        </view>
+      </view>
+      <view class="card-footer">
+        <text class="view-btn">查看详情 ›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && getFilteredProducts().length === 0}}">
+    <text class="empty-icon">📦</text>
+    <text class="empty-text">暂无产品</text>
+  </view>
+</view>

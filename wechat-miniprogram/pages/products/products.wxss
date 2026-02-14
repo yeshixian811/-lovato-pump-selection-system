@@ -1,0 +1,189 @@
+/* 产品库样式 */
+
+.search-bar {
+  position: relative;
+  margin: 20rpx 30rpx;
+}
+
+.search-input {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 80rpx 0 24rpx;
+  background: #ffffff;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  border: 2rpx solid #e2e8f0;
+}
+
+.search-icon {
+  position: absolute;
+  right: 40rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 32rpx;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 20rpx;
+  padding: 0 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.filter-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 24rpx;
+  background: #ffffff;
+  border-radius: 12rpx;
+  border: 2rpx solid #e2e8f0;
+}
+
+.filter-text {
+  font-size: 26rpx;
+  color: #0f172a;
+}
+
+.filter-arrow {
+  font-size: 20rpx;
+  color: #94a3b8;
+}
+
+.products-list {
+  padding: 0 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.product-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.model {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.badge {
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.in-stock {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.out-stock {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.card-body {
+  margin-bottom: 20rpx;
+}
+
+.name {
+  font-size: 26rpx;
+  color: #64748b;
+  margin-bottom: 20rpx;
+}
+
+.specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx;
+  background: #f8fafc;
+  border-radius: 8rpx;
+}
+
+.spec-label {
+  font-size: 22rpx;
+  color: #64748b;
+  margin-bottom: 8rpx;
+}
+
+.spec-value {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-btn {
+  font-size: 26rpx;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0;
+}
+
+.loading-spinner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #e2e8f0;
+  border-top-color: #1e40af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: #64748b;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #64748b;
+}

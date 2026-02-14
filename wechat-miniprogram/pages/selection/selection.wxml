@@ -1,0 +1,207 @@
+<!-- 智能选型页面 -->
+
+<scroll-view class="page-container" scroll-y="{{true}}">
+  <!-- 选型表单 -->
+  <view class="selection-form" wx:if="{{!showResult}}">
+    <view class="form-header">
+      <view class="form-title">智能选型</view>
+      <view class="form-desc">输入您的需求，我们将为您推荐最合适的水泵型号</view>
+    </view>
+
+    <!-- 流量选择 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">所需流量</text>
+        <text class="label-value">{{selectionParams.required_flow_rate}} m³/h</text>
+      </view>
+      <slider
+        class="form-slider"
+        min="1"
+        max="100"
+        value="{{selectionParams.required_flow_rate}}"
+        step="1"
+        activeColor="#1e40af"
+        backgroundColor="#e2e8f0"
+        block-size="20"
+        bindchange="onFlowSliderChange"
+      />
+      <view class="slider-tips">
+        <text class="tip">1</text>
+        <text class="tip">50</text>
+        <text class="tip">100</text>
+      </view>
+    </view>
+
+    <!-- 扬程选择 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">所需扬程</text>
+        <text class="label-value">{{selectionParams.required_head}} m</text>
+      </view>
+      <slider
+        class="form-slider"
+        min="1"
+        max="200"
+        value="{{selectionParams.required_head}}"
+        step="1"
+        activeColor="#1e40af"
+        backgroundColor="#e2e8f0"
+        block-size="20"
+        bindchange="onHeadSliderChange"
+      />
+      <view class="slider-tips">
+        <text class="tip">1</text>
+        <text class="tip">100</text>
+        <text class="tip">200</text>
+      </view>
+    </view>
+
+    <!-- 应用场景 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">应用场景</text>
+      </view>
+      <picker
+        mode="selector"
+        range="{{applicationTypes}}"
+        value="{{applicationTypes.indexOf(selectionParams.application_type)}}"
+        bindchange="onApplicationTypeChange"
+      >
+        <view class="picker">
+          <text class="picker-text">{{selectionParams.application_type}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 流体类型 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">流体类型</text>
+      </view>
+      <picker
+        mode="selector"
+        range="{{fluidTypes}}"
+        value="{{fluidTypes.indexOf(selectionParams.fluid_type)}}"
+        bindchange="onFluidTypeChange"
+      >
+        <view class="picker">
+          <text class="picker-text">{{selectionParams.fluid_type}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 水泵类型 -->
+    <view class="form-section">
+      <view class="section-label">
+        <text class="label-text">水泵类型</text>
+      </view>
+      <picker
+        mode="selector"
+        range="{{pumpTypes}}"
+        value="{{pumpTypes.indexOf(selectionParams.pump_type)}}"
+        bindchange="onPumpTypeChange"
+      >
+        <view class="picker">
+          <text class="picker-text">{{selectionParams.pump_type}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 按钮 -->
+    <view class="form-buttons">
+      <button class="btn btn-outline" bindtap="onReset">重置</button>
+      <button class="btn btn-primary" bindtap="onSelection" loading="{{loading}}">
+        {{loading ? '选型中...' : '开始选型'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 选型结果 -->
+  <view class="selection-results" wx:if="{{showResult}}">
+    <view class="results-header">
+      <view class="header-left">
+        <view class="header-title">选型结果</view>
+        <view class="header-count">找到 {{results.length}} 个匹配产品</view>
+      </view>
+      <view class="header-right">
+        <view class="result-summary">
+          <text class="summary-label">需求:</text>
+          <text class="summary-value">{{selectionParams.required_flow_rate}} m³/h, {{selectionParams.required_head}} m</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 结果列表 -->
+    <view class="results-list" wx:if="{{results.length > 0}}">
+      <view
+        class="result-card"
+        wx:for="{{results}}"
+        wx:key="id"
+        bindtap="onProductDetail"
+        data-id="{{item.id}}"
+      >
+        <view class="result-header">
+          <view class="result-model">{{item.model}}</view>
+          <view class="result-badge {{item.match_score >= 80 ? 'badge-success' : item.match_score >= 60 ? 'badge-warning' : 'badge-info'}}">
+            匹配度 {{item.match_score}}%
+          </view>
+        </view>
+
+        <view class="result-name">{{item.name}}</view>
+
+        <view class="result-specs">
+          <view class="spec-item">
+            <text class="spec-label">流量:</text>
+            <text class="spec-value">{{item.max_flow_rate}} m³/h</text>
+          </view>
+          <view class="spec-item">
+            <text class="spec-label">扬程:</text>
+            <text class="spec-value">{{item.max_head}} m</text>
+          </view>
+          <view class="spec-item">
+            <text class="spec-label">功率:</text>
+            <text class="spec-value">{{item.rated_power}} kW</text>
+          </view>
+          <view class="spec-item">
+            <text class="spec-label">效率:</text>
+            <text class="spec-value">{{item.efficiency}}%</text>
+          </view>
+        </view>
+
+        <view class="result-match">
+          <view class="match-item">
+            <text class="match-label">流量余量:</text>
+            <text class="match-value {{(item.max_flow_rate - selectionParams.required_flow_rate) / selectionParams.required_flow_rate >= 0.2 ? 'text-success' : 'text-warning'}}">
+              {{((item.max_flow_rate - selectionParams.required_flow_rate) / selectionParams.required_flow_rate * 100).toFixed(1)}}%
+            </text>
+          </view>
+          <view class="match-item">
+            <text class="match-label">扬程余量:</text>
+            <text class="match-value {{(item.max_head - selectionParams.required_head) / selectionParams.required_head >= 0.2 ? 'text-success' : 'text-warning'}}">
+              {{((item.max_head - selectionParams.required_head) / selectionParams.required_head * 100).toFixed(1)}}%
+            </text>
+          </view>
+        </view>
+
+        <view class="result-footer">
+          <text class="view-detail">查看详情 ›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空结果 -->
+    <view class="empty-results" wx:if="{{results.length === 0}}">
+      <view class="empty-icon">🔍</view>
+      <view class="empty-title">未找到匹配产品</view>
+      <view class="empty-desc">请尝试调整选型参数，或联系我们的技术团队获取支持</view>
+    </view>
+
+    <!-- 重新选型 -->
+    <view class="result-actions">
+      <button class="btn btn-outline btn-block" bindtap="onReset">重新选型</button>
+    </view>
+  </view>
+</scroll-view>

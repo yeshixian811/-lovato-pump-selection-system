@@ -1,0 +1,78 @@
+/* 收藏页面样式 */
+
+.favorites-list {
+  padding: 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.favorite-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.model {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.remove-btn {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 50%;
+  font-size: 28rpx;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.name {
+  font-size: 26rpx;
+  color: #64748b;
+}
+
+.specs {
+  display: flex;
+  gap: 24rpx;
+}
+
+.spec {
+  font-size: 24rpx;
+  color: #475569;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx 0;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #64748b;
+}
